@@ -88,7 +88,7 @@ check("sales weight text all after row 150000", min(wt_text) > 150000, True)
 rev_total = 0
 by_region, by_status, by_cat, months = {}, {}, {}, {}
 qty_total, blank_dates, max_rev = 0, 0, None
-for n, r in data:
+for _n, r in data:
     v = cents(r[14])
     rev_total += v
     max_rev = v if max_rev is None else max(max_rev, v)
