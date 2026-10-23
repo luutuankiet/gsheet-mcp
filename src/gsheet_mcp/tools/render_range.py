@@ -6,7 +6,7 @@ from typing import Literal
 
 from fastmcp.tools import ToolResult
 
-from .. import a1, reply, sheets_api
+from .. import addressing, reply, sheets_api
 from .. import pages as page_renderer  # `pages` is render_range's argument
 from ..app import READ, tool
 
@@ -45,9 +45,7 @@ def render_range(spreadsheet: str, range: str | None = None,  # noqa: A002 - the
         raise reply.Refusal(f"at most {page_renderer.MAX_PAGES} pages per call, not "
                             f"{len(wanted)}; split them over several calls")
     spreadsheet_id = sheets_api.spreadsheet_id_from_url(spreadsheet)
-    # Spec gap: a scan alias (`clean-wide-50k#2`) is not resolved yet; it
-    # needs the scan cache, so it is refused here as not an A1 range.
-    rng = a1.parse(range) if range else a1.Range()
+    rng = addressing.resolve(spreadsheet_id, range)
 
     with page_renderer.spreadsheet_lock(spreadsheet_id):
         try:

@@ -1,0 +1,66 @@
+'comms' · cells 1-41 of 41 (~426 tokens)
+styles:
+  s1 fill #1F3864 · text #FFFFFF · bold · centred
+  s2 fill #D9E2F3 · bold
+  s3 bold
+v1 dropdown: On track | At risk | Blocked
+
+region A1:G9 · communication
+── row 1
+A1 {s1}: W43
+B1:F1 {s1}: Weekly status · lorem ipsum
+── row 2
+A2 {s2}: Owner
+B2:C2 {s2}: Workstream
+D2 {s2}: Done
+E2 {s2}: Status
+F2 {s2}: Notes
+── row 3
+A3 {s3}: Ada Example
+B3:C3: Lorem **ipsum** plan, see [the brief](https://example.com/brief)
+  note: Owner note: lorem ipsum.
+D3: [x]
+E3: On track ▾v1
+F3: ✅ shipped to staging
+G3: ★★★☆☆ (3)
+── row 4
+A4 {s3}: Bo Sample
+B4:C4: *Dolor* migration ([ticket](https://example.com/t/1))
+D4: [ ]
+E4: At risk ▾v1
+F4: ⚠️ waiting on vendor
+── row 5
+A5 {s3}: Cy Placeholder
+B5:C5 {s3}: Sit amet rollout
+D5: [x]
+E5: Blocked ▾v1
+F5: 🛑 blocked by access
+── row 6
+A6 {s3}: Di Testcase
+B6:C6: Consectetur review
+D6: [ ]
+E6: On track ▾v1
+F6: 🚀 ahead of plan
+── row 7
+A7 {s3}: Ed Mockwell
+B7:C7: Adipiscing [docs](https://example.com/docs) and [faq](https://example.com/faq)
+D7: [x]
+E7: On track ▾v1
+F7: 📎 notes attached
+── row 8
+A8 {s3}: Fi Dummy
+B8:C8: Elit cleanup
+D8: [ ]
+E8: At risk ▾v1
+F8: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lore…[+244 chars]
+── row 9
+A9: Plan link
+B9: [Plan](https://example.com/plan) ← =HYPERLINK("https://example.com/plan","Plan")
+
+loose cells
+── row 3
+H3 [image 96x40 over H3:I5, floating]
+── row 10
+A10: =IMAGE("https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png")
+
+this range has 1 floating image, 2 fill styles · render_range("'comms'")
