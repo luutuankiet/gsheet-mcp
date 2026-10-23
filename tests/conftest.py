@@ -3,6 +3,8 @@
 state store, an MCP client."""
 from __future__ import annotations
 
+import io
+
 import pytest
 from fastmcp import Client
 from fastmcp.server.auth.auth import AccessToken
@@ -25,6 +27,8 @@ def fake(monkeypatch: pytest.MonkeyPatch, offline) -> FakeSheets:
     monkeypatch.setattr(sheets_api, "_sheets_service", lambda: api)
     monkeypatch.setattr(sheets_api, "_drive_service", lambda: FakeDrive(api))
     monkeypatch.setattr(sheets_api, "_download", api.download)
+    monkeypatch.setattr(sheets_api, "_open_download",
+                        lambda url, timeout: io.BytesIO(api.download(url, timeout)))
     return api
 
 
@@ -42,6 +46,7 @@ def offline(monkeypatch: pytest.MonkeyPatch) -> list[float]:
     monkeypatch.setattr(sheets_api, "_sheets_service", no_service)
     monkeypatch.setattr(sheets_api, "_drive_service", no_service)
     monkeypatch.setattr(sheets_api, "_download", no_download)
+    monkeypatch.setattr(sheets_api, "_open_download", no_download)
     monkeypatch.setattr(sheets_api, "_sleep", waits.append)
     return waits
 

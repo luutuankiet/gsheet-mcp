@@ -30,7 +30,7 @@ import urllib.request
 import zipfile
 from collections.abc import Callable
 from io import BytesIO
-from typing import Any
+from typing import IO, Any
 from urllib.parse import quote, urlparse
 from xml.etree import ElementTree
 
@@ -274,8 +274,27 @@ def _export_quota(e: Exception) -> bool:
 def download(url: str, timeout: float = EXPORT_TIMEOUT) -> bytes:
     """An export's bytes. Repeated exports hit 429 (spec, "Facts"): one retry,
     then a visible refusal."""
+    return _fetch_export(lambda: _download(url, timeout))
+
+
+def _open_download(url: str, timeout: float) -> IO[bytes]:
+    """GET an export link as the caller and hand back the open response,
+    unread. Tests replace it."""
+    token = auth.caller_credentials().token
+    request = urllib.request.Request(url, headers={"Authorization": f"Bearer {token}"})
+    return urllib.request.urlopen(request, timeout=timeout)  # noqa: S310
+
+
+def open_export(url: str, timeout: float = EXPORT_TIMEOUT) -> IO[bytes]:
+    """An export as a stream to read and close, for copying it on without
+    holding it in memory (a pull). No size cap: nothing is kept here. The
+    same one retry on 429 as `download`."""
+    return _fetch_export(lambda: _open_download(url, timeout))
+
+
+def _fetch_export(send: Callable[[], Any]) -> Any:
     try:
-        return _with_retry(lambda: _download(url, timeout), _export_quota)
+        return _with_retry(send, _export_quota)
     except urllib.error.HTTPError as e:
         if e.code in (401, 403, 404):
             raise SheetsApiError(f"Google refused the export ({e.code}); the caller cannot "
