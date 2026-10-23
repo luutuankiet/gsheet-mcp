@@ -15,7 +15,7 @@ import io
 import re
 from typing import Any
 
-from . import a1, auth, pull, reply, scan, sheets_api, state_store, transfer
+from . import a1, addressing, auth, reply, scan, sheets_api, state_store, transfer
 
 MAX_LISTED = 20          # changed or filled cells named in a refusal
 RECEIPT_CELLS = 50
@@ -65,7 +65,7 @@ def _cells(rng: a1.Range, rows: list[list[Any]]) -> list[tuple[str, Any]]:
 
 def _target(spreadsheet_id: str, target: str, height: int, width: int
             ) -> tuple[a1.Range, dict[str, Any]]:
-    rng = a1.parse(pull.resolve(spreadsheet_id, target))
+    rng = addressing.resolve(spreadsheet_id, target)
     props = sheets_api.find_tab(sheets_api.get_tabs(spreadsheet_id), rng.tab)
     r0, c0 = rng.start_row or 0, rng.start_col or 0
     landed = a1.Range(props["title"], r0, r0 + height, c0, c0 + width)

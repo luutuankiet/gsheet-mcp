@@ -1,0 +1,16 @@
+'formulas' · cells 1-19 of 19 (~67 tokens)
+styles:
+  s1 fill #D9E2F3 · bold
+
+region A1:C8 · table
+| row | input | formula | what |
+|---|---|---|---|
+| 2 | 5 | 10 | same-row arithmetic |
+| 3 | 7 | 12 | SUM over a range |
+| 4 |  | 10 | reference to another tab |
+| 5 |  | 9 | rows in a named range |
+| 6 |  | #REF! | a #REF! error |
+| 7 |  | #DIV/0! | a #DIV/0! error |
+| 8 |  | 2026-10-23 | a date built in a formula |
+
+this range has 1 fill style · render_range("'formulas'")

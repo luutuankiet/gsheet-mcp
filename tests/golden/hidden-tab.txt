@@ -1,0 +1,7 @@
+'hidden-tab' (hidden tab) · cells 1-6 of 6 (~9 tokens)
+
+region A1:B3 · table
+| row | key | value |
+|---|---|---|
+| 2 | lorem | 1 |
+| 3 | ipsum | 2 |

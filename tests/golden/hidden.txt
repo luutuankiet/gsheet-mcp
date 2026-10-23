@@ -1,0 +1,21 @@
+'hidden' · cells 1-40 of 40 (~69 tokens)
+rows 5-6 hidden by the user (2 rows)
+row 10 hidden by filter (1 row)
+column C hidden (1 column) · their content is skipped; include_hidden=true shows it
+styles:
+  s1 fill #D9E2F3 · bold
+
+region A1:E13 · table
+| row | label | value | status | group |
+|---|---|---|---|---|
+| 2 | row 1 | 10 | keep | 1 |
+| 3 | row 2 | 20 | keep | 2 |
+| 4 | row 3 | 30 | keep | 0 |
+| 7 | row 6 | 60 | keep | 0 |
+| 8 | row 7 | 70 | keep | 1 |
+| 9 | row 8 | 80 | keep | 2 |
+| 11 | row 10 | 100 | keep | 1 |
+| 12 | row 11 | 110 | keep | 2 |
+| 13 | row 12 | 120 | keep | 0 |
+
+this range has 1 fill style · render_range("'hidden'")

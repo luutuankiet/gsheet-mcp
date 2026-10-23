@@ -335,8 +335,8 @@ def _clip(text: str) -> str:
 
 
 def is_table(tab: Tab, box: Box) -> bool:
-    """A table region (native Table, or a block with data under its header and
-    no merges there); anything else is a communication block."""
+    """A table region, as opposed to a communication block: a native Table,
+    or at least two rows and columns with data under the header and no merge there."""
     header = _header_rows(tab, box)
     below_header = [m for m in _merges_in(tab, box) if m.r0 >= box.r0 + header]
     return (box.label.startswith("Table") or
@@ -418,7 +418,7 @@ def place_comments(threads: list[dict[str, Any]],
             pool.remove(match)
         placed.append({"tab": match["tab"] if match else None,
                        "cell": match["cell"] if match else None,
-                       "resolved": bool(comment.get("resolved"))})
+                       "resolved": bool(comment.get("resolved")), "comment": comment})
     return placed
 
 

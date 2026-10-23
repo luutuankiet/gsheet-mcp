@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import re
 import threading
 import time
 from itertools import pairwise
@@ -132,3 +133,13 @@ async def test_bad_input_is_refused_before_any_export(fake, signed_in, client):
         assert result.is_error
         assert says in result.content[0].text
     assert "export" not in fake.calls
+
+
+async def test_a_scan_alias_renders_the_region_it_names(fake, signed_in, client):
+    scanned, _ = await call(client, "scan_sheet", spreadsheet="canary", tab="comms")
+    region = re.search(r"^\s*#1 ([A-Z]+[0-9]+:[A-Z]+[0-9]+)", scanned, re.MULTILINE)
+    assert region, scanned
+    text, is_error = await call(client, "render_range", spreadsheet="canary", range="comms#1")
+    assert not is_error
+    assert text.startswith(f"comms!{region.group(1)} · ")
+    assert fake.downloads[-1].endswith(f"&range={region.group(1)}" + pages.PRINT_OPTIONS)

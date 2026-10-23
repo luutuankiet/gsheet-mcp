@@ -134,8 +134,10 @@ The text shows structure, content and formatting, one region at a time, in the s
 - **Hidden rows and columns** are always announced, never silently skipped, e.g. `rows 12-40 hidden by filter (29 rows)`. Their content is skipped unless `include_hidden=true`.
 - **Size guards:**
   - Each cell is capped at 500 characters, ending `…[+N chars]`; `max_chars=0` lifts the cap.
-  - Each read has a budget of about 8k tokens with a continue cursor. The header reads `cells 1-400 of 1,212 (~9k tokens) · next: B240`.
-- **Render pointer.** The read ends with a line saying why a render is worth it, e.g. `this range has 1 chart, 3 floating images, 8 fill styles · render_range("…")`.
+  - Each read has a budget of about 8k tokens with a continue cursor. The header reads `cells 1-400 of 1,212 (~9k tokens) · next: B240`. The header is always there; `· next:` appears only when more remains (default, review).
+- **Regions in a read.** Each region opens with `region <A1> · table` or `· communication`. Cells outside every region come last, under `loose cells` (default, review).
+- **Comment text** in a read is clipped at 100 characters (default, review).
+- **Render pointer.** The read ends with a line saying why a render is worth it, e.g. `this range has 1 chart, 3 floating images, 8 fill styles · render_range("…")`. A range with no charts, floating images or fill styles gets no pointer line (default, review).
 
 ### 6.2 `grep_sheet`
 
