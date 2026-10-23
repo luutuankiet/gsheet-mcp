@@ -35,6 +35,7 @@ COPIED = {
     "src/gsheet_mcp/sandbox/prelude.js": "src/<package>/sandbox/prelude.js",
     "src/gsheet_mcp/tools/__init__.py": "src/<package>/tools/__init__.py",
     "src/gsheet_mcp/pages.py": "src/<package>/pages.py",
+    "src/gsheet_mcp/transfer.py": "src/<package>/transfer.py",
     "src/gsheet_mcp/tools/render_range.py": "src/<package>/tools/render_pages.py",
     "tests/conftest.py": "tests/conftest.py",
     "tests/fake_sheets.py": "tests/fake_docs.py",

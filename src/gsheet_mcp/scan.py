@@ -334,20 +334,27 @@ def _clip(text: str) -> str:
     return text if len(text) <= TEXT_CHARS else text[:TEXT_CHARS - 1] + "…"
 
 
+def is_table(tab: Tab, box: Box) -> bool:
+    """A table region (native Table, or a block with data under its header and
+    no merges there); anything else is a communication block."""
+    header = _header_rows(tab, box)
+    below_header = [m for m in _merges_in(tab, box) if m.r0 >= box.r0 + header]
+    return (box.label.startswith("Table") or
+            (box.r1 > box.r0 and box.c1 > box.c0 and not below_header
+             and any(r >= box.r0 + header for r, c in tab.cells if box.contains(r, c))))
+
+
 def describe(tab: Tab, box: Box, images: list[dict[str, Any]]) -> str:
     merges = _merges_in(tab, box)
     header = _header_rows(tab, box)
-    below_header = [m for m in merges if m.r0 >= box.r0 + header]
-    is_table = (box.label.startswith("Table") or
-                (box.r1 > box.r0 and box.c1 > box.c0 and not below_header
-                 and any(r >= box.r0 + header for r, c in tab.cells if box.contains(r, c))))
+    table = is_table(tab, box)
     head = f"{box.a1()}{' ' + box.label if box.label else ''}"
     extras = []
     if box.estimated:
         extras.append("extent estimated")
     if box.blank_rows:
         extras.append("blank rows " + ",".join(str(r + 1) for r in sorted(box.blank_rows)))
-    if not is_table:
+    if not table:
         cells = sorted((r, c) for (r, c) in tab.cells if box.contains(r, c))
         text = _clip(" ".join(tab.text(r, c) for r, c in cells
                               if cell_type(tab.cells[(r, c)]) == "TEXT"))
@@ -496,17 +503,20 @@ def scan(spreadsheet_id: str, *, tab: str | None = None, include_hidden: bool = 
         out.append(f"images: not checked ({xlsx_problem})")
 
     aliases: dict[str, str] = {}
+    regions: dict[str, dict[str, Any]] = {}
     for props in all_props:
         sheet = by_id.get(props["sheetId"])
         built = build_tab(sheet) if sheet else None
         if built and len(_ranges_for(props)) == 2:
             built.head_end = HEAD_ROWS - 1
             built.tail_start = max(props["gridProperties"]["rowCount"] - TAIL_ROWS, HEAD_ROWS)
-        out += _tab_block(props, built, named, images, comments, aliases, full=tab is not None)
+        out += _tab_block(props, built, named, images, comments, aliases, full=tab is not None,
+                          regions=regions)
 
     # A one-tab scan adds its aliases to the whole-workbook scan's.
     cached = (load_cached(spreadsheet_id) or {}) if tab is not None else {}
     cached.setdefault("aliases", {}).update(aliases)
+    cached.setdefault("regions", {}).update(regions)
     if images is not None:
         cached["images"] = images
     state_store.current().put_cached(_cache_key(spreadsheet_id), json.dumps(cached).encode(),
@@ -530,7 +540,8 @@ def _comment_line(comments: list[dict[str, Any]], problem: str) -> str:
 
 def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any]],
                images: list[dict[str, Any]] | None, comments: list[dict[str, Any]],
-               aliases: dict[str, str], *, full: bool) -> list[str]:
+               aliases: dict[str, str], *, full: bool,
+               regions: dict[str, dict[str, Any]] | None = None) -> list[str]:
     grid = props.get("gridProperties", {})
     head = [f"tab \"{props['title']}\" (gid {props.get('sheetId')}) · "
             f"{grid.get('rowCount', 0)}x{grid.get('columnCount', 0)}"]
@@ -568,15 +579,23 @@ def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any
     if tab_comments:
         lines.append("  comments: " + ", ".join(
             f"{c['cell']} {'resolved' if c['resolved'] else 'open'}" for c in tab_comments))
-    regions, loose = find_regions(tab, named)
-    shown = regions if full else regions[:MAX_REGIONS]
-    for n, region in enumerate(regions, 1):
-        aliases[f"{props['title']}#{n}"] = str(
+    found, loose = find_regions(tab, named)
+    shown = found if full else found[:MAX_REGIONS]
+    for n, region in enumerate(found, 1):
+        alias = f"{props['title']}#{n}"
+        aliases[alias] = str(
             a1.Range(props["title"], region.r0, region.r1 + 1, region.c0, region.c1 + 1))
+        if regions is not None:
+            # What pull_tables needs without scanning again: the tab, the kind, the header.
+            regions[alias] = {"tab": props["title"], "gid": props.get("sheetId"),
+                              "range": aliases[alias], "label": region.label,
+                              "kind": "table" if is_table(tab, region) else "comms",
+                              "header_rows": _header_rows(tab, region),
+                              "estimated": region.estimated}
     for n, region in enumerate(shown, 1):
         lines.append(f"  #{n} {describe(tab, region, tab_images)}")
-    if len(regions) > len(shown):
-        lines.append(f"  +{len(regions) - len(shown)} more (scan_sheet with tab= lists them all)")
+    if len(found) > len(shown):
+        lines.append(f"  +{len(found) - len(shown)} more (scan_sheet with tab= lists them all)")
     if loose:
         lines.append("  loose cells: " + ", ".join(loose))
     return lines
