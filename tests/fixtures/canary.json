@@ -1,0 +1,7742 @@
+{
+ "properties": {
+  "title": "gsheet-mcp canary (public, lorem ipsum)"
+ },
+ "sheets": [
+  {
+   "properties": {
+    "sheetId": 101,
+    "title": "comms",
+    "index": 0,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 30,
+     "columnCount": 12,
+     "frozenRowCount": 2,
+     "frozenColumnCount": 1
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "W43"
+         },
+         "effectiveValue": {
+          "stringValue": "W43"
+         },
+         "formattedValue": "W43",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.12156863,
+           "green": 0.21960784,
+           "blue": 0.39215687
+          },
+          "horizontalAlignment": "CENTER",
+          "textFormat": {
+           "foregroundColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1
+           },
+           "fontSize": 12,
+           "bold": true,
+           "foregroundColorStyle": {
+            "rgbColor": {
+             "red": 1,
+             "green": 1,
+             "blue": 1
+            }
+           }
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.12156863,
+            "green": 0.21960784,
+            "blue": 0.39215687
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Weekly status · lorem ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "Weekly status · lorem ipsum"
+         },
+         "formattedValue": "Weekly status · lorem ipsum",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.12156863,
+           "green": 0.21960784,
+           "blue": 0.39215687
+          },
+          "horizontalAlignment": "CENTER",
+          "textFormat": {
+           "foregroundColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1
+           },
+           "fontSize": 12,
+           "bold": true,
+           "foregroundColorStyle": {
+            "rgbColor": {
+             "red": 1,
+             "green": 1,
+             "blue": 1
+            }
+           }
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.12156863,
+            "green": 0.21960784,
+            "blue": 0.39215687
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Owner"
+         },
+         "effectiveValue": {
+          "stringValue": "Owner"
+         },
+         "formattedValue": "Owner",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Workstream"
+         },
+         "effectiveValue": {
+          "stringValue": "Workstream"
+         },
+         "formattedValue": "Workstream",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Done"
+         },
+         "effectiveValue": {
+          "stringValue": "Done"
+         },
+         "formattedValue": "Done",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Status"
+         },
+         "effectiveValue": {
+          "stringValue": "Status"
+         },
+         "formattedValue": "Status",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Notes"
+         },
+         "effectiveValue": {
+          "stringValue": "Notes"
+         },
+         "formattedValue": "Notes",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Ada Example"
+         },
+         "effectiveValue": {
+          "stringValue": "Ada Example"
+         },
+         "formattedValue": "Ada Example",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Lorem ipsum plan, see the brief"
+         },
+         "effectiveValue": {
+          "stringValue": "Lorem ipsum plan, see the brief"
+         },
+         "formattedValue": "Lorem ipsum plan, see the brief",
+         "note": "Owner note: lorem ipsum.",
+         "textFormatRuns": [
+          {
+           "format": {}
+          },
+          {
+           "startIndex": 6,
+           "format": {
+            "bold": true
+           }
+          },
+          {
+           "startIndex": 11,
+           "format": {}
+          },
+          {
+           "startIndex": 22,
+           "format": {
+            "foregroundColor": {
+             "red": 0.06666667,
+             "green": 0.33333334,
+             "blue": 0.8
+            },
+            "underline": true,
+            "foregroundColorStyle": {
+             "rgbColor": {
+              "red": 0.06666667,
+              "green": 0.33333334,
+              "blue": 0.8
+             }
+            },
+            "link": {
+             "uri": "https://example.com/brief"
+            }
+           }
+          }
+         ]
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "On track"
+         },
+         "effectiveValue": {
+          "stringValue": "On track"
+         },
+         "formattedValue": "On track",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "✅ shipped to staging"
+         },
+         "effectiveValue": {
+          "stringValue": "✅ shipped to staging"
+         },
+         "formattedValue": "✅ shipped to staging"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 3
+         },
+         "effectiveValue": {
+          "numberValue": 3
+         },
+         "formattedValue": "★★★☆☆"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Bo Sample"
+         },
+         "effectiveValue": {
+          "stringValue": "Bo Sample"
+         },
+         "formattedValue": "Bo Sample",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Dolor migration (ticket)"
+         },
+         "effectiveValue": {
+          "stringValue": "Dolor migration (ticket)"
+         },
+         "formattedValue": "Dolor migration (ticket)",
+         "textFormatRuns": [
+          {
+           "format": {
+            "italic": true
+           }
+          },
+          {
+           "startIndex": 6,
+           "format": {}
+          },
+          {
+           "startIndex": 15,
+           "format": {}
+          },
+          {
+           "startIndex": 17,
+           "format": {
+            "foregroundColor": {
+             "red": 0.06666667,
+             "green": 0.33333334,
+             "blue": 0.8
+            },
+            "underline": true,
+            "foregroundColorStyle": {
+             "rgbColor": {
+              "red": 0.06666667,
+              "green": 0.33333334,
+              "blue": 0.8
+             }
+            },
+            "link": {
+             "uri": "https://example.com/t/1"
+            }
+           }
+          },
+          {
+           "startIndex": 23,
+           "format": {}
+          }
+         ]
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "At risk"
+         },
+         "effectiveValue": {
+          "stringValue": "At risk"
+         },
+         "formattedValue": "At risk",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "⚠️ waiting on vendor"
+         },
+         "effectiveValue": {
+          "stringValue": "⚠️ waiting on vendor"
+         },
+         "formattedValue": "⚠️ waiting on vendor"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Cy Placeholder"
+         },
+         "effectiveValue": {
+          "stringValue": "Cy Placeholder"
+         },
+         "formattedValue": "Cy Placeholder",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Sit amet rollout"
+         },
+         "effectiveValue": {
+          "stringValue": "Sit amet rollout"
+         },
+         "formattedValue": "Sit amet rollout",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Blocked"
+         },
+         "effectiveValue": {
+          "stringValue": "Blocked"
+         },
+         "formattedValue": "Blocked",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "🛑 blocked by access"
+         },
+         "effectiveValue": {
+          "stringValue": "🛑 blocked by access"
+         },
+         "formattedValue": "🛑 blocked by access"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Di Testcase"
+         },
+         "effectiveValue": {
+          "stringValue": "Di Testcase"
+         },
+         "formattedValue": "Di Testcase",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Consectetur review"
+         },
+         "effectiveValue": {
+          "stringValue": "Consectetur review"
+         },
+         "formattedValue": "Consectetur review"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "On track"
+         },
+         "effectiveValue": {
+          "stringValue": "On track"
+         },
+         "formattedValue": "On track",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "🚀 ahead of plan"
+         },
+         "effectiveValue": {
+          "stringValue": "🚀 ahead of plan"
+         },
+         "formattedValue": "🚀 ahead of plan"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Ed Mockwell"
+         },
+         "effectiveValue": {
+          "stringValue": "Ed Mockwell"
+         },
+         "formattedValue": "Ed Mockwell",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Adipiscing docs and faq"
+         },
+         "effectiveValue": {
+          "stringValue": "Adipiscing docs and faq"
+         },
+         "formattedValue": "Adipiscing docs and faq",
+         "textFormatRuns": [
+          {
+           "format": {}
+          },
+          {
+           "startIndex": 11,
+           "format": {
+            "foregroundColor": {
+             "red": 0.06666667,
+             "green": 0.33333334,
+             "blue": 0.8
+            },
+            "underline": true,
+            "foregroundColorStyle": {
+             "rgbColor": {
+              "red": 0.06666667,
+              "green": 0.33333334,
+              "blue": 0.8
+             }
+            },
+            "link": {
+             "uri": "https://example.com/docs"
+            }
+           }
+          },
+          {
+           "startIndex": 15,
+           "format": {}
+          },
+          {
+           "startIndex": 20,
+           "format": {
+            "foregroundColor": {
+             "red": 0.06666667,
+             "green": 0.33333334,
+             "blue": 0.8
+            },
+            "underline": true,
+            "foregroundColorStyle": {
+             "rgbColor": {
+              "red": 0.06666667,
+              "green": 0.33333334,
+              "blue": 0.8
+             }
+            },
+            "link": {
+             "uri": "https://example.com/faq"
+            }
+           }
+          }
+         ]
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "On track"
+         },
+         "effectiveValue": {
+          "stringValue": "On track"
+         },
+         "formattedValue": "On track",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "📎 notes attached"
+         },
+         "effectiveValue": {
+          "stringValue": "📎 notes attached"
+         },
+         "formattedValue": "📎 notes attached"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Fi Dummy"
+         },
+         "effectiveValue": {
+          "stringValue": "Fi Dummy"
+         },
+         "formattedValue": "Fi Dummy",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Elit cleanup"
+         },
+         "effectiveValue": {
+          "stringValue": "Elit cleanup"
+         },
+         "formattedValue": "Elit cleanup",
+         "userEnteredFormat": {
+          "textFormat": {
+           "italic": true
+          }
+         }
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "At risk"
+         },
+         "effectiveValue": {
+          "stringValue": "At risk"
+         },
+         "formattedValue": "At risk",
+         "dataValidation": {
+          "condition": {
+           "type": "ONE_OF_LIST",
+           "values": [
+            {
+             "userEnteredValue": "On track"
+            },
+            {
+             "userEnteredValue": "At risk"
+            },
+            {
+             "userEnteredValue": "Blocked"
+            }
+           ]
+          },
+          "strict": true,
+          "showCustomUi": true
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+         },
+         "effectiveValue": {
+          "stringValue": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. "
+         },
+         "formattedValue": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ",
+         "userEnteredFormat": {
+          "wrapStrategy": "WRAP"
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Plan link"
+         },
+         "effectiveValue": {
+          "stringValue": "Plan link"
+         },
+         "formattedValue": "Plan link"
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=HYPERLINK(\"https://example.com/plan\",\"Plan\")"
+         },
+         "effectiveValue": {
+          "stringValue": "Plan"
+         },
+         "formattedValue": "Plan",
+         "hyperlink": "https://example.com/plan"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "formulaValue": "=IMAGE(\"https://www.gstatic.com/images/branding/product/2x/sheets_2020q4_48dp.png\")"
+         },
+         "effectiveValue": {}
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 60
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 320
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ],
+   "merges": [
+    {
+     "sheetId": 101,
+     "startRowIndex": 0,
+     "endRowIndex": 1,
+     "startColumnIndex": 1,
+     "endColumnIndex": 6
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 1,
+     "endRowIndex": 2,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 2,
+     "endRowIndex": 3,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 3,
+     "endRowIndex": 4,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 4,
+     "endRowIndex": 5,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 5,
+     "endRowIndex": 6,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 6,
+     "endRowIndex": 7,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    },
+    {
+     "sheetId": 101,
+     "startRowIndex": 7,
+     "endRowIndex": 8,
+     "startColumnIndex": 1,
+     "endColumnIndex": 3
+    }
+   ]
+  },
+  {
+   "properties": {
+    "sheetId": 102,
+    "title": "dashboard",
+    "index": 1,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 30,
+     "columnCount": 20
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Ticket dashboard · synthetic"
+         },
+         "effectiveValue": {
+          "stringValue": "Ticket dashboard · synthetic"
+         },
+         "formattedValue": "Ticket dashboard · synthetic",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.12156863,
+           "green": 0.21960784,
+           "blue": 0.39215687
+          },
+          "horizontalAlignment": "CENTER",
+          "textFormat": {
+           "foregroundColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1
+           },
+           "fontSize": 12,
+           "bold": true,
+           "foregroundColorStyle": {
+            "rgbColor": {
+             "red": 1,
+             "green": 1,
+             "blue": 1
+            }
+           }
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.12156863,
+            "green": 0.21960784,
+            "blue": 0.39215687
+           }
+          }
+         }
+        }
+       ]
+      },
+      {},
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Category"
+         },
+         "effectiveValue": {
+          "stringValue": "Category"
+         },
+         "formattedValue": "Category"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Count"
+         },
+         "effectiveValue": {
+          "stringValue": "Count"
+         },
+         "formattedValue": "Count"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Week 1"
+         },
+         "effectiveValue": {
+          "stringValue": "Week 1"
+         },
+         "formattedValue": "Week 1",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Week 2"
+         },
+         "effectiveValue": {
+          "stringValue": "Week 2"
+         },
+         "formattedValue": "Week 2",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Week 3"
+         },
+         "effectiveValue": {
+          "stringValue": "Week 3"
+         },
+         "formattedValue": "Week 3",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Week 4"
+         },
+         "effectiveValue": {
+          "stringValue": "Week 4"
+         },
+         "formattedValue": "Week 4",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "Week 5"
+         },
+         "effectiveValue": {
+          "stringValue": "Week 5"
+         },
+         "formattedValue": "Week 5",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Bugs"
+         },
+         "effectiveValue": {
+          "stringValue": "Bugs"
+         },
+         "formattedValue": "Bugs"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 24
+         },
+         "effectiveValue": {
+          "numberValue": 24
+         },
+         "formattedValue": "24"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Features"
+         },
+         "effectiveValue": {
+          "stringValue": "Features"
+         },
+         "formattedValue": "Features"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 15
+         },
+         "effectiveValue": {
+          "numberValue": 15
+         },
+         "formattedValue": "15"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Chores"
+         },
+         "effectiveValue": {
+          "stringValue": "Chores"
+         },
+         "formattedValue": "Chores"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 8
+         },
+         "effectiveValue": {
+          "numberValue": 8
+         },
+         "formattedValue": "8"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Docs"
+         },
+         "effectiveValue": {
+          "stringValue": "Docs"
+         },
+         "formattedValue": "Docs"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Spikes"
+         },
+         "effectiveValue": {
+          "stringValue": "Spikes"
+         },
+         "formattedValue": "Spikes"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 3
+         },
+         "effectiveValue": {
+          "numberValue": 3
+         },
+         "formattedValue": "3"
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": true
+         },
+         "effectiveValue": {
+          "boolValue": true
+         },
+         "formattedValue": "TRUE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "boolValue": false
+         },
+         "effectiveValue": {
+          "boolValue": false
+         },
+         "formattedValue": "FALSE",
+         "dataValidation": {
+          "condition": {
+           "type": "BOOLEAN"
+          }
+         }
+        }
+       ]
+      },
+      {},
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Lorem ipsum summary block"
+         },
+         "effectiveValue": {
+          "stringValue": "Lorem ipsum summary block"
+         },
+         "formattedValue": "Lorem ipsum summary block",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 1,
+           "green": 0.9490196,
+           "blue": 0.8
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 1,
+            "green": 0.9490196,
+            "blue": 0.8
+           }
+          }
+         }
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ],
+   "merges": [
+    {
+     "sheetId": 102,
+     "startRowIndex": 0,
+     "endRowIndex": 1,
+     "startColumnIndex": 0,
+     "endColumnIndex": 8
+    },
+    {
+     "sheetId": 102,
+     "startRowIndex": 9,
+     "endRowIndex": 12,
+     "startColumnIndex": 0,
+     "endColumnIndex": 4
+    }
+   ],
+   "conditionalFormats": [
+    {
+     "ranges": [
+      {
+       "sheetId": 102,
+       "startRowIndex": 3,
+       "endRowIndex": 8,
+       "startColumnIndex": 1,
+       "endColumnIndex": 2
+      }
+     ],
+     "booleanRule": {
+      "condition": {
+       "type": "NUMBER_GREATER",
+       "values": [
+        {
+         "userEnteredValue": "20"
+        }
+       ]
+      },
+      "format": {
+       "backgroundColor": {
+        "red": 0.95686275,
+        "green": 0.8,
+        "blue": 0.8
+       },
+       "backgroundColorStyle": {
+        "rgbColor": {
+         "red": 0.95686275,
+         "green": 0.8,
+         "blue": 0.8
+        }
+       }
+      }
+     }
+    }
+   ],
+   "charts": [
+    {
+     "chartId": 1889301576,
+     "spec": {
+      "title": "Tickets by category",
+      "pieChart": {
+       "legendPosition": "RIGHT_LEGEND",
+       "domain": {
+        "sourceRange": {
+         "sources": [
+          {
+           "sheetId": 102,
+           "startRowIndex": 3,
+           "endRowIndex": 8,
+           "startColumnIndex": 0,
+           "endColumnIndex": 1
+          }
+         ]
+        }
+       },
+       "series": {
+        "sourceRange": {
+         "sources": [
+          {
+           "sheetId": 102,
+           "startRowIndex": 3,
+           "endRowIndex": 8,
+           "startColumnIndex": 1,
+           "endColumnIndex": 2
+          }
+         ]
+        }
+       },
+       "pieHole": 0.5
+      },
+      "hiddenDimensionStrategy": "SKIP_HIDDEN_ROWS_AND_COLUMNS",
+      "titleTextFormat": {
+       "fontFamily": "Roboto"
+      },
+      "fontName": "Roboto"
+     },
+     "position": {
+      "overlayPosition": {
+       "anchorCell": {
+        "sheetId": 102,
+        "rowIndex": 1,
+        "columnIndex": 9
+       },
+       "widthPixels": 600,
+       "heightPixels": 371
+      }
+     }
+    }
+   ],
+   "bandedRanges": [
+    {
+     "bandedRangeId": 440147054,
+     "range": {
+      "sheetId": 102,
+      "startRowIndex": 2,
+      "endRowIndex": 8,
+      "startColumnIndex": 0,
+      "endColumnIndex": 2
+     },
+     "rowProperties": {
+      "headerColor": {
+       "red": 0.21960784,
+       "green": 0.4627451,
+       "blue": 0.11372549
+      },
+      "firstBandColor": {
+       "red": 1,
+       "green": 1,
+       "blue": 1
+      },
+      "secondBandColor": {
+       "red": 0.8509804,
+       "green": 0.91764706,
+       "blue": 0.827451
+      },
+      "headerColorStyle": {
+       "rgbColor": {
+        "red": 0.21960784,
+        "green": 0.4627451,
+        "blue": 0.11372549
+       }
+      },
+      "firstBandColorStyle": {
+       "rgbColor": {
+        "red": 1,
+        "green": 1,
+        "blue": 1
+       }
+      },
+      "secondBandColorStyle": {
+       "rgbColor": {
+        "red": 0.8509804,
+        "green": 0.91764706,
+        "blue": 0.827451
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "properties": {
+    "sheetId": 103,
+    "title": "native-table",
+    "index": 2,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 40,
+     "columnCount": 8,
+     "frozenRowCount": 1
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "id"
+         },
+         "effectiveValue": {
+          "stringValue": "id"
+         },
+         "formattedValue": "id"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "item"
+         },
+         "effectiveValue": {
+          "stringValue": "item"
+         },
+         "formattedValue": "item"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "qty"
+         },
+         "effectiveValue": {
+          "stringValue": "qty"
+         },
+         "formattedValue": "qty"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "price"
+         },
+         "effectiveValue": {
+          "stringValue": "price"
+         },
+         "formattedValue": "price"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "ordered"
+         },
+         "effectiveValue": {
+          "stringValue": "ordered"
+         },
+         "formattedValue": "ordered"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "remark"
+         },
+         "effectiveValue": {
+          "stringValue": "remark"
+         },
+         "formattedValue": "remark"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1013"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1013"
+         },
+         "formattedValue": "ORD-1013"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "consectetur"
+         },
+         "effectiveValue": {
+          "stringValue": "consectetur"
+         },
+         "formattedValue": "consectetur"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 94
+         },
+         "effectiveValue": {
+          "numberValue": 94
+         },
+         "formattedValue": "94",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 177.5
+         },
+         "effectiveValue": {
+          "numberValue": 177.5
+         },
+         "formattedValue": "£177.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46039
+         },
+         "effectiveValue": {
+          "numberValue": 46039
+         },
+         "formattedValue": "1/17/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1026"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1026"
+         },
+         "formattedValue": "ORD-1026"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "dolor"
+         },
+         "effectiveValue": {
+          "stringValue": "dolor"
+         },
+         "formattedValue": "dolor"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 90
+         },
+         "effectiveValue": {
+          "numberValue": 90
+         },
+         "formattedValue": "90",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 183.5
+         },
+         "effectiveValue": {
+          "numberValue": 183.5
+         },
+         "formattedValue": "£183.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46078
+         },
+         "effectiveValue": {
+          "numberValue": 46078
+         },
+         "formattedValue": "2/25/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1005"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1005"
+         },
+         "formattedValue": "ORD-1005"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "consectetur"
+         },
+         "effectiveValue": {
+          "stringValue": "consectetur"
+         },
+         "formattedValue": "consectetur"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 89
+         },
+         "effectiveValue": {
+          "numberValue": 89
+         },
+         "formattedValue": "89",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 160.75
+         },
+         "effectiveValue": {
+          "numberValue": 160.75
+         },
+         "formattedValue": "£160.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46015
+         },
+         "effectiveValue": {
+          "numberValue": 46015
+         },
+         "formattedValue": "12/24/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1018"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1018"
+         },
+         "formattedValue": "ORD-1018"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "dolor"
+         },
+         "effectiveValue": {
+          "stringValue": "dolor"
+         },
+         "formattedValue": "dolor"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 85
+         },
+         "effectiveValue": {
+          "numberValue": 85
+         },
+         "formattedValue": "85",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 166.75
+         },
+         "effectiveValue": {
+          "numberValue": 166.75
+         },
+         "formattedValue": "£166.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46054
+         },
+         "effectiveValue": {
+          "numberValue": 46054
+         },
+         "formattedValue": "2/1/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1010"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1010"
+         },
+         "formattedValue": "ORD-1010"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "dolor"
+         },
+         "effectiveValue": {
+          "stringValue": "dolor"
+         },
+         "formattedValue": "dolor"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 80
+         },
+         "effectiveValue": {
+          "numberValue": 80
+         },
+         "formattedValue": "80",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 150
+         },
+         "effectiveValue": {
+          "numberValue": 150
+         },
+         "formattedValue": "£150.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46030
+         },
+         "effectiveValue": {
+          "numberValue": 46030
+         },
+         "formattedValue": "1/8/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1023"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1023"
+         },
+         "formattedValue": "ORD-1023"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "elit"
+         },
+         "effectiveValue": {
+          "stringValue": "elit"
+         },
+         "formattedValue": "elit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 76
+         },
+         "effectiveValue": {
+          "numberValue": 76
+         },
+         "formattedValue": "76",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 156
+         },
+         "effectiveValue": {
+          "numberValue": 156
+         },
+         "formattedValue": "£156.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46069
+         },
+         "effectiveValue": {
+          "numberValue": 46069
+         },
+         "formattedValue": "2/16/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1002"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1002"
+         },
+         "formattedValue": "ORD-1002"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "dolor"
+         },
+         "effectiveValue": {
+          "stringValue": "dolor"
+         },
+         "formattedValue": "dolor"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 75
+         },
+         "effectiveValue": {
+          "numberValue": 75
+         },
+         "formattedValue": "75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 133.25
+         },
+         "effectiveValue": {
+          "numberValue": 133.25
+         },
+         "formattedValue": "£133.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46006
+         },
+         "effectiveValue": {
+          "numberValue": 46006
+         },
+         "formattedValue": "12/15/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1015"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1015"
+         },
+         "formattedValue": "ORD-1015"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "elit"
+         },
+         "effectiveValue": {
+          "stringValue": "elit"
+         },
+         "formattedValue": "elit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 71
+         },
+         "effectiveValue": {
+          "numberValue": 71
+         },
+         "formattedValue": "71",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 139.25
+         },
+         "effectiveValue": {
+          "numberValue": 139.25
+         },
+         "formattedValue": "£139.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46045
+         },
+         "effectiveValue": {
+          "numberValue": 46045
+         },
+         "formattedValue": "1/23/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1028"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1028"
+         },
+         "formattedValue": "ORD-1028"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "amet"
+         },
+         "effectiveValue": {
+          "stringValue": "amet"
+         },
+         "formattedValue": "amet"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 67
+         },
+         "effectiveValue": {
+          "numberValue": 67
+         },
+         "formattedValue": "67",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 145.25
+         },
+         "effectiveValue": {
+          "numberValue": 145.25
+         },
+         "formattedValue": "£145.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46084
+         },
+         "effectiveValue": {
+          "numberValue": 46084
+         },
+         "formattedValue": "3/3/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1007"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1007"
+         },
+         "formattedValue": "ORD-1007"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "elit"
+         },
+         "effectiveValue": {
+          "stringValue": "elit"
+         },
+         "formattedValue": "elit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 66
+         },
+         "effectiveValue": {
+          "numberValue": 66
+         },
+         "formattedValue": "66",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 122.5
+         },
+         "effectiveValue": {
+          "numberValue": 122.5
+         },
+         "formattedValue": "£122.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46021
+         },
+         "effectiveValue": {
+          "numberValue": 46021
+         },
+         "formattedValue": "12/30/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1020"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1020"
+         },
+         "formattedValue": "ORD-1020"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "amet"
+         },
+         "effectiveValue": {
+          "stringValue": "amet"
+         },
+         "formattedValue": "amet"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 62
+         },
+         "effectiveValue": {
+          "numberValue": 62
+         },
+         "formattedValue": "62",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 128.5
+         },
+         "effectiveValue": {
+          "numberValue": 128.5
+         },
+         "formattedValue": "£128.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46060
+         },
+         "effectiveValue": {
+          "numberValue": 46060
+         },
+         "formattedValue": "2/7/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1012"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1012"
+         },
+         "formattedValue": "ORD-1012"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "amet"
+         },
+         "effectiveValue": {
+          "stringValue": "amet"
+         },
+         "formattedValue": "amet"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 57
+         },
+         "effectiveValue": {
+          "numberValue": 57
+         },
+         "formattedValue": "57",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 111.75
+         },
+         "effectiveValue": {
+          "numberValue": 111.75
+         },
+         "formattedValue": "£111.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46036
+         },
+         "effectiveValue": {
+          "numberValue": 46036
+         },
+         "formattedValue": "1/14/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1025"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1025"
+         },
+         "formattedValue": "ORD-1025"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "ipsum"
+         },
+         "formattedValue": "ipsum"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 53
+         },
+         "effectiveValue": {
+          "numberValue": 53
+         },
+         "formattedValue": "53",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 117.75
+         },
+         "effectiveValue": {
+          "numberValue": 117.75
+         },
+         "formattedValue": "£117.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46075
+         },
+         "effectiveValue": {
+          "numberValue": 46075
+         },
+         "formattedValue": "2/22/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1004"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1004"
+         },
+         "formattedValue": "ORD-1004"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "amet"
+         },
+         "effectiveValue": {
+          "stringValue": "amet"
+         },
+         "formattedValue": "amet"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 52
+         },
+         "effectiveValue": {
+          "numberValue": 52
+         },
+         "formattedValue": "52",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 95
+         },
+         "effectiveValue": {
+          "numberValue": 95
+         },
+         "formattedValue": "£95.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46012
+         },
+         "effectiveValue": {
+          "numberValue": 46012
+         },
+         "formattedValue": "12/21/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1017"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1017"
+         },
+         "formattedValue": "ORD-1017"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "ipsum"
+         },
+         "formattedValue": "ipsum"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 48
+         },
+         "effectiveValue": {
+          "numberValue": 48
+         },
+         "formattedValue": "48",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 101
+         },
+         "effectiveValue": {
+          "numberValue": 101
+         },
+         "formattedValue": "£101.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46051
+         },
+         "effectiveValue": {
+          "numberValue": 46051
+         },
+         "formattedValue": "1/29/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1009"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1009"
+         },
+         "formattedValue": "ORD-1009"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "ipsum"
+         },
+         "formattedValue": "ipsum"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 43
+         },
+         "effectiveValue": {
+          "numberValue": 43
+         },
+         "formattedValue": "43",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 84.25
+         },
+         "effectiveValue": {
+          "numberValue": 84.25
+         },
+         "formattedValue": "£84.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46027
+         },
+         "effectiveValue": {
+          "numberValue": 46027
+         },
+         "formattedValue": "1/5/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1022"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1022"
+         },
+         "formattedValue": "ORD-1022"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "adipiscing"
+         },
+         "effectiveValue": {
+          "stringValue": "adipiscing"
+         },
+         "formattedValue": "adipiscing"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 39
+         },
+         "effectiveValue": {
+          "numberValue": 39
+         },
+         "formattedValue": "39",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 90.25
+         },
+         "effectiveValue": {
+          "numberValue": 90.25
+         },
+         "formattedValue": "£90.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46066
+         },
+         "effectiveValue": {
+          "numberValue": 46066
+         },
+         "formattedValue": "2/13/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1001"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1001"
+         },
+         "formattedValue": "ORD-1001"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "ipsum"
+         },
+         "formattedValue": "ipsum"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 38
+         },
+         "effectiveValue": {
+          "numberValue": 38
+         },
+         "formattedValue": "38",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 67.5
+         },
+         "effectiveValue": {
+          "numberValue": 67.5
+         },
+         "formattedValue": "£67.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46003
+         },
+         "effectiveValue": {
+          "numberValue": 46003
+         },
+         "formattedValue": "12/12/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1014"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1014"
+         },
+         "formattedValue": "ORD-1014"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "adipiscing"
+         },
+         "effectiveValue": {
+          "stringValue": "adipiscing"
+         },
+         "formattedValue": "adipiscing"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 34
+         },
+         "effectiveValue": {
+          "numberValue": 34
+         },
+         "formattedValue": "34",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 73.5
+         },
+         "effectiveValue": {
+          "numberValue": 73.5
+         },
+         "formattedValue": "£73.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46042
+         },
+         "effectiveValue": {
+          "numberValue": 46042
+         },
+         "formattedValue": "1/20/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1027"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1027"
+         },
+         "formattedValue": "ORD-1027"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "sit"
+         },
+         "effectiveValue": {
+          "stringValue": "sit"
+         },
+         "formattedValue": "sit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 30
+         },
+         "effectiveValue": {
+          "numberValue": 30
+         },
+         "formattedValue": "30",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 79.5
+         },
+         "effectiveValue": {
+          "numberValue": 79.5
+         },
+         "formattedValue": "£79.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46081
+         },
+         "effectiveValue": {
+          "numberValue": 46081
+         },
+         "formattedValue": "2/28/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1006"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1006"
+         },
+         "formattedValue": "ORD-1006"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "adipiscing"
+         },
+         "effectiveValue": {
+          "stringValue": "adipiscing"
+         },
+         "formattedValue": "adipiscing"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 29
+         },
+         "effectiveValue": {
+          "numberValue": 29
+         },
+         "formattedValue": "29",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 56.75
+         },
+         "effectiveValue": {
+          "numberValue": 56.75
+         },
+         "formattedValue": "£56.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46018
+         },
+         "effectiveValue": {
+          "numberValue": 46018
+         },
+         "formattedValue": "12/27/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1019"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1019"
+         },
+         "formattedValue": "ORD-1019"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "sit"
+         },
+         "effectiveValue": {
+          "stringValue": "sit"
+         },
+         "formattedValue": "sit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 25
+         },
+         "effectiveValue": {
+          "numberValue": 25
+         },
+         "formattedValue": "25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 62.75
+         },
+         "effectiveValue": {
+          "numberValue": 62.75
+         },
+         "formattedValue": "£62.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46057
+         },
+         "effectiveValue": {
+          "numberValue": 46057
+         },
+         "formattedValue": "2/4/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1011"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1011"
+         },
+         "formattedValue": "ORD-1011"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "sit"
+         },
+         "effectiveValue": {
+          "stringValue": "sit"
+         },
+         "formattedValue": "sit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 20
+         },
+         "effectiveValue": {
+          "numberValue": 20
+         },
+         "formattedValue": "20",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46
+         },
+         "effectiveValue": {
+          "numberValue": 46
+         },
+         "formattedValue": "£46.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46033
+         },
+         "effectiveValue": {
+          "numberValue": 46033
+         },
+         "formattedValue": "1/11/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1024"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1024"
+         },
+         "formattedValue": "ORD-1024"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 16
+         },
+         "effectiveValue": {
+          "numberValue": 16
+         },
+         "formattedValue": "16",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 52
+         },
+         "effectiveValue": {
+          "numberValue": 52
+         },
+         "formattedValue": "£52.00",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46072
+         },
+         "effectiveValue": {
+          "numberValue": 46072
+         },
+         "formattedValue": "2/19/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1003"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1003"
+         },
+         "formattedValue": "ORD-1003"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "sit"
+         },
+         "effectiveValue": {
+          "stringValue": "sit"
+         },
+         "formattedValue": "sit"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 15
+         },
+         "effectiveValue": {
+          "numberValue": 15
+         },
+         "formattedValue": "15",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 29.25
+         },
+         "effectiveValue": {
+          "numberValue": 29.25
+         },
+         "formattedValue": "£29.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46009
+         },
+         "effectiveValue": {
+          "numberValue": 46009
+         },
+         "formattedValue": "12/18/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1016"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1016"
+         },
+         "formattedValue": "ORD-1016"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 11
+         },
+         "effectiveValue": {
+          "numberValue": 11
+         },
+         "formattedValue": "11",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 35.25
+         },
+         "effectiveValue": {
+          "numberValue": 35.25
+         },
+         "formattedValue": "£35.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46048
+         },
+         "effectiveValue": {
+          "numberValue": 46048
+         },
+         "formattedValue": "1/26/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1029"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1029"
+         },
+         "formattedValue": "ORD-1029"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "consectetur"
+         },
+         "effectiveValue": {
+          "stringValue": "consectetur"
+         },
+         "formattedValue": "consectetur"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 7
+         },
+         "effectiveValue": {
+          "numberValue": 7
+         },
+         "formattedValue": "7",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 41.25
+         },
+         "effectiveValue": {
+          "numberValue": 41.25
+         },
+         "formattedValue": "£41.25",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46087
+         },
+         "effectiveValue": {
+          "numberValue": 46087
+         },
+         "formattedValue": "3/6/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1008"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1008"
+         },
+         "formattedValue": "ORD-1008"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 6
+         },
+         "effectiveValue": {
+          "numberValue": 6
+         },
+         "formattedValue": "6",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 18.5
+         },
+         "effectiveValue": {
+          "numberValue": 18.5
+         },
+         "formattedValue": "£18.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46024
+         },
+         "effectiveValue": {
+          "numberValue": 46024
+         },
+         "formattedValue": "1/2/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1021"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1021"
+         },
+         "formattedValue": "ORD-1021"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "consectetur"
+         },
+         "effectiveValue": {
+          "stringValue": "consectetur"
+         },
+         "formattedValue": "consectetur"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 24.5
+         },
+         "effectiveValue": {
+          "numberValue": 24.5
+         },
+         "formattedValue": "£24.50",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46063
+         },
+         "effectiveValue": {
+          "numberValue": 46063
+         },
+         "formattedValue": "2/10/2026",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ORD-1000"
+         },
+         "effectiveValue": {
+          "stringValue": "ORD-1000"
+         },
+         "formattedValue": "ORD-1000"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "NUMBER"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1.75
+         },
+         "effectiveValue": {
+          "numberValue": 1.75
+         },
+         "formattedValue": "£1.75",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "CURRENCY"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 46000
+         },
+         "effectiveValue": {
+          "numberValue": 46000
+         },
+         "formattedValue": "12/9/2025",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "DATE",
+           "pattern": "M/d/yyyy"
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rush"
+         },
+         "effectiveValue": {
+          "stringValue": "rush"
+         },
+         "formattedValue": "rush"
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 113
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ],
+   "filterViews": [
+    {
+     "filterViewId": 91457627,
+     "title": "qty over 50",
+     "range": {
+      "sheetId": 103,
+      "startRowIndex": 0,
+      "endRowIndex": 31,
+      "startColumnIndex": 0,
+      "endColumnIndex": 6
+     },
+     "criteria": {
+      "2": {
+       "condition": {
+        "type": "NUMBER_GREATER",
+        "values": [
+         {
+          "userEnteredValue": "50"
+         }
+        ]
+       }
+      }
+     },
+     "filterSpecs": [
+      {
+       "columnIndex": 2,
+       "filterCriteria": {
+        "condition": {
+         "type": "NUMBER_GREATER",
+         "values": [
+          {
+           "userEnteredValue": "50"
+          }
+         ]
+        }
+       }
+      }
+     ]
+    }
+   ],
+   "bandedRanges": [
+    {
+     "bandedRangeId": 2124794872,
+     "range": {
+      "sheetId": 103,
+      "startRowIndex": 0,
+      "endRowIndex": 31,
+      "startColumnIndex": 0,
+      "endColumnIndex": 6
+     },
+     "rowProperties": {
+      "headerColor": {
+       "red": 0.20784314,
+       "green": 0.40784314,
+       "blue": 0.32941177
+      },
+      "firstBandColor": {
+       "red": 1,
+       "green": 1,
+       "blue": 1
+      },
+      "secondBandColor": {
+       "red": 0.9647059,
+       "green": 0.972549,
+       "blue": 0.9764706
+      },
+      "headerColorStyle": {
+       "rgbColor": {
+        "red": 0.20784314,
+        "green": 0.40784314,
+        "blue": 0.32941177
+       }
+      },
+      "firstBandColorStyle": {
+       "rgbColor": {
+        "red": 1,
+        "green": 1,
+        "blue": 1
+       }
+      },
+      "secondBandColorStyle": {
+       "rgbColor": {
+        "red": 0.9647059,
+        "green": 0.972549,
+        "blue": 0.9764706
+       }
+      }
+     },
+     "bandedRangeReference": "2124794872"
+    }
+   ],
+   "tables": [
+    {
+     "tableId": "2124794872",
+     "name": "Orders",
+     "range": {
+      "sheetId": 103,
+      "startRowIndex": 0,
+      "endRowIndex": 31,
+      "startColumnIndex": 0,
+      "endColumnIndex": 6
+     },
+     "rowsProperties": {
+      "headerColorStyle": {
+       "rgbColor": {
+        "red": 0.20784314,
+        "green": 0.40784314,
+        "blue": 0.32941177
+       }
+      },
+      "firstBandColorStyle": {
+       "rgbColor": {
+        "red": 1,
+        "green": 1,
+        "blue": 1
+       }
+      },
+      "secondBandColorStyle": {
+       "rgbColor": {
+        "red": 0.9647059,
+        "green": 0.972549,
+        "blue": 0.9764706
+       }
+      }
+     },
+     "columnProperties": [
+      {
+       "columnName": "id",
+       "columnType": "TEXT"
+      },
+      {
+       "columnIndex": 1,
+       "columnName": "item"
+      },
+      {
+       "columnIndex": 2,
+       "columnName": "qty",
+       "columnType": "DOUBLE"
+      },
+      {
+       "columnIndex": 3,
+       "columnName": "price",
+       "columnType": "CURRENCY"
+      },
+      {
+       "columnIndex": 4,
+       "columnName": "ordered",
+       "columnType": "DATE"
+      },
+      {
+       "columnIndex": 5,
+       "columnName": "remark"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "properties": {
+    "sheetId": 104,
+    "title": "multi-region",
+    "index": 3,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 40,
+     "columnCount": 14
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "sku"
+         },
+         "effectiveValue": {
+          "stringValue": "sku"
+         },
+         "formattedValue": "sku",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "region"
+         },
+         "effectiveValue": {
+          "stringValue": "region"
+         },
+         "formattedValue": "region",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "units"
+         },
+         "effectiveValue": {
+          "stringValue": "units"
+         },
+         "formattedValue": "units",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "revenue"
+         },
+         "effectiveValue": {
+          "stringValue": "revenue"
+         },
+         "formattedValue": "revenue",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "quarter"
+         },
+         "effectiveValue": {
+          "stringValue": "quarter"
+         },
+         "formattedValue": "quarter",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "target"
+         },
+         "effectiveValue": {
+          "stringValue": "target"
+         },
+         "formattedValue": "target",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "actual"
+         },
+         "effectiveValue": {
+          "stringValue": "actual"
+         },
+         "formattedValue": "actual",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "hit"
+         },
+         "effectiveValue": {
+          "stringValue": "hit"
+         },
+         "formattedValue": "hit",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-000"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-000"
+         },
+         "formattedValue": "SKU-000"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "North"
+         },
+         "effectiveValue": {
+          "stringValue": "North"
+         },
+         "formattedValue": "North"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 10
+         },
+         "effectiveValue": {
+          "numberValue": 10
+         },
+         "formattedValue": "10"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 100
+         },
+         "effectiveValue": {
+          "numberValue": 100
+         },
+         "formattedValue": "100"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q1"
+         },
+         "effectiveValue": {
+          "stringValue": "Q1"
+         },
+         "formattedValue": "Q1"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 120
+         },
+         "effectiveValue": {
+          "numberValue": 120
+         },
+         "formattedValue": "120"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 95
+         },
+         "effectiveValue": {
+          "numberValue": 95
+         },
+         "formattedValue": "95"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.79
+         },
+         "effectiveValue": {
+          "numberValue": 0.79
+         },
+         "formattedValue": "79%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-001"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-001"
+         },
+         "formattedValue": "SKU-001"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "South"
+         },
+         "effectiveValue": {
+          "stringValue": "South"
+         },
+         "formattedValue": "South"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 11
+         },
+         "effectiveValue": {
+          "numberValue": 11
+         },
+         "formattedValue": "11"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 112.5
+         },
+         "effectiveValue": {
+          "numberValue": 112.5
+         },
+         "formattedValue": "112.5"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q2"
+         },
+         "effectiveValue": {
+          "stringValue": "Q2"
+         },
+         "formattedValue": "Q2"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 130
+         },
+         "effectiveValue": {
+          "numberValue": 130
+         },
+         "formattedValue": "130"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 101
+         },
+         "effectiveValue": {
+          "numberValue": 101
+         },
+         "formattedValue": "101"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.78
+         },
+         "effectiveValue": {
+          "numberValue": 0.78
+         },
+         "formattedValue": "78%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        },
+        {},
+        {
+         "userEnteredValue": {
+          "numberValue": 42
+         },
+         "effectiveValue": {
+          "numberValue": 42
+         },
+         "formattedValue": "42"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-002"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-002"
+         },
+         "formattedValue": "SKU-002"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "East"
+         },
+         "effectiveValue": {
+          "stringValue": "East"
+         },
+         "formattedValue": "East"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 12
+         },
+         "effectiveValue": {
+          "numberValue": 12
+         },
+         "formattedValue": "12"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 125
+         },
+         "effectiveValue": {
+          "numberValue": 125
+         },
+         "formattedValue": "125"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q3"
+         },
+         "effectiveValue": {
+          "stringValue": "Q3"
+         },
+         "formattedValue": "Q3"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 125
+         },
+         "effectiveValue": {
+          "numberValue": 125
+         },
+         "formattedValue": "125"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 110
+         },
+         "effectiveValue": {
+          "numberValue": 110
+         },
+         "formattedValue": "110"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.88
+         },
+         "effectiveValue": {
+          "numberValue": 0.88
+         },
+         "formattedValue": "88%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-003"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-003"
+         },
+         "formattedValue": "SKU-003"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "West"
+         },
+         "effectiveValue": {
+          "stringValue": "West"
+         },
+         "formattedValue": "West"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 13
+         },
+         "effectiveValue": {
+          "numberValue": 13
+         },
+         "formattedValue": "13"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 137.5
+         },
+         "effectiveValue": {
+          "numberValue": 137.5
+         },
+         "formattedValue": "137.5"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q4"
+         },
+         "effectiveValue": {
+          "stringValue": "Q4"
+         },
+         "formattedValue": "Q4"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 140
+         },
+         "effectiveValue": {
+          "numberValue": 140
+         },
+         "formattedValue": "140"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 133
+         },
+         "effectiveValue": {
+          "numberValue": 133
+         },
+         "formattedValue": "133"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.95
+         },
+         "effectiveValue": {
+          "numberValue": 0.95
+         },
+         "formattedValue": "95%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-004"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-004"
+         },
+         "formattedValue": "SKU-004"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "North"
+         },
+         "effectiveValue": {
+          "stringValue": "North"
+         },
+         "formattedValue": "North"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 14
+         },
+         "effectiveValue": {
+          "numberValue": 14
+         },
+         "formattedValue": "14"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 150
+         },
+         "effectiveValue": {
+          "numberValue": 150
+         },
+         "formattedValue": "150"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q5"
+         },
+         "effectiveValue": {
+          "stringValue": "Q5"
+         },
+         "formattedValue": "Q5"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 150
+         },
+         "effectiveValue": {
+          "numberValue": 150
+         },
+         "formattedValue": "150"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 120
+         },
+         "effectiveValue": {
+          "numberValue": 120
+         },
+         "formattedValue": "120"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.8
+         },
+         "effectiveValue": {
+          "numberValue": 0.8
+         },
+         "formattedValue": "80%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-005"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-005"
+         },
+         "formattedValue": "SKU-005"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "South"
+         },
+         "effectiveValue": {
+          "stringValue": "South"
+         },
+         "formattedValue": "South"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 15
+         },
+         "effectiveValue": {
+          "numberValue": 15
+         },
+         "formattedValue": "15"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 162.5
+         },
+         "effectiveValue": {
+          "numberValue": 162.5
+         },
+         "formattedValue": "162.5"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q6"
+         },
+         "effectiveValue": {
+          "stringValue": "Q6"
+         },
+         "formattedValue": "Q6"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 160
+         },
+         "effectiveValue": {
+          "numberValue": 160
+         },
+         "formattedValue": "160"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 151
+         },
+         "effectiveValue": {
+          "numberValue": 151
+         },
+         "formattedValue": "151"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.94
+         },
+         "effectiveValue": {
+          "numberValue": 0.94
+         },
+         "formattedValue": "94%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-006"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-006"
+         },
+         "formattedValue": "SKU-006"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "East"
+         },
+         "effectiveValue": {
+          "stringValue": "East"
+         },
+         "formattedValue": "East"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 16
+         },
+         "effectiveValue": {
+          "numberValue": 16
+         },
+         "formattedValue": "16"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 175
+         },
+         "effectiveValue": {
+          "numberValue": 175
+         },
+         "formattedValue": "175"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Q7"
+         },
+         "effectiveValue": {
+          "stringValue": "Q7"
+         },
+         "formattedValue": "Q7"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 155
+         },
+         "effectiveValue": {
+          "numberValue": 155
+         },
+         "formattedValue": "155"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 140
+         },
+         "effectiveValue": {
+          "numberValue": 140
+         },
+         "formattedValue": "140"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0.9
+         },
+         "effectiveValue": {
+          "numberValue": 0.9
+         },
+         "formattedValue": "90%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-007"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-007"
+         },
+         "formattedValue": "SKU-007"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "West"
+         },
+         "effectiveValue": {
+          "stringValue": "West"
+         },
+         "formattedValue": "West"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 17
+         },
+         "effectiveValue": {
+          "numberValue": 17
+         },
+         "formattedValue": "17"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 187.5
+         },
+         "effectiveValue": {
+          "numberValue": 187.5
+         },
+         "formattedValue": "187.5"
+        },
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "stringValue": "Total"
+         },
+         "effectiveValue": {
+          "stringValue": "Total"
+         },
+         "formattedValue": "Total",
+         "userEnteredFormat": {
+          "textFormat": {
+           "bold": true
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=SUM(H2:H8)"
+         },
+         "effectiveValue": {
+          "numberValue": 980
+         },
+         "formattedValue": "980"
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=SUM(I2:I8)"
+         },
+         "effectiveValue": {
+          "numberValue": 850
+         },
+         "formattedValue": "850"
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=I9/H9"
+         },
+         "effectiveValue": {
+          "numberValue": 0.8673469387755102
+         },
+         "formattedValue": "87%",
+         "userEnteredFormat": {
+          "numberFormat": {
+           "type": "PERCENT",
+           "pattern": "0%"
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-008"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-008"
+         },
+         "formattedValue": "SKU-008"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "North"
+         },
+         "effectiveValue": {
+          "stringValue": "North"
+         },
+         "formattedValue": "North"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 18
+         },
+         "effectiveValue": {
+          "numberValue": 18
+         },
+         "formattedValue": "18"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 200
+         },
+         "effectiveValue": {
+          "numberValue": 200
+         },
+         "formattedValue": "200"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-009"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-009"
+         },
+         "formattedValue": "SKU-009"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "South"
+         },
+         "effectiveValue": {
+          "stringValue": "South"
+         },
+         "formattedValue": "South"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 19
+         },
+         "effectiveValue": {
+          "numberValue": 19
+         },
+         "formattedValue": "19"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 212.5
+         },
+         "effectiveValue": {
+          "numberValue": 212.5
+         },
+         "formattedValue": "212.5"
+        }
+       ]
+      },
+      {},
+      {},
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-010"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-010"
+         },
+         "formattedValue": "SKU-010"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "East"
+         },
+         "effectiveValue": {
+          "stringValue": "East"
+         },
+         "formattedValue": "East"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 20
+         },
+         "effectiveValue": {
+          "numberValue": 20
+         },
+         "formattedValue": "20"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 225
+         },
+         "effectiveValue": {
+          "numberValue": 225
+         },
+         "formattedValue": "225"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-011"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-011"
+         },
+         "formattedValue": "SKU-011"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "West"
+         },
+         "effectiveValue": {
+          "stringValue": "West"
+         },
+         "formattedValue": "West"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 21
+         },
+         "effectiveValue": {
+          "numberValue": 21
+         },
+         "formattedValue": "21"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 237.5
+         },
+         "effectiveValue": {
+          "numberValue": 237.5
+         },
+         "formattedValue": "237.5"
+        },
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {},
+        {
+         "userEnteredValue": {
+          "numberValue": 3.14
+         },
+         "effectiveValue": {
+          "numberValue": 3.14
+         },
+         "formattedValue": "3.14"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-012"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-012"
+         },
+         "formattedValue": "SKU-012"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "North"
+         },
+         "effectiveValue": {
+          "stringValue": "North"
+         },
+         "formattedValue": "North"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 22
+         },
+         "effectiveValue": {
+          "numberValue": 22
+         },
+         "formattedValue": "22"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 250
+         },
+         "effectiveValue": {
+          "numberValue": 250
+         },
+         "formattedValue": "250"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-013"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-013"
+         },
+         "formattedValue": "SKU-013"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "South"
+         },
+         "effectiveValue": {
+          "stringValue": "South"
+         },
+         "formattedValue": "South"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 23
+         },
+         "effectiveValue": {
+          "numberValue": 23
+         },
+         "formattedValue": "23"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 262.5
+         },
+         "effectiveValue": {
+          "numberValue": 262.5
+         },
+         "formattedValue": "262.5"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-014"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-014"
+         },
+         "formattedValue": "SKU-014"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "East"
+         },
+         "effectiveValue": {
+          "stringValue": "East"
+         },
+         "formattedValue": "East"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 24
+         },
+         "effectiveValue": {
+          "numberValue": 24
+         },
+         "formattedValue": "24"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 275
+         },
+         "effectiveValue": {
+          "numberValue": 275
+         },
+         "formattedValue": "275"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-015"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-015"
+         },
+         "formattedValue": "SKU-015"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "West"
+         },
+         "effectiveValue": {
+          "stringValue": "West"
+         },
+         "formattedValue": "West"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 25
+         },
+         "effectiveValue": {
+          "numberValue": 25
+         },
+         "formattedValue": "25"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 287.5
+         },
+         "effectiveValue": {
+          "numberValue": 287.5
+         },
+         "formattedValue": "287.5"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "SKU-016"
+         },
+         "effectiveValue": {
+          "stringValue": "SKU-016"
+         },
+         "formattedValue": "SKU-016"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "North"
+         },
+         "effectiveValue": {
+          "stringValue": "North"
+         },
+         "formattedValue": "North"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 26
+         },
+         "effectiveValue": {
+          "numberValue": 26
+         },
+         "formattedValue": "26"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 300
+         },
+         "effectiveValue": {
+          "numberValue": 300
+         },
+         "formattedValue": "300"
+        }
+       ]
+      },
+      {},
+      {},
+      {},
+      {},
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "team"
+         },
+         "effectiveValue": {
+          "stringValue": "team"
+         },
+         "formattedValue": "team",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "open"
+         },
+         "effectiveValue": {
+          "stringValue": "open"
+         },
+         "formattedValue": "open",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "closed"
+         },
+         "effectiveValue": {
+          "stringValue": "closed"
+         },
+         "formattedValue": "closed",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "remark"
+         },
+         "effectiveValue": {
+          "stringValue": "remark"
+         },
+         "formattedValue": "remark",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team A"
+         },
+         "effectiveValue": {
+          "stringValue": "Team A"
+         },
+         "formattedValue": "Team A"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 3
+         },
+         "effectiveValue": {
+          "numberValue": 3
+         },
+         "formattedValue": "3"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team B"
+         },
+         "effectiveValue": {
+          "stringValue": "Team B"
+         },
+         "formattedValue": "Team B"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 4
+         },
+         "effectiveValue": {
+          "numberValue": 4
+         },
+         "formattedValue": "4"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 4
+         },
+         "effectiveValue": {
+          "numberValue": 4
+         },
+         "formattedValue": "4"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team C"
+         },
+         "effectiveValue": {
+          "stringValue": "Team C"
+         },
+         "formattedValue": "Team C"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 3
+         },
+         "effectiveValue": {
+          "numberValue": 3
+         },
+         "formattedValue": "3"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team D"
+         },
+         "effectiveValue": {
+          "stringValue": "Team D"
+         },
+         "formattedValue": "Team D"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 6
+         },
+         "effectiveValue": {
+          "numberValue": 6
+         },
+         "formattedValue": "6"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team E"
+         },
+         "effectiveValue": {
+          "stringValue": "Team E"
+         },
+         "formattedValue": "Team E"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 7
+         },
+         "effectiveValue": {
+          "numberValue": 7
+         },
+         "formattedValue": "7"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 4
+         },
+         "effectiveValue": {
+          "numberValue": 4
+         },
+         "formattedValue": "4"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team F"
+         },
+         "effectiveValue": {
+          "stringValue": "Team F"
+         },
+         "formattedValue": "Team F"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 8
+         },
+         "effectiveValue": {
+          "numberValue": 8
+         },
+         "formattedValue": "8"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 3
+         },
+         "effectiveValue": {
+          "numberValue": 3
+         },
+         "formattedValue": "3"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "Team G"
+         },
+         "effectiveValue": {
+          "stringValue": "Team G"
+         },
+         "formattedValue": "Team G"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 9
+         },
+         "effectiveValue": {
+          "numberValue": 9
+         },
+         "formattedValue": "9"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        }
+       ]
+      },
+      {},
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "* all figures are synthetic, lorem ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "* all figures are synthetic, lorem ipsum"
+         },
+         "formattedValue": "* all figures are synthetic, lorem ipsum"
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "properties": {
+    "sheetId": 105,
+    "title": "hidden",
+    "index": 4,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 20,
+     "columnCount": 6,
+     "frozenRowCount": 1
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "label"
+         },
+         "effectiveValue": {
+          "stringValue": "label"
+         },
+         "formattedValue": "label",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "value"
+         },
+         "effectiveValue": {
+          "stringValue": "value"
+         },
+         "formattedValue": "value",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "hidden col"
+         },
+         "effectiveValue": {
+          "stringValue": "hidden col"
+         },
+         "formattedValue": "hidden col",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "status"
+         },
+         "effectiveValue": {
+          "stringValue": "status"
+         },
+         "formattedValue": "status",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "group"
+         },
+         "effectiveValue": {
+          "stringValue": "group"
+         },
+         "formattedValue": "group",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 1"
+         },
+         "effectiveValue": {
+          "stringValue": "row 1"
+         },
+         "formattedValue": "row 1"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 10
+         },
+         "effectiveValue": {
+          "numberValue": 10
+         },
+         "formattedValue": "10"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 1"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 1"
+         },
+         "formattedValue": "secret-ish 1"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 2"
+         },
+         "effectiveValue": {
+          "stringValue": "row 2"
+         },
+         "formattedValue": "row 2"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 20
+         },
+         "effectiveValue": {
+          "numberValue": 20
+         },
+         "formattedValue": "20"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 2"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 2"
+         },
+         "formattedValue": "secret-ish 2"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 3"
+         },
+         "effectiveValue": {
+          "stringValue": "row 3"
+         },
+         "formattedValue": "row 3"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 30
+         },
+         "effectiveValue": {
+          "numberValue": 30
+         },
+         "formattedValue": "30"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 3"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 3"
+         },
+         "formattedValue": "secret-ish 3"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0
+         },
+         "effectiveValue": {
+          "numberValue": 0
+         },
+         "formattedValue": "0"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 4"
+         },
+         "effectiveValue": {
+          "stringValue": "row 4"
+         },
+         "formattedValue": "row 4"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 40
+         },
+         "effectiveValue": {
+          "numberValue": 40
+         },
+         "formattedValue": "40"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 4"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 4"
+         },
+         "formattedValue": "secret-ish 4"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 5"
+         },
+         "effectiveValue": {
+          "stringValue": "row 5"
+         },
+         "formattedValue": "row 5"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 50
+         },
+         "effectiveValue": {
+          "numberValue": 50
+         },
+         "formattedValue": "50"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 5"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 5"
+         },
+         "formattedValue": "secret-ish 5"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 6"
+         },
+         "effectiveValue": {
+          "stringValue": "row 6"
+         },
+         "formattedValue": "row 6"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 60
+         },
+         "effectiveValue": {
+          "numberValue": 60
+         },
+         "formattedValue": "60"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 6"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 6"
+         },
+         "formattedValue": "secret-ish 6"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0
+         },
+         "effectiveValue": {
+          "numberValue": 0
+         },
+         "formattedValue": "0"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 7"
+         },
+         "effectiveValue": {
+          "stringValue": "row 7"
+         },
+         "formattedValue": "row 7"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 70
+         },
+         "effectiveValue": {
+          "numberValue": 70
+         },
+         "formattedValue": "70"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 7"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 7"
+         },
+         "formattedValue": "secret-ish 7"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 8"
+         },
+         "effectiveValue": {
+          "stringValue": "row 8"
+         },
+         "formattedValue": "row 8"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 80
+         },
+         "effectiveValue": {
+          "numberValue": 80
+         },
+         "formattedValue": "80"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 8"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 8"
+         },
+         "formattedValue": "secret-ish 8"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 9"
+         },
+         "effectiveValue": {
+          "stringValue": "row 9"
+         },
+         "formattedValue": "row 9"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 90
+         },
+         "effectiveValue": {
+          "numberValue": 90
+         },
+         "formattedValue": "90"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 9"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 9"
+         },
+         "formattedValue": "secret-ish 9"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "drop"
+         },
+         "effectiveValue": {
+          "stringValue": "drop"
+         },
+         "formattedValue": "drop"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0
+         },
+         "effectiveValue": {
+          "numberValue": 0
+         },
+         "formattedValue": "0"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 10"
+         },
+         "effectiveValue": {
+          "stringValue": "row 10"
+         },
+         "formattedValue": "row 10"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 100
+         },
+         "effectiveValue": {
+          "numberValue": 100
+         },
+         "formattedValue": "100"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 10"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 10"
+         },
+         "formattedValue": "secret-ish 10"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 11"
+         },
+         "effectiveValue": {
+          "stringValue": "row 11"
+         },
+         "formattedValue": "row 11"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 110
+         },
+         "effectiveValue": {
+          "numberValue": 110
+         },
+         "formattedValue": "110"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 11"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 11"
+         },
+         "formattedValue": "secret-ish 11"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "row 12"
+         },
+         "effectiveValue": {
+          "stringValue": "row 12"
+         },
+         "formattedValue": "row 12"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 120
+         },
+         "effectiveValue": {
+          "numberValue": 120
+         },
+         "formattedValue": "120"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "secret-ish 12"
+         },
+         "effectiveValue": {
+          "stringValue": "secret-ish 12"
+         },
+         "formattedValue": "secret-ish 12"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "keep"
+         },
+         "effectiveValue": {
+          "stringValue": "keep"
+         },
+         "formattedValue": "keep"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 0
+         },
+         "effectiveValue": {
+          "numberValue": 0
+         },
+         "formattedValue": "0"
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "hiddenByUser": true,
+       "pixelSize": 21
+      },
+      {
+       "hiddenByUser": true,
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "hiddenByFilter": true,
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "hiddenByUser": true,
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ],
+   "basicFilter": {
+    "range": {
+     "sheetId": 105,
+     "startRowIndex": 0,
+     "endRowIndex": 13,
+     "startColumnIndex": 0,
+     "endColumnIndex": 5
+    },
+    "criteria": {
+     "3": {
+      "hiddenValues": [
+       "drop"
+      ]
+     }
+    },
+    "filterSpecs": [
+     {
+      "columnIndex": 3,
+      "filterCriteria": {
+       "hiddenValues": [
+        "drop"
+       ]
+      }
+     }
+    ]
+   }
+  },
+  {
+   "properties": {
+    "sheetId": 106,
+    "title": "formulas",
+    "index": 5,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 20,
+     "columnCount": 6
+    }
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "input"
+         },
+         "effectiveValue": {
+          "stringValue": "input"
+         },
+         "formattedValue": "input",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "formula"
+         },
+         "effectiveValue": {
+          "stringValue": "formula"
+         },
+         "formattedValue": "formula",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "what"
+         },
+         "effectiveValue": {
+          "stringValue": "what"
+         },
+         "formattedValue": "what",
+         "userEnteredFormat": {
+          "backgroundColor": {
+           "red": 0.8509804,
+           "green": 0.8862745,
+           "blue": 0.9529412
+          },
+          "textFormat": {
+           "bold": true
+          },
+          "backgroundColorStyle": {
+           "rgbColor": {
+            "red": 0.8509804,
+            "green": 0.8862745,
+            "blue": 0.9529412
+           }
+          }
+         }
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "numberValue": 5
+         },
+         "effectiveValue": {
+          "numberValue": 5
+         },
+         "formattedValue": "5"
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=A2*2"
+         },
+         "effectiveValue": {
+          "numberValue": 10
+         },
+         "formattedValue": "10"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "same-row arithmetic"
+         },
+         "effectiveValue": {
+          "stringValue": "same-row arithmetic"
+         },
+         "formattedValue": "same-row arithmetic"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "numberValue": 7
+         },
+         "effectiveValue": {
+          "numberValue": 7
+         },
+         "formattedValue": "7"
+        },
+        {
+         "userEnteredValue": {
+          "formulaValue": "=SUM(A2:A3)"
+         },
+         "effectiveValue": {
+          "numberValue": 12
+         },
+         "formattedValue": "12"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "SUM over a range"
+         },
+         "effectiveValue": {
+          "stringValue": "SUM over a range"
+         },
+         "formattedValue": "SUM over a range"
+        }
+       ]
+      },
+      {
+       "values": [
+        {},
+        {
+         "userEnteredValue": {
+          "formulaValue": "='multi-region'!C2"
+         },
+         "effectiveValue": {
+          "numberValue": 10
+         },
+         "formattedValue": "10"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "reference to another tab"
+         },
+         "effectiveValue": {
+          "stringValue": "reference to another tab"
+         },
+         "formattedValue": "reference to another tab"
+        }
+       ]
+      },
+      {
+       "values": [
+        {},
+        {
+         "userEnteredValue": {
+          "formulaValue": "=ROWS(quarterly_targets)"
+         },
+         "effectiveValue": {
+          "numberValue": 9
+         },
+         "formattedValue": "9"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "rows in a named range"
+         },
+         "effectiveValue": {
+          "stringValue": "rows in a named range"
+         },
+         "formattedValue": "rows in a named range"
+        }
+       ]
+      },
+      {
+       "values": [
+        {},
+        {
+         "userEnteredValue": {
+          "formulaValue": "=INDIRECT(\"nowhere!A1\")"
+         },
+         "effectiveValue": {
+          "errorValue": {
+           "type": "REF",
+           "message": "Function INDIRECT parameter 1 value is 'nowhere!A1'. It is not a valid cell/range reference."
+          }
+         },
+         "formattedValue": "#REF!"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "a #REF! error"
+         },
+         "effectiveValue": {
+          "stringValue": "a #REF! error"
+         },
+         "formattedValue": "a #REF! error"
+        }
+       ]
+      },
+      {
+       "values": [
+        {},
+        {
+         "userEnteredValue": {
+          "formulaValue": "=1/0"
+         },
+         "effectiveValue": {
+          "errorValue": {
+           "type": "DIVIDE_BY_ZERO",
+           "message": "Function DIVIDE parameter 2 cannot be zero."
+          }
+         },
+         "formattedValue": "#DIV/0!"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "a #DIV/0! error"
+         },
+         "effectiveValue": {
+          "stringValue": "a #DIV/0! error"
+         },
+         "formattedValue": "a #DIV/0! error"
+        }
+       ]
+      },
+      {
+       "values": [
+        {},
+        {
+         "userEnteredValue": {
+          "formulaValue": "=TEXT(DATE(2026,10,23),\"yyyy-mm-dd\")"
+         },
+         "effectiveValue": {
+          "stringValue": "2026-10-23"
+         },
+         "formattedValue": "2026-10-23"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "a date built in a formula"
+         },
+         "effectiveValue": {
+          "stringValue": "a date built in a formula"
+         },
+         "formattedValue": "a date built in a formula"
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ],
+   "protectedRanges": [
+    {
+     "protectedRangeId": 1590932696,
+     "range": {
+      "sheetId": 106,
+      "startRowIndex": 0,
+      "endRowIndex": 3,
+      "startColumnIndex": 0,
+      "endColumnIndex": 2
+     },
+     "description": "inputs, warning only",
+     "warningOnly": true,
+     "requestingUserCanEdit": true,
+     "editors": {
+      "users": [
+       "owner@example.com"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "properties": {
+    "sheetId": 107,
+    "title": "hidden-tab",
+    "index": 6,
+    "sheetType": "GRID",
+    "gridProperties": {
+     "rowCount": 10,
+     "columnCount": 4
+    },
+    "hidden": true
+   },
+   "data": [
+    {
+     "rowData": [
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "key"
+         },
+         "effectiveValue": {
+          "stringValue": "key"
+         },
+         "formattedValue": "key"
+        },
+        {
+         "userEnteredValue": {
+          "stringValue": "value"
+         },
+         "effectiveValue": {
+          "stringValue": "value"
+         },
+         "formattedValue": "value"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "lorem"
+         },
+         "effectiveValue": {
+          "stringValue": "lorem"
+         },
+         "formattedValue": "lorem"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 1
+         },
+         "effectiveValue": {
+          "numberValue": 1
+         },
+         "formattedValue": "1"
+        }
+       ]
+      },
+      {
+       "values": [
+        {
+         "userEnteredValue": {
+          "stringValue": "ipsum"
+         },
+         "effectiveValue": {
+          "stringValue": "ipsum"
+         },
+         "formattedValue": "ipsum"
+        },
+        {
+         "userEnteredValue": {
+          "numberValue": 2
+         },
+         "effectiveValue": {
+          "numberValue": 2
+         },
+         "formattedValue": "2"
+        }
+       ]
+      }
+     ],
+     "rowMetadata": [
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      },
+      {
+       "pixelSize": 21
+      }
+     ],
+     "columnMetadata": [
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      },
+      {
+       "pixelSize": 100
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "namedRanges": [
+  {
+   "namedRangeId": "914791394",
+   "name": "quarterly_targets",
+   "range": {
+    "sheetId": 104,
+    "startRowIndex": 0,
+    "endRowIndex": 9,
+    "startColumnIndex": 6,
+    "endColumnIndex": 10
+   }
+  }
+ ],
+ "spreadsheetId": "canary"
+}

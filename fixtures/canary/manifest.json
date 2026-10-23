@@ -1,0 +1,278 @@
+{
+ "title": "gsheet-mcp canary (public, lorem ipsum)",
+ "tabs": [
+  "comms",
+  "dashboard",
+  "native-table",
+  "multi-region",
+  "hidden",
+  "formulas",
+  "hidden-tab"
+ ],
+ "features": [
+  {
+   "tab": "native-table",
+   "range": "A1:F31",
+   "feature": "native Table Orders; id, qty, price, ordered typed; item, remark untyped",
+   "made": "api"
+  },
+  {
+   "tab": "native-table",
+   "range": "A2:F31",
+   "feature": "rows sorted by qty, largest first",
+   "made": "api"
+  },
+  {
+   "tab": "native-table",
+   "range": "A1:F31",
+   "feature": "filter view: qty over 50",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "B1:F1",
+   "feature": "merged header band, dark fill, white bold centred text; A1 is a single band cell in the frozen column",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "B2:C2",
+   "feature": "merged column header",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "A1:L2",
+   "feature": "2 frozen rows and 1 frozen column",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "B3:C8",
+   "feature": "rich text runs with bold, italic and links; each row merged across B:C",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "B3",
+   "feature": "cell note",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "D3:D8",
+   "feature": "checkboxes, alternating ticked",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "E3:E8",
+   "feature": "dropdown chips On track / At risk / Blocked",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "F3:F7",
+   "feature": "emoji in text",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "F8",
+   "feature": "long text, 744 characters",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "B9",
+   "feature": "HYPERLINK() formula",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "A10",
+   "feature": "IMAGE() formula in a cell, row height 60",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "A1:H1",
+   "feature": "merged title band",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "A3:B8",
+   "feature": "banding over a small table",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "B4:B8",
+   "feature": "conditional format: red fill when over 20",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "D3:H8",
+   "feature": "checkbox grid, 5 by 5, under week headers",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "A10:D12",
+   "feature": "merged block over three rows",
+   "made": "api"
+  },
+  {
+   "tab": "dashboard",
+   "range": "J2",
+   "feature": "donut chart (pie, hole 0.5) over A4:B8",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "A1:D11",
+   "feature": "table A: header plus 10 rows",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "A14:D20",
+   "feature": "table A continued after a 2-row gap, same columns; the scan should join it to A1:D11",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "G1:J8",
+   "feature": "table B beside table A, two blank columns apart",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "G9:J9",
+   "feature": "total row touching table B",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "G1:J9",
+   "feature": "named range quarterly_targets",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "A25:D32",
+   "feature": "table D after a 4-row gap with its own header; the scan should split it from table A",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "L3",
+   "feature": "loose number 42",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "L15",
+   "feature": "loose number 3.14",
+   "made": "api"
+  },
+  {
+   "tab": "multi-region",
+   "range": "A34",
+   "feature": "footnote",
+   "made": "api"
+  },
+  {
+   "tab": "hidden",
+   "range": "A5:E6",
+   "feature": "rows 5 and 6 hidden by the user",
+   "made": "api"
+  },
+  {
+   "tab": "hidden",
+   "range": "C1:C13",
+   "feature": "column C hidden by the user",
+   "made": "api"
+  },
+  {
+   "tab": "hidden",
+   "range": "A1:E13",
+   "feature": "basic filter on status; row 10 (status drop) hidden by the filter",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "B2:B3",
+   "feature": "formulas over the same tab",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "B4",
+   "feature": "formula reading another tab",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "B5",
+   "feature": "formula reading a named range (ROWS, gives 9)",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "B6",
+   "feature": "#REF! error",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "B7",
+   "feature": "#DIV/0! error",
+   "made": "api"
+  },
+  {
+   "tab": "formulas",
+   "range": "A1:B3",
+   "feature": "protected range, warning only",
+   "made": "api"
+  },
+  {
+   "tab": "hidden-tab",
+   "range": "A1:B3",
+   "feature": "small grid on a hidden tab",
+   "made": "api"
+  },
+  {
+   "tab": "hidden-tab",
+   "range": "-",
+   "feature": "the whole tab is hidden",
+   "made": "api"
+  },
+  {
+   "tab": "comms",
+   "range": "H3:I5",
+   "feature": "image floating over empty cells",
+   "made": "by hand"
+  },
+  {
+   "tab": "comms",
+   "range": "G3",
+   "feature": "rating chip",
+   "made": "by hand"
+  },
+  {
+   "tab": "comms",
+   "range": "E3:E8",
+   "feature": "dropdown chip colours",
+   "made": "by hand"
+  },
+  {
+   "tab": "comms",
+   "range": "F4",
+   "feature": "anchored comment",
+   "made": "by hand"
+  }
+ ]
+}
