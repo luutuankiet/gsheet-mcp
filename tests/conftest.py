@@ -1,5 +1,6 @@
-# Copied from google-docs-mcp@2fb4652 tests/conftest.py; renamed, Docs fakes dropped, fake auth added.
-"""Shared fixtures: a fake signed-in caller, the in-memory state store, an MCP client."""
+# Copied from google-docs-mcp@2fb4652 tests/conftest.py; renamed, Docs fakes swapped for the fake Sheets API, fake auth added.
+"""Shared fixtures: the fake Sheets API, a fake signed-in caller, the in-memory
+state store, an MCP client."""
 from __future__ import annotations
 
 import pytest
@@ -8,10 +9,41 @@ from fastmcp.server.auth.auth import AccessToken
 from mcp.server.auth.middleware.auth_context import auth_context_var
 from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
 
-from gsheet_mcp import http_mode, state_store
+from gsheet_mcp import http_mode, sheets_api, state_store
+from tests.fake_sheets import FakeDrive, FakeSheets
 
 CALLER_EMAIL = "canary@example.com"
 TOKEN_EXPIRY = 2_000_000_000
+
+
+@pytest.fixture
+def fake(monkeypatch: pytest.MonkeyPatch, offline) -> FakeSheets:
+    """Put FakeSheets, holding the canary as `canary`, where the real Sheets and
+    Drive clients and the export link would be."""
+    api = FakeSheets()
+    api.load_canary()
+    monkeypatch.setattr(sheets_api, "_sheets_service", lambda: api)
+    monkeypatch.setattr(sheets_api, "_drive_service", lambda: FakeDrive(api))
+    monkeypatch.setattr(sheets_api, "_download", api.download)
+    return api
+
+
+@pytest.fixture(autouse=True)
+def offline(monkeypatch: pytest.MonkeyPatch) -> list[float]:
+    """No test reaches Google (the `fake` fixture installs FakeSheets over this),
+    and no test waits out a real backoff; the waits asked for are returned."""
+    def no_service():
+        raise AssertionError("a test reached the Sheets or Drive API without FakeSheets")
+
+    def no_download(url: str, timeout: float) -> bytes:
+        raise AssertionError(f"a test reached an export link without FakeSheets: {url}")
+
+    waits: list[float] = []
+    monkeypatch.setattr(sheets_api, "_sheets_service", no_service)
+    monkeypatch.setattr(sheets_api, "_drive_service", no_service)
+    monkeypatch.setattr(sheets_api, "_download", no_download)
+    monkeypatch.setattr(sheets_api, "_sleep", waits.append)
+    return waits
 
 
 @pytest.fixture
