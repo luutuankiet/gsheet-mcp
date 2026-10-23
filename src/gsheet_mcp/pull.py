@@ -14,25 +14,11 @@ import hashlib
 import json
 from typing import Any
 
-from . import a1, reply, scan, sheets_api, transfer
+from . import a1, addressing, reply, scan, sheets_api, transfer
 
 HEAD_ROWS = 500
 TAIL_ROWS = 500
 CHUNK_BYTES = 1024 * 1024
-
-
-def resolve(spreadsheet_id: str, name: str) -> str:
-    """An alias (`tab#2`) as its handle; anything else as given.
-
-    Minimal private resolver: to fold into the shared alias helper from
-    read_range at merge."""
-    if "#" in name and "!" not in name:
-        handle = scan.resolve_alias(spreadsheet_id, name)
-        if handle is None:
-            raise reply.Refusal(f"{name!r} is not a live alias: aliases last 10 minutes after "
-                                f"scan_sheet. Scan again, or pass a tab and A1 range.")
-        return handle
-    return name
 
 
 def _regions(spreadsheet_id: str, tab: str | None, include_hidden: bool) -> dict[str, Any]:
@@ -97,8 +83,7 @@ def pull(spreadsheet_id: str, *, tab: str | None = None, range_: str | None = No
     picked: list[tuple[str | None, dict[str, Any]]] = []
     skipped: list[str] = []
     if range_:
-        handle = resolve(spreadsheet_id, range_)
-        rng = a1.parse(handle)
+        rng = addressing.resolve(spreadsheet_id, range_)
         props = sheets_api.find_tab(tabs_reply, rng.tab or tab)
         rng = rng.with_tab(props["title"])
         match = next(((alias, info) for alias, info in regions.items()
@@ -154,7 +139,7 @@ def _parts(fp: str) -> tuple[str, str, str]:
 def status(spreadsheet_id: str, tab: str, since: str | None = None) -> str:
     name = tab
     if "#" in tab or "!" in tab:
-        name = a1.parse(resolve(spreadsheet_id, tab)).tab or tab
+        name = addressing.resolve(spreadsheet_id, tab).tab or tab
     props = sheets_api.find_tab(sheets_api.get_tabs(spreadsheet_id), name)
     now = fingerprint(spreadsheet_id, props)
     line = f"tab \"{props['title']}\" (gid {props['sheetId']}) · fingerprint {now}"

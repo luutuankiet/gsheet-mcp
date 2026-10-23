@@ -1,0 +1,58 @@
+'multi-region' · cells 1-143 of 143 (~291 tokens)
+styles:
+  s1 fill #D9E2F3 · bold
+  s2 bold
+
+region A1:D20 · table
+| row | sku | region | units | revenue |
+|---|---|---|---|---|
+| 2 | SKU-000 | North | 10 | 100 |
+| 3 | SKU-001 | South | 11 | 112.5 |
+| 4 | SKU-002 | East | 12 | 125 |
+| 5 | SKU-003 | West | 13 | 137.5 |
+| 6 | SKU-004 | North | 14 | 150 |
+| 7 | SKU-005 | South | 15 | 162.5 |
+| 8 | SKU-006 | East | 16 | 175 |
+| 9 | SKU-007 | West | 17 | 187.5 |
+| 10 | SKU-008 | North | 18 | 200 |
+| 11 | SKU-009 | South | 19 | 212.5 |
+| 14 | SKU-010 | East | 20 | 225 |
+| 15 | SKU-011 | West | 21 | 237.5 |
+| 16 | SKU-012 | North | 22 | 250 |
+| 17 | SKU-013 | South | 23 | 262.5 |
+| 18 | SKU-014 | East | 24 | 275 |
+| 19 | SKU-015 | West | 25 | 287.5 |
+| 20 | SKU-016 | North | 26 | 300 |
+
+region G1:J9 · table · named range quarterly_targets
+| row | quarter | target | actual | hit |
+|---|---|---|---|---|
+| 2 | Q1 | 120 | 95 | 79% |
+| 3 | Q2 | 130 | 101 | 78% |
+| 4 | Q3 | 125 | 110 | 88% |
+| 5 | Q4 | 140 | 133 | 95% |
+| 6 | Q5 | 150 | 120 | 80% |
+| 7 | Q6 | 160 | 151 | 94% |
+| 8 | Q7 | 155 | 140 | 90% |
+| 9 | Total {s2} | 980 | 850 | 87% |
+
+region A25:D32 · table
+| row | team | open | closed | remark |
+|---|---|---|---|---|
+| 26 | Team A | 3 | 5 | lorem |
+| 27 | Team B | 4 | 4 | lorem |
+| 28 | Team C | 5 | 3 | lorem |
+| 29 | Team D | 6 | 5 | lorem |
+| 30 | Team E | 7 | 4 | lorem |
+| 31 | Team F | 8 | 3 | lorem |
+| 32 | Team G | 9 | 5 | lorem |
+── row 34
+A34: * all figures are synthetic, lorem ipsum
+
+loose cells
+── row 3
+L3: 42
+── row 15
+L15: 3.14
+
+this range has 1 fill style · render_range("'multi-region'")

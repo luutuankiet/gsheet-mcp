@@ -1,0 +1,33 @@
+'dashboard' · cells 1-44 of 44 (~93 tokens)
+styles:
+  s1 fill #1F3864 · text #FFFFFF · bold · centred
+  s2 fill #D9E2F3 · bold
+  s3 fill #FFF2CC
+
+region A1:H1 · communication
+── row 1
+A1:H1 {s1}: Ticket dashboard · synthetic
+
+region A3:B8 · table
+| row | Category | Count |
+|---|---|---|
+| 4 | Bugs | 24 |
+| 5 | Features | 15 |
+| 6 | Chores | 8 |
+| 7 | Docs | 5 |
+| 8 | Spikes | 3 |
+
+region D3:H8 · table
+| row | Week 1 | Week 2 | Week 3 | Week 4 | Week 5 |
+|---|---|---|---|---|---|
+| 4 | [ ] | [x] | [x] | [ ] | [x] |
+| 5 | [x] | [ ] | [x] | [x] | [ ] |
+| 6 | [x] | [x] | [ ] | [x] | [x] |
+| 7 | [ ] | [x] | [x] | [ ] | [x] |
+| 8 | [x] | [ ] | [x] | [x] | [ ] |
+
+region A10:D12 · communication
+── row 10
+A10:D12 {s3}: Lorem ipsum summary block
+
+this range has 1 chart, 3 fill styles · render_range("'dashboard'")
