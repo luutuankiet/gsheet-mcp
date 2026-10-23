@@ -334,20 +334,27 @@ def _clip(text: str) -> str:
     return text if len(text) <= TEXT_CHARS else text[:TEXT_CHARS - 1] + "…"
 
 
+def is_table(tab: Tab, box: Box) -> bool:
+    """A table region, as opposed to a communication block: a native Table,
+    or at least two rows and columns with data under the header and no merge there."""
+    header = _header_rows(tab, box)
+    below_header = [m for m in _merges_in(tab, box) if m.r0 >= box.r0 + header]
+    return (box.label.startswith("Table") or
+            (box.r1 > box.r0 and box.c1 > box.c0 and not below_header
+             and any(r >= box.r0 + header for r, c in tab.cells if box.contains(r, c))))
+
+
 def describe(tab: Tab, box: Box, images: list[dict[str, Any]]) -> str:
     merges = _merges_in(tab, box)
     header = _header_rows(tab, box)
-    below_header = [m for m in merges if m.r0 >= box.r0 + header]
-    is_table = (box.label.startswith("Table") or
-                (box.r1 > box.r0 and box.c1 > box.c0 and not below_header
-                 and any(r >= box.r0 + header for r, c in tab.cells if box.contains(r, c))))
+    table = is_table(tab, box)
     head = f"{box.a1()}{' ' + box.label if box.label else ''}"
     extras = []
     if box.estimated:
         extras.append("extent estimated")
     if box.blank_rows:
         extras.append("blank rows " + ",".join(str(r + 1) for r in sorted(box.blank_rows)))
-    if not is_table:
+    if not table:
         cells = sorted((r, c) for (r, c) in tab.cells if box.contains(r, c))
         text = _clip(" ".join(tab.text(r, c) for r, c in cells
                               if cell_type(tab.cells[(r, c)]) == "TEXT"))
@@ -411,7 +418,7 @@ def place_comments(threads: list[dict[str, Any]],
             pool.remove(match)
         placed.append({"tab": match["tab"] if match else None,
                        "cell": match["cell"] if match else None,
-                       "resolved": bool(comment.get("resolved"))})
+                       "resolved": bool(comment.get("resolved")), "comment": comment})
     return placed
 
 
