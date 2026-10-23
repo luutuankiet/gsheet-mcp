@@ -11,7 +11,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import a1, auth, sheets_api, state_store
+from . import a1, auth, generation, sheets_api, state_store
 
 SCAN_FIELDS = (
     "properties.title,namedRanges,"
@@ -440,7 +440,8 @@ def _cache_key(spreadsheet_id: str) -> str:
         caller = auth.caller_id()
     except auth.NotSignedInError:
         caller = ""
-    return f"scan:{caller}:{spreadsheet_id}"
+    # The generation changes on every write, so a write by any caller hides every scan.
+    return f"scan:{caller}:{spreadsheet_id}:{generation.current(spreadsheet_id)}"
 
 
 def load_cached(spreadsheet_id: str) -> dict[str, Any] | None:

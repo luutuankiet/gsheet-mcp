@@ -27,7 +27,7 @@ import threading
 
 from mcp.types import ImageContent
 
-from . import a1, auth, sheets_api, state_store
+from . import a1, auth, generation, sheets_api, state_store
 
 MAX_PAGES = 6                  # pages rendered per call; the rest are listed
 
@@ -70,7 +70,9 @@ def _cache_key(spreadsheet_id: str, gid: int, rng: a1.Range) -> str:
     # Per caller: one caller's render must never serve another, who may not
     # be allowed to open the spreadsheet.
     where = "" if rng.whole_tab else rng.a1
-    return f"render|{auth.caller_id()}|{spreadsheet_id}|{gid}|{where}"
+    # The generation changes on every write through our tools, hiding older renders.
+    return (f"render|{auth.caller_id()}|{spreadsheet_id}|{generation.current(spreadsheet_id)}"
+            f"|{gid}|{where}")
 
 
 # ---- the export -------------------------------------------------------------
