@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// The gdoc binary: pull a Google Doc into a working copy, push edits back.
-// `gdoc --help` is the manual; the commands live in src/commands.js.
+// The gsheet binary: Google Sheets tables in a local DuckDB workspace.
+// `gsheet --help` is the manual; the commands live in src/commands.js.
 
 import { run } from "../src/cli.js";
 

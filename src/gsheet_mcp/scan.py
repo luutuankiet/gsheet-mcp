@@ -47,6 +47,7 @@ class Box:
     c1: int
     blank_rows: list[int] = field(default_factory=list)
     label: str = ""            # "Table Orders", "named range quarterly_targets"
+    table_name: str = ""       # a native Table's own name, kept as the CLI's table name
     types: list[str] | None = None
     names: list[str] | None = None
     estimated: bool = False
@@ -229,6 +230,7 @@ def _exact_ranges(tab: Tab, named_ranges: list[dict[str, Any]]) -> list[Box]:
     for table in tab.sheet.get("tables") or []:
         box = _grid_box(table["range"])
         box.label = f"Table {table.get('name', '')}"
+        box.table_name = table.get("name", "")
         columns = table.get("columnProperties") or []
         box.names = [c.get("columnName", "") for c in columns]
         box.types = [c.get("columnType") or "-" for c in columns]
@@ -592,6 +594,8 @@ def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any
                               "kind": "table" if is_table(tab, region) else "comms",
                               "header_rows": _header_rows(tab, region),
                               "estimated": region.estimated}
+            if region.table_name:
+                regions[alias]["table_name"] = region.table_name
     for n, region in enumerate(shown, 1):
         lines.append(f"  #{n} {describe(tab, region, tab_images)}")
     if len(found) > len(shown):

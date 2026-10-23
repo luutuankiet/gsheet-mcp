@@ -1,12 +1,12 @@
-// File and folder names in a working copy: `02.1-data-model.gdoc.md`, `canary--184D13nr`.
+// Copied from google-docs-mcp@2fb4652 cli/src/names.js; slug kept, tab file and folder names replaced by SQL names for tables.
+// Names in the workspace database (spec "CLI: gsheet", table names).
 //
-// Mirrors src/google_docs_mcp/bundle/names.py and is pinned by
-// fixtures/bundles/names.json: fold to ASCII (accents dropped, `đ` read as
-// `d`), lowercase, every run of other characters becomes one `-`, cut to 40
-// characters. The top-level part of a tab number is padded to two digits so
-// tab files list in doc order.
+// slug: fold to ASCII (accents dropped, `đ` read as `d`), lowercase, every
+// run of other characters becomes one `-`, cut to 40 characters. `ident`
+// turns a slug into a SQL name with `_` for `-`.
 
-const NUMBER = /^\d+(\.\d+)*$/;
+import { parseRange } from "./csv.js";
+
 export const SLUG_MAX = 40;
 
 export function slug(text, fallback) {
@@ -17,15 +17,27 @@ export function slug(text, fallback) {
   return out || fallback;
 }
 
-/** `("2.1", "Data model")` -> `02.1-data-model.gdoc.md`. */
-export function tabFileName(number, name) {
-  if (!NUMBER.test(number)) throw new Error(`${JSON.stringify(number)} is not a tab number like 2 or 2.1`);
-  const [top, ...rest] = number.split(".");
-  const padded = [top.padStart(2, "0"), ...rest].join(".");
-  return `${padded}-${slug(name, "tab")}.gdoc.md`;
-}
+/** A SQL identifier from any text: the slug with `_` for `-`, never starting with a digit. */
+export const ident = (text, fallback) => {
+  const s = slug(String(text ?? ""), fallback).replace(/-/g, "_");
+  return /^[0-9]/.test(s) ? `_${s}` : s;
+};
 
-/** The working copy folder: title slug plus the first 8 characters of the doc id. */
-export function folderName(title, docId) {
-  return `${slug(title, "doc")}--${docId.slice(0, 8)}`;
+/**
+ * The table name of each region on one tab, in the order given: a native
+ * Table keeps its name; a tab holding one region takes the tab slug; a tab
+ * holding several takes `<tab slug>_<n>`, numbered in reading order (top row,
+ * then left column).
+ */
+export function tableNames(tab, regions) {
+  const base = ident(tab, "tab");
+  const order = regions
+    .map((r, i) => ({ i, rng: parseRange(r.range) }))
+    .sort((a, b) => a.rng.r0 - b.rng.r0 || a.rng.c0 - b.rng.c0);
+  const names = new Array(regions.length);
+  order.forEach(({ i }, n) => {
+    const own = regions[i].table_name;
+    names[i] = own ? ident(own, base) : regions.length === 1 ? base : `${base}_${n + 1}`;
+  });
+  return names;
 }

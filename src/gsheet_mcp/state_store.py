@@ -25,8 +25,10 @@ OBJECT_URL_TTL_SECONDS = 300
 UPLOAD_SLOT_TTL_SECONDS = 24 * 3600
 BUNDLE_CONTENT_TYPE = "application/gzip"   # what the gsheet CLI uploads; the PUT is signed for it
 CSV_CONTENT_TYPE = "text/csv"              # pulls hand CSV out; CLI query results come back as CSV
+JSON_CONTENT_TYPE = "application/json"     # a pull's manifest, which `gsheet pull` reads
 _EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif",
-               "application/gzip": ".tar.gz", CSV_CONTENT_TYPE: ".csv"}
+               "application/gzip": ".tar.gz", CSV_CONTENT_TYPE: ".csv",
+               JSON_CONTENT_TYPE: ".json"}
 _CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform"
 
 _NO_BUCKET_MESSAGE = (

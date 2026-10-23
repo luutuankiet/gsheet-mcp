@@ -16,16 +16,12 @@ import { dirname } from "node:path";
 import { DuckDBInstance } from "@duckdb/node-api";
 
 import { columnLetter } from "./csv.js";
-import { slug } from "./names.js";
+import { ident } from "./names.js";
 
+export { ident };
 export const DB_FILE = ".gsheet/workspace.duckdb";
 export const TYPED_SHARE = 0.98;
 
-/** A SQL identifier from any text: the shared slug with `_` for `-`. */
-export const ident = (text, fallback) => {
-  const s = slug(String(text ?? ""), fallback).replace(/-/g, "_");
-  return /^[0-9]/.test(s) ? `_${s}` : s;
-};
 export const q = (name) => `"${String(name).replace(/"/g, '""')}"`;
 export const lit = (text) => `'${String(text).replace(/'/g, "''")}'`;
 

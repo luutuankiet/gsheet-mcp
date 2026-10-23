@@ -2,6 +2,7 @@
 `upload_slot`, and an upload landing through `write_cells` behind a plan."""
 from __future__ import annotations
 
+import json
 import re
 
 import pytest
@@ -32,6 +33,28 @@ async def test_pull_tables_streams_the_csv_export_into_the_bucket_with_a_link_an
     assert f"csv memory://{handle}" in text
     assert re.search(r"fingerprint 40x8:[0-9a-f]{12}:[0-9a-f]{12}", text)
     assert re.search(r"native-table#\d+ 'native-table'!A\d+:[A-Z]+\d+ table", text), text
+
+
+async def test_pull_tables_hands_out_a_manifest_listing_the_csv_links_and_regions(
+        ready, store):
+    text, is_error = await call(ready, "pull_tables", spreadsheet=CANARY_ID, tab="native-table")
+    assert not is_error, text
+    first, second = text.splitlines()[:2]
+    url = re.fullmatch(r"manifest (memory://(\S+\.json))", second).group(1)
+    data, kind = store.objects[url.removeprefix("memory://")]
+    assert kind == "application/json"
+    manifest = json.loads(data)
+    assert manifest["format"] == "gsheet-pull/1" and manifest["spreadsheet_id"] == CANARY_ID
+    assert manifest["title"] and manifest["title"] in first and manifest["pulled_at"]
+    (tab,) = manifest["tabs"]
+    assert tab["tab"] == "native-table" and tab["gid"] == 103 and tab["rows"] == 40
+    assert f"csv {tab['csv']}" in text
+    assert store.objects[tab["csv"].removeprefix("memory://")][1] == "text/csv"
+    assert re.fullmatch(r"40x8:[0-9a-f]{12}:[0-9a-f]{12}", tab["fingerprint"])
+    native = [r for r in tab["regions"] if r.get("table_name")]
+    assert [r["table_name"] for r in native] == ["Orders"]
+    assert native[0]["range"] == "'native-table'!A1:F31" and native[0]["kind"] == "table"
+    assert all(r["alias"].startswith("native-table#") for r in tab["regions"])
 
 
 async def test_pull_tables_leaves_out_communication_blocks_unless_named(ready, store):
