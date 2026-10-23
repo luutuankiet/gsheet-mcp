@@ -243,8 +243,13 @@ The tab, filter and validation operations are **(default, review)**.
   - Streams each tab's CSV export into the state bucket and returns signed URLs with the scan's regions.
   - The server never parses the rows.
   - By default it pulls table regions and native Tables. A communication block is pulled only when it is named.
+  - A region is named with `range=`, as an alias or A1. A range that matches no scanned region is pulled as given (default, review).
+  - Each tab comes back with its fingerprint, for a later `table_status` call.
 - **`table_status`** returns a head-and-tail fingerprint: the tab size plus a hash of the first and last 500 rows.
+  - The rows are grid rows, not used rows, so data typed into blank grid rows in the middle goes unseen until the grid grows (default, review).
+  - The server keeps no fingerprints. Given an earlier one in `since`, the reply says what changed, or that head and tail are unchanged and the middle was not compared (default, review).
 - **`upload_slot`** returns a signed upload URL for a CLI query result. The result lands through `write_cells` into a new tab or an empty range, behind a required plan.
+  - CSV carries no types: a plain decimal number lands as a number, and everything else lands as text, including `true`, `false` and a leading `=`, so no formula gets in (default, review).
 
 ### 8.2 CLI: `gsheet`
 

@@ -503,17 +503,20 @@ def scan(spreadsheet_id: str, *, tab: str | None = None, include_hidden: bool = 
         out.append(f"images: not checked ({xlsx_problem})")
 
     aliases: dict[str, str] = {}
+    regions: dict[str, dict[str, Any]] = {}
     for props in all_props:
         sheet = by_id.get(props["sheetId"])
         built = build_tab(sheet) if sheet else None
         if built and len(_ranges_for(props)) == 2:
             built.head_end = HEAD_ROWS - 1
             built.tail_start = max(props["gridProperties"]["rowCount"] - TAIL_ROWS, HEAD_ROWS)
-        out += _tab_block(props, built, named, images, comments, aliases, full=tab is not None)
+        out += _tab_block(props, built, named, images, comments, aliases, full=tab is not None,
+                          regions=regions)
 
     # A one-tab scan adds its aliases to the whole-workbook scan's.
     cached = (load_cached(spreadsheet_id) or {}) if tab is not None else {}
     cached.setdefault("aliases", {}).update(aliases)
+    cached.setdefault("regions", {}).update(regions)
     if images is not None:
         cached["images"] = images
     state_store.current().put_cached(_cache_key(spreadsheet_id), json.dumps(cached).encode(),
@@ -537,7 +540,8 @@ def _comment_line(comments: list[dict[str, Any]], problem: str) -> str:
 
 def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any]],
                images: list[dict[str, Any]] | None, comments: list[dict[str, Any]],
-               aliases: dict[str, str], *, full: bool) -> list[str]:
+               aliases: dict[str, str], *, full: bool,
+               regions: dict[str, dict[str, Any]] | None = None) -> list[str]:
     grid = props.get("gridProperties", {})
     head = [f"tab \"{props['title']}\" (gid {props.get('sheetId')}) · "
             f"{grid.get('rowCount', 0)}x{grid.get('columnCount', 0)}"]
@@ -575,15 +579,23 @@ def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any
     if tab_comments:
         lines.append("  comments: " + ", ".join(
             f"{c['cell']} {'resolved' if c['resolved'] else 'open'}" for c in tab_comments))
-    regions, loose = find_regions(tab, named)
-    shown = regions if full else regions[:MAX_REGIONS]
-    for n, region in enumerate(regions, 1):
-        aliases[f"{props['title']}#{n}"] = str(
+    found, loose = find_regions(tab, named)
+    shown = found if full else found[:MAX_REGIONS]
+    for n, region in enumerate(found, 1):
+        alias = f"{props['title']}#{n}"
+        aliases[alias] = str(
             a1.Range(props["title"], region.r0, region.r1 + 1, region.c0, region.c1 + 1))
+        if regions is not None:
+            # What pull_tables needs without scanning again: the tab, the kind, the header.
+            regions[alias] = {"tab": props["title"], "gid": props.get("sheetId"),
+                              "range": aliases[alias], "label": region.label,
+                              "kind": "table" if is_table(tab, region) else "comms",
+                              "header_rows": _header_rows(tab, region),
+                              "estimated": region.estimated}
     for n, region in enumerate(shown, 1):
         lines.append(f"  #{n} {describe(tab, region, tab_images)}")
-    if len(regions) > len(shown):
-        lines.append(f"  +{len(regions) - len(shown)} more (scan_sheet with tab= lists them all)")
+    if len(found) > len(shown):
+        lines.append(f"  +{len(found) - len(shown)} more (scan_sheet with tab= lists them all)")
     if loose:
         lines.append("  loose cells: " + ", ".join(loose))
     return lines

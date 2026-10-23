@@ -13,6 +13,7 @@ import hashlib
 import json
 import secrets
 import time
+from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
@@ -23,8 +24,9 @@ OBJECT_PREFIX = "gsheet-mcp/"
 OBJECT_URL_TTL_SECONDS = 300
 UPLOAD_SLOT_TTL_SECONDS = 24 * 3600
 BUNDLE_CONTENT_TYPE = "application/gzip"   # what the gsheet CLI uploads; the PUT is signed for it
+CSV_CONTENT_TYPE = "text/csv"              # pulls hand CSV out; CLI query results come back as CSV
 _EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif",
-               "application/gzip": ".tar.gz"}
+               "application/gzip": ".tar.gz", CSV_CONTENT_TYPE: ".csv"}
 _CLOUD_PLATFORM = "https://www.googleapis.com/auth/cloud-platform"
 
 _NO_BUCKET_MESSAGE = (
@@ -111,13 +113,21 @@ class MemoryStateStore:
         self.objects[handle] = (data, content_type)
         return HostedObject(url=f"memory://{handle}", handle=handle)
 
+    def put_stream(self, chunks: Iterator[bytes], *, content_type: str,
+                   url_ttl_seconds: float = OBJECT_URL_TTL_SECONDS) -> tuple[HostedObject, int]:
+        """`put_object` from a stream of chunks; also returns the byte count."""
+        data = b"".join(chunks)
+        return self.put_object(data, content_type=content_type,
+                               url_ttl_seconds=url_ttl_seconds), len(data)
+
     def get_object(self, handle: str) -> bytes | None:
         hit = self.objects.get(handle)
         return hit[0] if hit else None
 
-    def upload_slot(self, *, ttl_seconds: float = UPLOAD_SLOT_TTL_SECONDS) -> UploadSlot:
+    def upload_slot(self, *, ttl_seconds: float = UPLOAD_SLOT_TTL_SECONDS,
+                    content_type: str = BUNDLE_CONTENT_TYPE) -> UploadSlot:
         """A slot nothing is uploaded to yet; a test PUTs by setting `objects[handle]`."""
-        handle = _new_handle(BUNDLE_CONTENT_TYPE)
+        handle = _new_handle(content_type)
         expires_at = self._clock() + ttl_seconds
         return UploadSlot(url=f"memory://{handle}?expires={int(expires_at)}", handle=handle,
                           expires_at=expires_at)
@@ -218,6 +228,29 @@ class HostedStateStore:
             raise
         return HostedObject(url=url, handle=handle)
 
+    def put_stream(self, chunks: Iterator[bytes], *, content_type: str,
+                   url_ttl_seconds: float = OBJECT_URL_TTL_SECONDS) -> tuple[HostedObject, int]:
+        """Write chunks straight into a new object as they come (a resumable
+        upload, never the whole object in memory); return a V4 signed GET URL
+        and the byte count."""
+        bucket = self._bucket()
+        handle = _new_handle(content_type)
+        blob = bucket.blob(handle)
+        size = 0
+        try:
+            with blob.open("wb", content_type=content_type) as out:
+                for chunk in chunks:
+                    out.write(chunk)
+                    size += len(chunk)
+            url = blob.generate_signed_url(
+                version="v4", method="GET",
+                expiration=timedelta(seconds=url_ttl_seconds),
+                **_signing_kwargs(self._storage))
+        except Exception:
+            blob.delete()
+            raise
+        return HostedObject(url=url, handle=handle), size
+
     def get_object(self, handle: str) -> bytes | None:
         """The object's bytes, or None when there is none by that name."""
         from google.api_core.exceptions import NotFound
@@ -227,19 +260,20 @@ class HostedStateStore:
         except NotFound:
             return None
 
-    def upload_slot(self, *, ttl_seconds: float = UPLOAD_SLOT_TTL_SECONDS) -> UploadSlot:
+    def upload_slot(self, *, ttl_seconds: float = UPLOAD_SLOT_TTL_SECONDS,
+                    content_type: str = BUNDLE_CONTENT_TYPE) -> UploadSlot:
         """A V4 signed PUT for a new object name, for the gsheet CLI to upload to.
 
-        Signed for `Content-Type: application/gzip`, the header the gsheet CLI
-        sends; GCS answers 403 SignatureDoesNotMatch to any other. The URL is
+        Signed for `content_type` (a bundle or `text/csv`), the header the gsheet CLI
+        must send; GCS answers 403 SignatureDoesNotMatch to any other. The URL is
         on storage.googleapis.com, path style, like every URL this store signs.
         """
         bucket = self._bucket()
-        handle = _new_handle(BUNDLE_CONTENT_TYPE)
+        handle = _new_handle(content_type)
         expires_at = self._clock() + ttl_seconds
         url = bucket.blob(handle).generate_signed_url(
             version="v4", method="PUT", expiration=timedelta(seconds=ttl_seconds),
-            content_type=BUNDLE_CONTENT_TYPE, **_signing_kwargs(self._storage))
+            content_type=content_type, **_signing_kwargs(self._storage))
         return UploadSlot(url=url, handle=handle, expires_at=expires_at)
 
     def delete_object(self, handle: str) -> None:

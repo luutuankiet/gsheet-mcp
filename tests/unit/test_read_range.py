@@ -109,11 +109,9 @@ async def test_read_range_accepts_a_scan_alias(fake, signed_in, client):
     scanned, _ = await call(client, "scan_sheet", spreadsheet=CANARY_ID)
     assert "#1" in scanned
     by_alias = await _read(client, range="comms#1")
-    region = re.search(r"^comms#1 .*?([A-Z]+[0-9]+:[A-Z]+[0-9]+)", scanned, re.MULTILINE)
-    handle = f"comms!{region.group(1)}" if region else None
-    assert by_alias.startswith("comms!")
-    if handle:
-        assert by_alias == await _read(client, range=handle)
+    region = re.search(r"^\s*#1 ([A-Z]+[0-9]+:[A-Z]+[0-9]+) comms ", scanned, re.MULTILINE)
+    assert region, scanned
+    assert by_alias == await _read(client, range=f"comms!{region.group(1)}")
 
 
 async def test_a_dead_alias_is_refused_with_a_rescan_hint(fake, signed_in, client):
