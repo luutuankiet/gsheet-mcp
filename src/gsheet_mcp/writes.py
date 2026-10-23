@@ -3,7 +3,7 @@ text and format patches over one or more ranges, behind the stale-write guard.
 
     run(spreadsheet_id, writes)          -> receipt (refused over PLAN_THRESHOLD cells)
     plan(spreadsheet_id, writes)         -> dry run: diff, warnings and a plan_id
-    apply(spreadsheet_id, plan_id)       -> re-read, compare, write, receipt
+    apply(spreadsheet_id, plan_id, payload) -> re-read, compare, write, receipt
     after_write(spreadsheet_id)          -> clears the scan and render caches
 
 `writes` is a list of {"range", "values", "format"}. Every value goes through
@@ -18,8 +18,19 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
-from . import a1, addressing, auth, generation, guard, notation, reader, reply, scan
-from . import sheets_api, state_store
+from . import (
+    a1,
+    addressing,
+    auth,
+    generation,
+    guard,
+    notation,
+    reader,
+    reply,
+    scan,
+    sheets_api,
+    state_store,
+)
 
 PLAN_THRESHOLD = 200
 RECEIPT_CELLS = 50
@@ -116,16 +127,18 @@ def markdown_runs(text: str) -> tuple[str, list[dict[str, Any]]]:
 
 
 def run_kinds(runs: list[dict[str, Any]]) -> list[str]:
+    """The kinds of styling in `runs`; a link's own underline and colour count as the link."""
     kinds: list[str] = []
     for run in runs:
         fmt = run.get("format") or {}
+        linked = bool(fmt.get("link"))
         for key, word in (("bold", "bold"), ("italic", "italic"), ("strikethrough", "strike"),
                           ("underline", "underline"), ("link", "link")):
-            if fmt.get(key) and word not in kinds:
+            if fmt.get(key) and word not in kinds and not (linked and key == "underline"):
                 kinds.append(word)
-        if "foregroundColor" in fmt or "foregroundColorStyle" in fmt:
-            if "link" not in kinds and "colour" not in kinds:
-                kinds.append("colour")
+        if not linked and ("foregroundColor" in fmt or "foregroundColorStyle" in fmt) \
+                and "colour" not in kinds:
+            kinds.append("colour")
     return kinds
 
 
@@ -297,6 +310,20 @@ def _merges(book: dict[str, Any]) -> dict[str, list[scan.Box]]:
             for s in book.get("sheets") or []}
 
 
+def _flush(requests: list[dict[str, Any]], segment: list[tuple[int, dict[str, Any], bool]],
+           sheet_id: int, row_index: int) -> None:
+    """One `updateCells` for a run of adjacent cells in a row, then empty `segment`.
+    The mask names `textFormatRuns` only when a cell in it writes or drops runs."""
+    if not segment:
+        return
+    mask = "userEnteredValue,textFormatRuns" if any(s[2] for s in segment) \
+        else "userEnteredValue"
+    requests.append({"updateCells": {
+        "start": {"sheetId": sheet_id, "rowIndex": row_index, "columnIndex": segment[0][0]},
+        "rows": [{"values": [s[1] for s in segment]}], "fields": mask}})
+    segment.clear()
+
+
 def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
     writes = _normalise(spreadsheet_id, raw)
     book, cells = guard.read(spreadsheet_id, [w.rng for w in writes])
@@ -312,22 +339,11 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
         if w.values is not None:
             for dr, row in enumerate(w.values):
                 segment: list[tuple[int, dict[str, Any], bool]] = []
-
-                def flush() -> None:
-                    if not segment:
-                        return
-                    mask = "userEnteredValue,textFormatRuns" if any(s[2] for s in segment) \
-                        else "userEnteredValue"
-                    requests.append({"updateCells": {
-                        "start": {"sheetId": w.sheet_id, "rowIndex": w.rng.start_row + dr,
-                                  "columnIndex": segment[0][0]},
-                        "rows": [{"values": [s[1] for s in segment]}], "fields": mask}})
-                    segment.clear()
-
+                row_index = w.rng.start_row + dr
                 for dc, value in enumerate(row):
-                    r, c = w.rng.start_row + dr, w.rng.start_col + dc
+                    r, c = row_index, w.rng.start_col + dc
                     if value is None:
-                        flush()
+                        _flush(requests, segment, w.sheet_id, row_index)
                         continue
                     handle = guard.handle(title, r, c)
                     name = guard.short(handle, one_tab)
@@ -350,9 +366,9 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
                         diff.append(f"{name}: {json.dumps(before, ensure_ascii=False)} → "
                                     f"{json.dumps(after, ensure_ascii=False)}")
                     if segment and segment[-1][2] != with_runs:
-                        flush()
+                        _flush(requests, segment, w.sheet_id, row_index)
                     segment.append((c, new, with_runs))
-                flush()
+                _flush(requests, segment, w.sheet_id, row_index)
         if w.fmt:
             paths, value = _format_patch(w.fmt)
             if not paths:
@@ -400,8 +416,10 @@ def plan(spreadsheet_id: str, raw: list[dict[str, Any]]) -> str:
     plan_id = state_store.current().save_plan(
         {"op": OP, "writes": raw, "fingerprint": prepared.fingerprint},
         spreadsheet_id=spreadsheet_id, caller=_caller())
-    lines = [f"plan {plan_id} (valid 1 hour, single use): {len(prepared.touched)} cells, "
-             f"{len(prepared.requests)} requests, nothing written yet"]
+    cells, requests = len(prepared.touched), len(prepared.requests)
+    lines = [f"plan {plan_id} (valid 1 hour, single use): {cells} "
+             f"{'cell' if cells == 1 else 'cells'}, {requests} "
+             f"{'request' if requests == 1 else 'requests'}, nothing written yet"]
     lines += ["  " + d for d in prepared.diff[:DIFF_LINES]]
     if len(prepared.diff) > DIFF_LINES:
         lines.append(f"  +{len(prepared.diff) - DIFF_LINES} more changes")

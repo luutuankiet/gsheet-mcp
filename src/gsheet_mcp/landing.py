@@ -2,10 +2,11 @@
 always behind a plan (spec, "Tables to DuckDB" and "Plans").
 
     plan(spreadsheet_id, target, upload) -> reply text with a plan_id
-    apply(spreadsheet_id, plan_id)       -> receipt text
+    apply(spreadsheet_id, plan_id, payload) -> receipt text
 
-The plan checks the target is empty; applying re-reads it and refuses the
-whole write when anything appeared there since. Values go in through
+The plan checks the target is empty and stores its fingerprint; applying
+re-reads it through the shared stale-write guard and refuses the whole write
+when anything changed there since. Values go in through
 `updateCells` with the `userEnteredValue` mask only, so styling stays.
 """
 from __future__ import annotations
@@ -15,7 +16,7 @@ import io
 import re
 from typing import Any
 
-from . import a1, addressing, auth, reply, scan, sheets_api, state_store, transfer
+from . import a1, addressing, auth, guard, reply, sheets_api, state_store, transfer, writes
 
 MAX_LISTED = 20          # changed or filled cells named in a refusal
 RECEIPT_CELLS = 50
@@ -89,6 +90,14 @@ def _filled(spreadsheet_id: str, rng: a1.Range) -> list[tuple[str, Any]]:
     return _cells(rng, sheets_api.values_get(spreadsheet_id, rng))
 
 
+def _fingerprint(spreadsheet_id: str, landed: a1.Range) -> dict[str, list[str]]:
+    _, cells = guard.read(spreadsheet_id, [landed])
+    touched = [guard.handle(landed.tab or "", r, c)
+               for r in range(landed.start_row, landed.end_row)
+               for c in range(landed.start_col, landed.end_col)]
+    return guard.fingerprint(cells, touched)
+
+
 def plan(spreadsheet_id: str, target: str, upload: str) -> str:
     handle, data = transfer.read_upload(upload)
     rows = _rows(data)
@@ -100,7 +109,8 @@ def plan(spreadsheet_id: str, target: str, upload: str) -> str:
         raise reply.Refusal(f"{landed} is not empty, and an upload lands only in an empty "
                             f"range or a new tab: {listed}{more}")
     plan_id = state_store.current().save_plan(
-        {"op": OP, "handle": handle, "range": str(landed), "sheet_id": props["sheetId"]},
+        {"op": OP, "handle": handle, "range": str(landed), "sheet_id": props["sheetId"],
+         "fingerprint": _fingerprint(spreadsheet_id, landed)},
         spreadsheet_id=spreadsheet_id, caller=_caller())
     preview = "\n".join("  " + " | ".join(r) for r in rows[:PREVIEW_ROWS])
     return (f"plan {plan_id} (valid 1 hour, single use): lands {len(rows)} rows x "
@@ -109,29 +119,22 @@ def plan(spreadsheet_id: str, target: str, upload: str) -> str:
             f"apply: write_cells with plan_id=\"{plan_id}\"")
 
 
-def apply(spreadsheet_id: str, plan_id: str) -> str:
+def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
+    """Apply a landing plan whose payload `write_cells` already loaded."""
     store = state_store.current()
-    payload = store.load_plan(plan_id, spreadsheet_id=spreadsheet_id, caller=_caller())
-    if payload is None or payload.get("op") != OP:
-        raise reply.Refusal(f"No plan {plan_id} for you on this spreadsheet: it is unknown, "
-                            f"used, expired (1 hour) or another caller's. Make a new plan.")
+    store.expire_plan(plan_id)                 # single use, applied or refused
     handle, data = transfer.read_upload(payload["handle"])
     rows = _rows(data)
     landed = a1.parse(payload["range"])
-    filled = _filled(spreadsheet_id, landed)
-    if filled:
-        store.expire_plan(plan_id)
-        listed = ", ".join(f"{name}: \"\" → {str(v)!r}" for name, v in filled[:MAX_LISTED])
-        raise reply.Refusal(f"Nothing was written: {landed} changed since the plan. {listed}. "
-                            f"Make a new plan.")
+    guard.check(payload.get("fingerprint") or {}, _fingerprint(spreadsheet_id, landed),
+                str(landed))
     sheets_api.batch_update(spreadsheet_id, [{"updateCells": {
         "start": {"sheetId": payload["sheet_id"], "rowIndex": landed.start_row,
                   "columnIndex": landed.start_col},
         "rows": [{"values": [_cell(v) for v in row]} for row in rows],
         "fields": "userEnteredValue"}}])
-    store.expire_plan(plan_id)
     store.delete_object(handle)
-    scan.clear(spreadsheet_id)
+    writes.after_write(spreadsheet_id)
     written = _filled(spreadsheet_id, landed)
     shown = "\n".join(f"  {name} {str(v)!r}" for name, v in written[:RECEIPT_CELLS])
     more = (f"\n  +{len(written) - RECEIPT_CELLS} more cells" if len(written) > RECEIPT_CELLS

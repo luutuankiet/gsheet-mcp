@@ -119,6 +119,28 @@ def _cell(sheet: dict[str, Any], row: int, col: int) -> dict[str, Any]:
     return values[col] if col < len(values) else {}
 
 
+def _cell_at(sheet: dict[str, Any], row: int, col: int) -> dict[str, Any]:
+    """The cell itself, created when the grid holds nothing there yet."""
+    rows = sheet["data"][0].setdefault("rowData", [])
+    while len(rows) <= row:
+        rows.append({})
+    values = rows[row].setdefault("values", [])
+    while len(values) <= col:
+        values.append({})
+    return values[col]
+
+
+def _set_path(target: dict[str, Any], source: dict[str, Any], path: list[str]) -> None:
+    """Copy `source`'s value at `path` into `target`, or clear it there when absent."""
+    for key in path[:-1]:
+        source = source.get(key) or {}
+        target = target.setdefault(key, {})
+    if path[-1] in source:
+        target[path[-1]] = copy.deepcopy(source[path[-1]])
+    else:
+        target.pop(path[-1], None)
+
+
 def _rendered(cell: dict[str, Any], render: str) -> Any:
     if render == "FORMATTED_VALUE":
         return cell.get("formattedValue", "")
@@ -326,27 +348,36 @@ class FakeSheets:
         return {"spreadsheetId": spreadsheetId, "replies": replies}
 
     def _update_cells(self, book: dict[str, Any], body: dict[str, Any]) -> None:
-        """`updateCells` with a `start` and `userEnteredValue` or `note` in its fields."""
+        """`updateCells` with a `start`, honouring these field paths:
+        `userEnteredValue` (absent from the cell = cleared), `textFormatRuns`,
+        `note`, `userEnteredFormat` and any `userEnteredFormat.<path>`. A path
+        set in the mask but missing from the cell is cleared, as Google does."""
         start = body["start"]
         sheet = next(s for s in book["sheets"] if s["properties"]["sheetId"] == start["sheetId"])
         title = sheet["properties"]["title"]
-        fields = set(body.get("fields", "").split(","))
+        fields = [f.strip() for f in body.get("fields", "").split(",") if f.strip()]
         for dr, row in enumerate(body.get("rows", [])):
             for dc, cell in enumerate(row.get("values", [])):
-                handle = str(a1.Range(title, start.get("rowIndex", 0) + dr,
-                                      start.get("rowIndex", 0) + dr + 1,
-                                      start.get("columnIndex", 0) + dc,
-                                      start.get("columnIndex", 0) + dc + 1))
-                if "userEnteredValue" in fields and "userEnteredValue" in cell:
-                    self.set_cell(book["spreadsheetId"], handle,
-                                  next(iter(cell["userEnteredValue"].values())))
-                if "note" in fields:
-                    target = _cell(sheet, start.get("rowIndex", 0) + dr,
-                                   start.get("columnIndex", 0) + dc)
-                    if cell.get("note"):
-                        target["note"] = cell["note"]
+                r, c = start.get("rowIndex", 0) + dr, start.get("columnIndex", 0) + dc
+                if "userEnteredValue" in fields:
+                    if "userEnteredValue" in cell:
+                        self.set_cell(book["spreadsheetId"], str(a1.Range(title, r, r + 1, c, c + 1)),
+                                      next(iter(cell["userEnteredValue"].values())))
                     else:
-                        target.pop("note", None)
+                        target = _cell_at(sheet, r, c)
+                        for key in ("userEnteredValue", "effectiveValue", "formattedValue"):
+                            target.pop(key, None)
+                target = _cell_at(sheet, r, c)
+                for path in fields:
+                    if path in ("userEnteredValue",):
+                        continue
+                    if path in ("note", "textFormatRuns"):
+                        if cell.get(path):
+                            target[path] = copy.deepcopy(cell[path])
+                        else:
+                            target.pop(path, None)
+                    elif path == "userEnteredFormat" or path.startswith("userEnteredFormat."):
+                        _set_path(target, cell, path.split("."))
 
     def comments_list(self, fileId: str, **_: Any) -> dict[str, Any]:  # noqa: N803
         self._book(fileId)
