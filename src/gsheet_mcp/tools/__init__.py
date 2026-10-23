@@ -1,0 +1,9 @@
+# Copied from google-docs-mcp@2fb4652 src/<package>/tools/__init__.py; renamed, Docs tools dropped.
+"""One module per MCP tool. Importing this package registers every tool.
+
+A new tool goes in its own module here, imports `tool` and a hints constant
+from `gsheet_mcp.app`, and is added to the import list below.
+"""
+from . import (  # noqa: F401
+    auth_status,
+)
