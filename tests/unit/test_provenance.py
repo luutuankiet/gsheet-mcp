@@ -42,6 +42,7 @@ COPIED = {
     "cli/src/errors.js": "cli/src/workingcopy.js",
     "cli/src/names.js": "cli/src/names.js",
     "cli/src/transfer.js": "cli/src/transfer.js",
+    "src/gsheet_mcp/tools/grep_sheet.py": "src/<package>/tools/grep.py",
     "tests/conftest.py": "tests/conftest.py",
     "tests/fake_sheets.py": "tests/fake_docs.py",
     "tests/unit/test_provenance.py": "tests/unit/test_provenance.py",

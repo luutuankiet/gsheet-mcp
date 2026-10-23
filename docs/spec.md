@@ -145,6 +145,9 @@ The text shows structure, content and formatting, one region at a time, in the s
 - **One line per hit:** `'table for comms'!D4:E4  …snippet…`, about 80 characters around the match. A hit inside a merge reports the merge range.
 - **Tags:** each hit names the field it matched (`value`, `link`, `note`, `formula`, `comment`), and hits in hidden rows are tagged.
 - **Cap:** 50 hits, then `+N more in <tab>`.
+- **Line shape (default, review):** `<handle>  [<field> · <hidden tags>]  <snippet>`, one line per cell per field however many matches the field holds. Hidden tags are `hidden row`, `hidden column` and `hidden tab`.
+- **No range (default, review):** every tab is searched, hidden tabs included, and their hits are tagged `hidden tab`. Comments the export cannot place on a cell come back as `(unplaced)` hits, only when no range is given.
+- **Big tabs (default, review):** every row is searched; the scan's head-and-tail sampling does not apply.
 
 ### 6.3 `query_range` (default, review)
 
@@ -155,6 +158,14 @@ Live, non-SQL questions on a region:
 - count
 
 The answer comes back as a Markdown table under the read budget. Its job is to answer small questions without a pull. Anything heavier goes to the CLI.
+
+The details, all (default, review):
+- **Conditions:** `where` is a list of `<column> <op> <value>`, with ops `=`, `!=`, `>`, `>=`, `<`, `<=`, `contains` and `~` (regex), plus `<column> is empty` and `<column> is not empty`. Numbers and ISO dates compare by value; text compares ignoring case.
+- **Sort:** a comma-separated list; `-col` or `col desc` sorts descending, and empty cells sort last.
+- **Count:** `count=true` returns only the header line with the match count.
+- **Rows left out:** hidden rows unless `include_hidden=true`, as in `read_range`, and suspected total and subtotal rows. The reply says how many of each were left out.
+- **One region:** a range holding no table region, or more than one, is refused with the candidates listed. An unknown column is refused with the column names.
+- **Row numbers:** each answer row carries its real sheet row number.
 
 ### 6.4 `render_range`
 
