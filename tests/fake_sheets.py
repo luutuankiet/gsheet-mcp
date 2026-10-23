@@ -137,6 +137,19 @@ def _trim(rows: list[list[Any]]) -> list[list[Any]]:
     return out
 
 
+def blank_pdf(pages: int) -> bytes:
+    """A real PDF of blank landscape letter pages, which PDFium can rasterise."""
+    import pypdfium2 as pdfium
+
+    doc = pdfium.PdfDocument.new()
+    for _ in range(pages):
+        doc.new_page(792, 612)
+    out = io.BytesIO()
+    doc.save(out)
+    doc.close()
+    return out.getvalue()
+
+
 class FakeSheets:
     """Holds spreadsheets by id and serves them the way the Sheets and Drive APIs do."""
 
@@ -148,6 +161,7 @@ class FakeSheets:
         self.calls: list[str] = []              # every call, e.g. "spreadsheets.get"
         self.downloads: list[str] = []          # every export URL fetched
         self._rate_limited = 0
+        self.pdf_pages = 1                      # pages in a PDF export
         self._after_next: list[Callable[[], None]] = []
         self._ids = itertools.count(1)
 
@@ -216,7 +230,7 @@ class FakeSheets:
 
     def download(self, url: str, timeout: float) -> bytes:
         """The editor's export link: xlsx from the fixture, CSV made from the
-        tab's values, PDF as a stub."""
+        tab's values, PDF as `pdf_pages` blank landscape pages."""
         import urllib.error
 
         self.downloads.append(url)
@@ -232,7 +246,7 @@ class FakeSheets:
         if query["format"] == "xlsx":
             return self.xlsx[spreadsheet_id]
         if query["format"] == "pdf":
-            return b"%PDF-1.4 fake export\n"
+            return blank_pdf(self.pdf_pages)
         book = self.books[spreadsheet_id]
         sheet = next(s for s in book["sheets"] if s["properties"]["sheetId"] == int(query["gid"]))
         rng = a1.parse(query["range"]) if "range" in query else a1.Range()

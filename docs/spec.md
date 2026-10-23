@@ -159,7 +159,7 @@ The answer comes back as a Markdown table under the read budget. Its job is to a
 - **Opt-in only.** It exports the range from the editor link as PDF, then rasterises it with pypdfium2. One page costs about 1,080 image tokens.
 - **Keeps:** colours, merges, links, images, checkboxes and charts.
 - **Loses:** dropdown pill colours, partial star ratings and frozen panes.
-- **Rate limits:** renders are cached in the state store and serialised per spreadsheet. A 429 gets one retry with a backoff, then a visible refusal.
+- **Rate limits:** renders are cached in the state store for 10 minutes and serialised per spreadsheet. Any write through our tools clears that spreadsheet's cached renders, as it does the scan cache. A 429 gets one retry with a backoff, then a visible refusal.
 
 There is no tool that returns one floating image's pixels in the first build. An agent sees them by rendering the range.
 
@@ -305,7 +305,7 @@ The tab, filter and validation operations are **(default, review)**.
 
 ## 12. Deployment (default, review)
 
-- **Cloud Run:** 1 vCPU, 1 GiB, concurrency 20, request timeout 300 s. The server holds no DuckDB and streams exports, so it needs little memory.
+- **Cloud Run:** 1 vCPU, 1 GiB, concurrency 20, request timeout 300 s, `max-instances=1`. The per-user and per-spreadsheet locks live in one process, so one instance is what makes them hold. The server holds no DuckDB and streams exports, so it needs little memory.
 - **Quotas:**
   - Sheets allows 300 read requests and 300 write requests per minute per project, and 60 per minute per user.
   - The server serialises per user, retries once on 429, then refuses visibly.
