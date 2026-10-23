@@ -38,6 +38,7 @@ COPIED = {
     "src/gsheet_mcp/notation.py": "src/<package>/render.py",
     "src/gsheet_mcp/transfer.py": "src/<package>/transfer.py",
     "src/gsheet_mcp/tools/render_range.py": "src/<package>/tools/render_pages.py",
+    "src/gsheet_mcp/tools/grep_sheet.py": "src/<package>/tools/grep.py",
     "tests/conftest.py": "tests/conftest.py",
     "tests/fake_sheets.py": "tests/fake_docs.py",
     "tests/unit/test_provenance.py": "tests/unit/test_provenance.py",
