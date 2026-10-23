@@ -135,6 +135,9 @@ class MemoryStateStore:
         hit = self.cached.get(_cache_name(key))
         return hit[0] if hit and hit[1] > self._clock() else None
 
+    def drop_cached(self, key: str) -> None:
+        self.cached.pop(_cache_name(key), None)
+
 
 class HostedStateStore:
     """`serve-http`: plans in Firestore, short-lived objects in a GCS bucket.
@@ -267,6 +270,14 @@ class HostedStateStore:
             return blob.download_as_bytes()
         except NotFound:
             return None
+
+    def drop_cached(self, key: str) -> None:
+        from google.api_core.exceptions import NotFound
+
+        try:
+            self._bucket().blob(_cache_name(key)).delete()
+        except NotFound:
+            pass
 
 
 def _signing_kwargs(storage_client) -> dict[str, str]:

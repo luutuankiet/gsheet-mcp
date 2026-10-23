@@ -7,4 +7,5 @@ from `gsheet_mcp.app`, and is added to the import list below.
 from . import (  # noqa: F401
     auth_status,
     render_range,
+    scan_sheet,
 )

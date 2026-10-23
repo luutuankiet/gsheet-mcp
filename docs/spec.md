@@ -87,7 +87,7 @@ One call covers the whole workbook, in about 2k tokens for a typical one.
 **How regions are found:**
 - A flood fill runs over filled cells.
 - Two blocks join when no more than 3 blank rows separate them and their column spans match within one column. The scan reports the blank rows inside a joined block.
-- Native Tables and named ranges are exact, and they override the guess.
+- Native Tables and named ranges are exact, and they override the guess: a guessed block half or more inside one is dropped (default, review).
 
 **Big tabs:**
 - Up to 500k cells, the scan reads every value.

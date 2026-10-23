@@ -355,6 +355,54 @@ def _join(folder: str, target: str) -> str:
     return "/".join(parts)
 
 
+_XDR = "{http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing}"
+_A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+EMU_PER_PIXEL = 9525
+
+
+def _int(node, path: str) -> int:
+    found = node.find(path) if node is not None else None
+    return int(found.text or 0) if found is not None else 0
+
+
+def xlsx_images(xlsx: bytes) -> list[dict[str, Any]]:
+    """The xlsx export's floating images, one entry per picture:
+    `{"tab", "row", "col", "row_off", "col_off", "width", "height"}`, with the
+    anchor cell 0-based and offsets and size in pixels. Plain REST never
+    returns floating images; the export carries each with its anchor, but not
+    its alt text (spec, "Facts"). Charts sit in the same drawing parts as
+    graphic frames and are skipped here; the API reports them."""
+    z = zipfile.ZipFile(BytesIO(xlsx))
+    workbook = "xl/workbook.xml"
+    targets = _rels(z, workbook)
+    images: list[dict[str, Any]] = []
+    for sheet in ElementTree.fromstring(z.read(workbook)).iter(f"{_MAIN}sheet"):
+        part = targets.get(sheet.get(_R_ID, ""))
+        if not part:
+            continue
+        for target in _rels(z, part).values():
+            if "drawings/drawing" not in target or target not in z.namelist():
+                continue
+            root = ElementTree.fromstring(z.read(target))
+            for kind in ("oneCellAnchor", "twoCellAnchor", "absoluteAnchor"):
+                for anchor in root.iter(f"{_XDR}{kind}"):
+                    if anchor.find(f"{_XDR}pic") is None:
+                        continue
+                    start = anchor.find(f"{_XDR}from")
+                    ext = anchor.find(f"{_XDR}ext")
+                    if ext is None:   # a two-cell anchor sizes the picture in its shape
+                        ext = anchor.find(f"{_XDR}pic/{_XDR}spPr/{_A}xfrm/{_A}ext")
+                    cx = int(ext.get("cx", 0)) if ext is not None else 0
+                    cy = int(ext.get("cy", 0)) if ext is not None else 0
+                    images.append({
+                        "tab": sheet.get("name"),
+                        "row": _int(start, f"{_XDR}row"), "col": _int(start, f"{_XDR}col"),
+                        "row_off": _int(start, f"{_XDR}rowOff") // EMU_PER_PIXEL,
+                        "col_off": _int(start, f"{_XDR}colOff") // EMU_PER_PIXEL,
+                        "width": cx // EMU_PER_PIXEL, "height": cy // EMU_PER_PIXEL})
+    return images
+
+
 def xlsx_threads(xlsx: bytes) -> list[dict[str, Any]]:
     """The xlsx export's threaded comments, one entry per thread:
     `{"tab", "cell", "text", "replies": [text...], "done"}`. The export
