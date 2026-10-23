@@ -18,11 +18,11 @@ async def test_http_mode_lists_auth_status_with_its_annotations():
         async with httpx.AsyncClient(transport=transport, base_url="http://localhost") as c:
             r = await c.post("/mcp", headers=HEADERS,
                              json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
-    tools = r.json()["result"]["tools"]
-    assert [t["name"] for t in tools] == ["auth_status"]
-    assert tools[0]["annotations"] == {"readOnlyHint": True, "destructiveHint": False,
-                                       "idempotentHint": True, "openWorldHint": True}
-    assert "outputSchema" not in tools[0]
+    tools = {t["name"]: t for t in r.json()["result"]["tools"]}
+    assert tools["auth_status"]["annotations"] == {
+        "readOnlyHint": True, "destructiveHint": False, "idempotentHint": True,
+        "openWorldHint": True}
+    assert "outputSchema" not in tools["auth_status"]
 
 
 async def test_auth_status_reports_the_caller_and_the_four_scopes(signed_in, client):

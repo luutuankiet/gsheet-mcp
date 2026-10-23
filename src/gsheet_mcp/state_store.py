@@ -9,6 +9,7 @@ instance can be applied on another.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import secrets
 import time
@@ -60,6 +61,11 @@ def _new_handle(content_type: str) -> str:
     return f"{OBJECT_PREFIX}{secrets.token_urlsafe(24)}{_EXTENSIONS.get(content_type, '')}"
 
 
+def _cache_name(key: str) -> str:
+    """A cache entry's object name: the key hashed, so a key may hold any text."""
+    return f"{OBJECT_PREFIX}cache/{hashlib.sha256(key.encode()).hexdigest()}"
+
+
 def _plan_record(payload, spreadsheet_id, caller, expires_at) -> dict[str, Any]:
     # Payload as JSON text: Firestore rejects arrays nested in arrays.
     return {"payload": json.dumps(payload), "spreadsheet_id": spreadsheet_id, "caller": caller or "",
@@ -81,6 +87,7 @@ class MemoryStateStore:
         self._clock = clock
         self._plans: dict[str, dict[str, Any]] = {}
         self.objects: dict[str, tuple[bytes, str]] = {}
+        self.cached: dict[str, tuple[bytes, float]] = {}
 
     def save_plan(self, payload: dict[str, Any], *, spreadsheet_id: str, caller: str | None,
                   ttl_seconds: float = PLAN_TTL_SECONDS) -> str:
@@ -117,6 +124,19 @@ class MemoryStateStore:
 
     def delete_object(self, handle: str) -> None:
         self.objects.pop(handle, None)
+
+    # ---- keyed cache (renders, scans): bytes under a key, until a deadline
+
+    def put_cached(self, key: str, data: bytes, *, ttl_seconds: float) -> None:
+        self.cached[_cache_name(key)] = (data, self._clock() + ttl_seconds)
+
+    def get_cached(self, key: str) -> bytes | None:
+        """The bytes put under `key`, or None when there are none or they expired."""
+        hit = self.cached.get(_cache_name(key))
+        return hit[0] if hit and hit[1] > self._clock() else None
+
+    def drop_cached(self, key: str) -> None:
+        self.cached.pop(_cache_name(key), None)
 
 
 class HostedStateStore:
@@ -227,6 +247,35 @@ class HostedStateStore:
 
         try:
             self._bucket().blob(handle).delete()
+        except NotFound:
+            pass
+
+    # ---- keyed cache (renders, scans): bytes under a key, until a deadline
+
+    def put_cached(self, key: str, data: bytes, *, ttl_seconds: float) -> None:
+        """One object per key, its deadline in the object's metadata. The
+        bucket's one-day lifecycle deletes it in the end."""
+        blob = self._bucket().blob(_cache_name(key))
+        blob.metadata = {"expires_at": str(self._clock() + ttl_seconds)}
+        blob.upload_from_string(data, content_type="application/octet-stream")
+
+    def get_cached(self, key: str) -> bytes | None:
+        """The bytes put under `key`, or None when there are none or they expired."""
+        from google.api_core.exceptions import NotFound
+
+        blob = self._bucket().get_blob(_cache_name(key))
+        if blob is None or float((blob.metadata or {}).get("expires_at", 0)) <= self._clock():
+            return None
+        try:
+            return blob.download_as_bytes()
+        except NotFound:
+            return None
+
+    def drop_cached(self, key: str) -> None:
+        from google.api_core.exceptions import NotFound
+
+        try:
+            self._bucket().blob(_cache_name(key)).delete()
         except NotFound:
             pass
 
