@@ -213,13 +213,18 @@ The tab, filter and validation operations are **(default, review)**.
   - a string starting with `=` is a formula
   - an ISO date string, in a cell already formatted as a date, becomes a date serial
 
-  There is no "parse like typing" mode. The one place input is parsed (dates) reads the spreadsheet's `locale`.
-- **Rich text.** Writes take the same inline Markdown that reads show. When a write would overwrite a cell's text runs with plain text, both the dry run and the receipt warn: `B4: drops 2 rich text runs (bold, link)`.
-- **Format patches** name only their own fields, e.g. `userEnteredFormat.textFormat.bold`. Clearing is explicit, with `null`.
+  There is no "parse like typing" mode. The one place input is parsed is dates, and only ISO dates are taken, so the spreadsheet's `locale` is not needed (default, review).
+  - `null` leaves a cell unchanged; `""` clears its value (default, review).
+- **Rich text.** Writes take the same inline Markdown that reads show. When a write would overwrite a cell's text runs with plain text, both the dry run and the receipt warn: `B4: drops 2 rich text runs (bold, link)`. The details, all (default, review):
+  - For those cells only, the mask also carries an empty `textFormatRuns`, so the runs really are dropped as the warning says.
+  - A link's own underline and colour count as `link`, not as separate styles.
+  - Markdown with an unclosed marker is written as literal text.
+  - Run start indexes count Python characters, which may differ from Google's count for emoji and other characters outside the BMP.
+- **Format patches** name only their own fields, e.g. `userEnteredFormat.textFormat.bold`. Clearing is explicit, with `null`. Only fields inside `textFormat` and `borders` are split into separate mask paths; any other key, such as a colour or `numberFormat`, is replaced whole (default, review).
 - **Cells with structure:**
   - A write to a covered cell inside a merge is refused, with a pointer to the top-left cell.
   - A checkbox cell takes only booleans.
-  - A strict dropdown refuses values not in its list; a non-strict one warns.
+  - A strict dropdown refuses values not in its list; a non-strict one warns. Dropdowns whose list comes from a range are not checked (default, review).
   - Overwriting a formula with a plain value warns.
   - New rows in a native Table go through `appendCells` with its `tableId`.
 - **Notes** are written through a note-only field mask.
@@ -238,7 +243,8 @@ The tab, filter and validation operations are **(default, review)**.
 - **The guard reads, compares, then writes, on the cells a write touches:**
   - *Cell writes:* values, formulas, `userEnteredFormat` and notes.
   - *Structural writes:* also the tab's row and column counts and the values in the affected rows.
-- **The dry run** stores the fingerprint with its `plan_id` and returns a diff. Applying the plan re-reads and compares. A write without a plan re-reads just before writing.
+- **The dry run** stores the fingerprint with its `plan_id` and returns a diff. Applying the plan re-reads and compares. A write without a plan re-reads just before writing; with no earlier fingerprint to compare, that read only feeds the refusals and warnings (default, review).
+- **A plan is used once (default, review).** Applying it uses it up, even when the guard refuses the apply. Landing a CLI upload fingerprints the target's formats as well as its values.
 - **On a change**, the whole batch is refused and nothing is applied. The reply lists up to 20 changed cells as `B4: "old" → "new"` and asks for a new plan.
 - **Tool descriptions and the skill** say the guard narrows the race to about one round trip. It is not a lock.
 
@@ -246,7 +252,7 @@ The tab, filter and validation operations are **(default, review)**.
 
 - **The reply re-reads the touched cells** and shows them in the read notation, with the style legend.
 - **It is capped at 50 cells**, plus counts and warnings.
-- **Any write clears the scan cache.**
+- **Any write clears the scan cache and the render cache.** Each spreadsheet has a generation token in the state store that every write replaces, and both cache keys include it, so one write hides every caller's cached scan and renders for that spreadsheet (default, review).
 
 ## 8. Tables to DuckDB
 
