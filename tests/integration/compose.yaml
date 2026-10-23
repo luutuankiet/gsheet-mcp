@@ -1,0 +1,42 @@
+# Copied from google-docs-mcp@2fb4652 tests/integration/compose.yaml; renamed.
+# The Firestore state store against the Firestore emulator. Outside the CI gate.
+#
+#   docker compose -f tests/integration/compose.yaml run --rm tests
+#   docker compose -f tests/integration/compose.yaml down
+#
+# The repo is mounted read-only; the virtualenv lives in a container volume.
+name: gsheet-mcp-integration
+
+services:
+  firestore:
+    image: gcr.io/google.com/cloudsdktool/google-cloud-cli:emulators
+    command: >-
+      gcloud emulators firestore start
+      --host-port=0.0.0.0:8080 --database-mode=firestore-native
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+
+  tests:
+    image: ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+    depends_on:
+      firestore:
+        condition: service_healthy
+    working_dir: /src
+    volumes:
+      - ../..:/src:ro
+      - venv:/venv
+    environment:
+      UV_PROJECT_ENVIRONMENT: /venv
+      UV_LINK_MODE: copy
+      PYTHONDONTWRITEBYTECODE: "1"
+      FIRESTORE_EMULATOR_HOST: firestore:8080
+      GOOGLE_CLOUD_PROJECT: demo-gsheet-mcp
+    command: >-
+      uv run --frozen
+      pytest -p no:cacheprovider tests/integration -q
+
+volumes:
+  venv:
