@@ -4,3 +4,7 @@
 tmp/
 .venv/
 __pycache__/
+
+# gsheet CLI
+cli/node_modules/
+.gsheet/
