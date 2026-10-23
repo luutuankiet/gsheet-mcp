@@ -1,0 +1,49 @@
+# Copied from google-docs-mcp@2fb4652 pyproject.toml; renamed, Docs-only dependencies dropped.
+[project]
+name = "gsheet-mcp"
+version = "0.1.0"
+description = "Remote MCP server for Google Sheets: scan, read, render and plan-checked writes"
+requires-python = ">=3.11"
+dependencies = [
+    "fastmcp>=4.0.10,<5",
+    "google-api-python-client>=2.140",
+    "google-auth>=2.34",
+    "google-auth-httplib2>=0.2",
+    # The server runs over HTTP only, so the auth store and state store
+    # dependencies are not an optional extra as they are in slides-mcp.
+    "google-cloud-firestore>=2.16",
+    "google-cloud-storage>=3.16.0",
+    "httpx>=0.27",
+    "mini-racer>=0.14.1",
+    "py-key-value-aio[firestore]",
+]
+
+[project.scripts]
+gsheet-mcp = "gsheet_mcp.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/gsheet_mcp"]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+asyncio_mode = "auto"

@@ -1,0 +1,8 @@
+# Copied from google-docs-mcp@2fb4652 .dockerignore; unchanged.
+# Allowlist: only what the image build needs. Everything else stays out,
+# including client secrets and anything under tmp/.
+*
+!pyproject.toml
+!uv.lock
+!src/
+**/__pycache__

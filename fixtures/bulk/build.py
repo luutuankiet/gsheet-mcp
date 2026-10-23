@@ -21,10 +21,10 @@ as BULK_SHEET_ID. Standard library only.
 """
 import csv
 import json
-import time
-import urllib.parse
 import subprocess
 import sys
+import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
