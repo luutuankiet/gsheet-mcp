@@ -345,10 +345,24 @@ class FakeSheets:
         for request in requests:
             if "updateCells" in request:
                 self._update_cells(book, request["updateCells"])
+            elif "addChart" in request:
+                replies.append({"addChart": {"chart": self._add_chart(book, request["addChart"])}})
+                continue
             else:
                 self._structural(book, request)
             replies.append({})
         return {"spreadsheetId": spreadsheetId, "replies": replies}
+
+    def _add_chart(self, book: dict[str, Any], body: dict[str, Any]) -> dict[str, Any]:
+        """`addChart` anchored on a tab: the chart joins that tab's `charts`."""
+        chart = copy.deepcopy(body["chart"])
+        anchor = chart.get("position", {}).get("overlayPosition", {}).get("anchorCell", {})
+        sheet = next(s for s in book["sheets"]
+                     if s["properties"]["sheetId"] == anchor.get("sheetId"))
+        taken = [c.get("chartId", 0) for s in book["sheets"] for c in s.get("charts") or []]
+        chart.setdefault("chartId", max(taken, default=0) + 1)
+        sheet.setdefault("charts", []).append(chart)
+        return chart
 
     def _update_cells(self, book: dict[str, Any], body: dict[str, Any]) -> None:
         """`updateCells` with a `start`, honouring these field paths:
