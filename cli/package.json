@@ -1,6 +1,6 @@
 {
   "name": "@luutuankiet/gsheet",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Companion CLI for gsheet-mcp: pull Google Sheets tables into DuckDB, query them, push results back",
   "type": "module",
   "bin": {
