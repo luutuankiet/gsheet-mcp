@@ -14,7 +14,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test \"test/**/*.test.js\""
   },
   "dependencies": {
     "@duckdb/node-api": "1.5.6-r.2"

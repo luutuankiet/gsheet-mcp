@@ -28,6 +28,7 @@ const defaultSleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** `fetch`, once more after a backoff when the answer is HTTP 429, then a refusal. */
 async function fetchOnce429(url, init, { fetch, sleep = defaultSleep, what }) {
   const host = new URL(url).host;
+  let waited = 0;
   for (let attempt = 0; ; attempt++) {
     let res;
     try {
@@ -39,10 +40,11 @@ async function fetchOnce429(url, init, { fetch, sleep = defaultSleep, what }) {
     if (res.status !== 429) return res;
     if (attempt === 1) {
       throw new CliError(`${what} was refused twice with HTTP 429 (too many requests), ` +
-        `the second time after waiting ${RETRY_AFTER_MS / 1000} s. Wait a minute and run it again.`);
+        `the second time after waiting ${waited / 1000} s. Wait a minute and run it again.`);
     }
     const after = Number(res.headers?.get?.("retry-after"));
-    await sleep(Number.isFinite(after) && after > 0 ? Math.min(after * 1000, 60000) : RETRY_AFTER_MS);
+    waited = Number.isFinite(after) && after > 0 ? Math.min(after * 1000, 60000) : RETRY_AFTER_MS;
+    await sleep(waited);
   }
 }
 

@@ -23,6 +23,9 @@ export const ident = (text, fallback) => {
   return /^[0-9]/.test(s) ? `_${s}` : s;
 };
 
+/** A native Table's name as is (case kept) when it is already a plain SQL name, else its `ident`. */
+const ownName = (name, base) => (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name) ? name : ident(name, base));
+
 /**
  * The table name of each region on one tab, in the order given: a native
  * Table keeps its name; a tab holding one region takes the tab slug; a tab
@@ -37,7 +40,7 @@ export function tableNames(tab, regions) {
   const names = new Array(regions.length);
   order.forEach(({ i }, n) => {
     const own = regions[i].table_name;
-    names[i] = own ? ident(own, base) : regions.length === 1 ? base : `${base}_${n + 1}`;
+    names[i] = own ? ownName(own, base) : regions.length === 1 ? base : `${base}_${n + 1}`;
   });
   return names;
 }
