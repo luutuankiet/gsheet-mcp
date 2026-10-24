@@ -36,6 +36,10 @@ def edit_sheet(spreadsheet: str, operations: list[dict[str, Any]] | None = None,
       comment {text} (unanchored, through Drive) · reply {comment_id, text}
       resolve {comment_id, text?}
 
+    No column-width or formatting operation: widths go through raw
+    `batch_update`; fills, bold and number formats through the `write_cells`
+    `format` patch.
+
     Args:
       spreadsheet: the spreadsheet's URL or id.
       operations: the operations, applied in order in one batch.
