@@ -130,9 +130,11 @@ heavier goes to DuckDB.
 4. Before trusting a pull again, `table_status(spreadsheet, tab, since=<fingerprint>)`
    or `gsheet status`. It compares the size and the first and last 500 rows
    only; the middle is not compared, so pull again to be sure.
-5. To write a result back: `upload_slot`, then `gsheet push <sql> --to
-   <tab or range> --upload <url>`, then the `write_cells(..., upload=<handle>)`
-   call it prints, which returns a plan to apply.
+5. To write a result back: create the tab first with `edit_sheet` add_tab
+   (an upload never creates one), then `upload_slot`, then `gsheet push <sql
+   or file.sql> --to <tab or range> --upload <url>`, then the
+   `write_cells(..., upload=<handle>)` call it prints, which returns a plan to
+   apply. The target range must be empty.
 
 Run `npx @luutuankiet/gsheet --help` for the whole manual. The CLI holds no
 Google credential; it only follows the links the tools hand it.

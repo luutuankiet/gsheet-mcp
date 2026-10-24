@@ -451,7 +451,21 @@ def load(spreadsheet_id: str, plan_id: str) -> dict[str, Any]:
 
 def receipt(spreadsheet_id: str, prepared: Prepared) -> str:
     """The touched cells re-read, in the read notation with its legends, up to 50."""
-    book = sheets_api.get_spreadsheet(spreadsheet_id, [str(w.rng) for w in prepared.writes],
+    lines = [f"wrote {len(prepared.touched)} "
+             f"{'cell' if len(prepared.touched) == 1 else 'cells'}"
+             + (f", showing the first {RECEIPT_CELLS}" if len(prepared.touched) > RECEIPT_CELLS
+                else "")]
+    lines += reread(spreadsheet_id, [w.rng for w in prepared.writes],
+                    prepared.touched[:RECEIPT_CELLS], prepared.one_tab)
+    lines += [f"warning: {w}" for w in prepared.warnings]
+    return "\n".join(lines)
+
+
+def reread(spreadsheet_id: str, ranges: list[a1.Range], handles: list[str],
+           one_tab: bool) -> list[str]:
+    """`handles` re-read over `ranges`, one line each in the read notation,
+    then the style and dropdown legends they use."""
+    book = sheets_api.get_spreadsheet(spreadsheet_id, [str(r) for r in ranges],
                                       fields=reader.READ_FIELDS)
     readers = {s["properties"]["title"]: reader.Reader(
         s, detail="default", include_hidden=True, max_chars=notation.MAX_CELL_CHARS,
@@ -459,16 +473,13 @@ def receipt(spreadsheet_id: str, prepared: Prepared) -> str:
     legends = reader.Legends("default")
     for r in readers.values():
         r.legends = legends
-    lines = [f"wrote {len(prepared.touched)} "
-             f"{'cell' if len(prepared.touched) == 1 else 'cells'}"
-             + (f", showing the first {RECEIPT_CELLS}" if len(prepared.touched) > RECEIPT_CELLS
-                else "")]
+    lines: list[str] = []
     styles: set[str] = set()
     rules: set[str] = set()
-    for handle in prepared.touched[:RECEIPT_CELLS]:
+    for handle in handles:
         rng = a1.parse(handle)
         rd = readers.get(rng.tab or "")
-        name = guard.short(handle, prepared.one_tab)
+        name = guard.short(handle, one_tab)
         cell = rd.cells.get((rng.start_row, rng.start_col)) if rd else None
         if not cell:
             lines.append(f"{name}: (empty)")
@@ -483,5 +494,4 @@ def receipt(spreadsheet_id: str, prepared: Prepared) -> str:
         lines.append("styles:")
         lines += [f"  {n} {' · '.join(p)}" for p, n in legends.styles.items() if n in styles]
     lines += [f"{n} dropdown: {' | '.join(v)}" for v, n in legends.rules.items() if n in rules]
-    lines += [f"warning: {w}" for w in prepared.warnings]
-    return "\n".join(lines)
+    return lines
