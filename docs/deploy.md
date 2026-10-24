@@ -1,10 +1,10 @@
 <!-- Copied from google-docs-mcp@2fb4652 docs/reference/deploying-to-cloud-run.md; renamed, cut down to the gsheet-mcp checklist, setup commands moved into scripts/deploy. -->
 # Deploying gsheet-mcp to Cloud Run
 
-Everything lives in `$GCP_PROJECT` and every `gcloud` call runs as
-`gcpx exec $GCPX_ALIAS -p $GCP_PROJECT -- gcloud ...`, a wrapper that picks the
-Google account per command. Both values come from `.env`. Anyone without
-`gcpx` drops that prefix and adds `--project=$GCP_PROJECT`.
+Everything lives in `$GCP_PROJECT`, set in `.env`. The commands below use
+plain `gcloud` under the active account. If your gcloud has to run through a
+wrapper, for example one that picks the Google account per command, set
+`GCLOUD_WRAPPER` in `.env` and `scripts/deploy` puts it in front of every call.
 
 ## What exists
 
@@ -66,8 +66,8 @@ The Web client, the consent screen and the redirect URI cannot be made from
 Then store the secret and point the service at the client:
 
 ```
-printf '%s' '<CLIENT_SECRET>' | gcpx exec $GCPX_ALIAS -p $GCP_PROJECT -- \
-  gcloud secrets versions add gsheet-mcp-google-client-secret --data-file=-
+printf '%s' '<CLIENT_SECRET>' | gcloud --project=$GCP_PROJECT \
+  secrets versions add gsheet-mcp-google-client-secret --data-file=-
 
 GSHEET_MCP_GOOGLE_CLIENT_ID=<CLIENT_ID> GSHEET_SECRET_VERSION=<version printed above> \
   scripts/deploy
@@ -131,7 +131,7 @@ It runs the tool layer in process with a Google access token that carries the
 
 ```
 GSHEET_LIVE=1 \
-GSHEET_LIVE_TOKEN="$(gcpx exec $GCPX_ALIAS -p $GCP_PROJECT -- gcloud auth print-access-token)" \
+GSHEET_LIVE_TOKEN="$(gcloud auth print-access-token)" \
 CANARY_SHEET_ID=<from .env> \
 GSHEET_LIVE_URL=<service URL> \
   uv run pytest tests/smoke -v

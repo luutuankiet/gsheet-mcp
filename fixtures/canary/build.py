@@ -9,8 +9,8 @@ prints the few steps no API request can do, to be done by hand in the browser.
     python3 fixtures/canary/build.py            # build a new canary
     python3 fixtures/canary/build.py --capture  # after the hand steps: save fixtures
 
-The Google identity is the gcpx alias in `.env`; the new id is added to `.env`
-as CANARY_SHEET_ID. Standard library only.
+The Google identity is the active gcloud account, run through GCLOUD_WRAPPER
+from `.env` when that is set; the new id is added to `.env` as CANARY_SHEET_ID. Standard library only.
 """
 import io
 import json
@@ -54,7 +54,7 @@ def env():
 
 ENV = env()
 TOKEN = subprocess.run(
-    ["gcpx", "exec", ENV["GCPX_ALIAS"], "--", "gcloud", "auth", "print-access-token", "--quiet"],
+    [*ENV.get("GCLOUD_WRAPPER", "").split(), "gcloud", "auth", "print-access-token", "--quiet"],
     capture_output=True, text=True, check=True).stdout.strip()
 
 

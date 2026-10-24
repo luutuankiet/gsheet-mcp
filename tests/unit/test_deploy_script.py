@@ -1,5 +1,5 @@
 """`scripts/deploy` argument handling and its dry run. Every tool it could call
-(`gcpx`, `uv`, `npm`, `gcloud`) is a stub on PATH that records the call and
+(`acct-wrap`, `uv`, `npm`, `gcloud`) is a stub on PATH that records the call and
 fails, so a dry run that executed anything would show up here."""
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "deploy"
-PREFIX = "+ gcpx exec example -p example-project -- gcloud "
+PREFIX = "+ gcloud --project=example-project "
 
 
 @pytest.fixture
@@ -19,13 +19,13 @@ def stubs(tmp_path: Path) -> tuple[dict[str, str], Path]:
     calls = tmp_path / "calls.log"
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
-    for tool in ("gcpx", "gcloud", "uv", "npm", "gsutil", "bq"):
+    for tool in ("acct-wrap", "gcloud", "uv", "npm", "gsutil", "bq"):
         stub = bin_dir / tool
         stub.write_text(f'#!/bin/sh\necho "{tool} $*" >> "{calls}"\nexit 1\n')
         stub.chmod(0o755)
     env = {"PATH": f"{bin_dir}{os.pathsep}/usr/bin{os.pathsep}/bin",
            "HOME": str(tmp_path), "GSHEET_DEPLOY_ENV_FILE": os.devnull,
-           "GCP_PROJECT": "example-project", "GCPX_ALIAS": "example"}
+           "GCP_PROJECT": "example-project"}
     return env, calls
 
 
@@ -51,7 +51,7 @@ def test_the_release_gate_comes_before_any_gcloud_call(stubs):
     assert lines.index("+ uv run ruff check src tests") < first_gcloud
 
 
-def test_every_gcloud_call_goes_through_the_gcpx_alias(stubs):
+def test_every_gcloud_call_carries_the_project(stubs):
     env, _ = stubs
     lines = [line for line in _deploy(env, "--dry-run").stdout.splitlines() if "gcloud" in line]
     assert lines
@@ -105,13 +105,12 @@ def test_a_new_client_id_and_secret_version_reach_the_service(stubs):
     assert "projects describe" not in out
 
 
-@pytest.mark.parametrize("unset", ["GCP_PROJECT", "GCPX_ALIAS"])
-def test_a_missing_project_or_alias_stops_before_anything_runs(stubs, unset):
+def test_a_missing_project_stops_before_anything_runs(stubs):
     env, calls = stubs
-    del env[unset]
+    del env["GCP_PROJECT"]
     result = _deploy(env, "--dry-run")
     assert result.returncode == 2
-    assert unset in result.stderr
+    assert "GCP_PROJECT" in result.stderr
     assert not result.stdout and not calls.exists()
 
 
@@ -130,14 +129,23 @@ def test_help_runs_nothing(stubs):
     assert not calls.exists()
 
 
-def test_project_and_alias_are_read_from_the_env_file(stubs, tmp_path):
+def test_project_and_wrapper_are_read_from_the_env_file(stubs, tmp_path):
     env, calls = stubs
     dotenv = tmp_path / ".env"
     dotenv.write_text("SAMPLE_SHEET_URL=https://x.example/?a=1&b=2#gid=0\n"
-                      "GCPX_ALIAS=from-file\nGCP_PROJECT=file-project\n")
-    del env["GCP_PROJECT"], env["GCPX_ALIAS"]
+                      "GCLOUD_WRAPPER=acct-wrap exec work --\nGCP_PROJECT=file-project\n")
+    del env["GCP_PROJECT"]
     env["GSHEET_DEPLOY_ENV_FILE"] = str(dotenv)
     result = _deploy(env, "--dry-run")
     assert result.returncode == 0, result.stderr
-    assert "+ gcpx exec from-file -p file-project -- gcloud " in result.stdout
+    assert "+ acct-wrap exec work -- gcloud --project=file-project " in result.stdout
     assert not calls.exists()
+
+
+def test_a_wrapper_goes_in_front_of_every_gcloud_call(stubs):
+    env, _ = stubs
+    env["GCLOUD_WRAPPER"] = "acct-wrap exec work --"
+    lines = [line for line in _deploy(env, "--dry-run").stdout.splitlines() if "gcloud" in line]
+    assert lines
+    for line in lines:
+        assert "acct-wrap exec work -- gcloud --project=example-project " in line, line

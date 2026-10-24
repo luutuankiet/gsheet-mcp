@@ -42,7 +42,7 @@ CHUNK = 10_000
 ENV = dict(line.split("=", 1) for line in (ROOT / ".env").read_text().splitlines()
            if "=" in line and not line.startswith("#"))
 TOKEN = subprocess.run(
-    ["gcpx", "exec", ENV["GCPX_ALIAS"], "--", "gcloud", "auth", "print-access-token", "--quiet"],
+    [*ENV.get("GCLOUD_WRAPPER", "").split(), "gcloud", "auth", "print-access-token", "--quiet"],
     capture_output=True, text=True, check=True).stdout.strip()
 
 

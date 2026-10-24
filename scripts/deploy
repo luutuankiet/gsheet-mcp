@@ -6,9 +6,11 @@
 #   scripts/deploy            run the release gate, create what is missing, deploy
 #   scripts/deploy --dry-run  print every command, run none of them
 #
-# Needs GCP_PROJECT and GCPX_ALIAS, from the environment or from .env in the
-# repo root. Every gcloud call runs as `gcpx exec $GCPX_ALIAS -p $GCP_PROJECT --
-# gcloud ...`, the wrapper that picks the Google account per command.
+# Needs GCP_PROJECT, from the environment or from .env in the repo root. Every
+# gcloud call runs as `gcloud --project=$GCP_PROJECT ...` under the active
+# gcloud account. GCLOUD_WRAPPER, also read from .env, is put in front of each
+# call when gcloud has to run through a wrapper, e.g. one that picks the Google
+# account per command.
 #
 # Optional settings (default in brackets):
 #   GSHEET_DEPLOY_REGION         [asia-southeast1]
@@ -25,7 +27,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DRY_RUN=0
 
-usage() { sed -n '4,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+usage() { sed -n '4,24p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
 
 for arg in "$@"; do
   case "$arg" in
@@ -39,7 +41,7 @@ done
 ENV_FILE="${GSHEET_DEPLOY_ENV_FILE:-$ROOT/.env}"
 if [[ -f "$ENV_FILE" ]]; then
   while IFS= read -r line || [[ -n "$line" ]]; do
-    [[ "$line" =~ ^(GCP_PROJECT|GCPX_ALIAS)=(.*)$ ]] || continue
+    [[ "$line" =~ ^(GCP_PROJECT|GCLOUD_WRAPPER)=(.*)$ ]] || continue
     key="${BASH_REMATCH[1]}"
     [[ -z "${!key:-}" ]] && export "$key=${BASH_REMATCH[2]}"
   done < "$ENV_FILE"
@@ -47,7 +49,6 @@ fi
 
 missing_vars=()
 [[ -n "${GCP_PROJECT:-}" ]] || missing_vars+=(GCP_PROJECT)
-[[ -n "${GCPX_ALIAS:-}" ]] || missing_vars+=(GCPX_ALIAS)
 if (( ${#missing_vars[@]} )); then
   echo "deploy: set ${missing_vars[*]} in the environment or in $ENV_FILE" >&2
   exit 2
@@ -84,21 +85,25 @@ run_with_stdin() {
   fi
 }
 
-gc() { run gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"; }
+# The wrapper is split into words on purpose: it is a command plus its arguments.
+read -r -a WRAPPER <<< "${GCLOUD_WRAPPER:-}"
+GCLOUD=("${WRAPPER[@]}" gcloud "--project=$GCP_PROJECT")
+
+gc() { run "${GCLOUD[@]}" "$@"; }
 gc_with_stdin() {
   local input="$1"; shift
-  run_with_stdin "$input" gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"
+  run_with_stdin "$input" "${GCLOUD[@]}" "$@"
 }
 
 # True when `gcloud <describe args>` fails, that is when the resource is missing.
 # A dry run cannot ask, so it prints the check and goes on as if it were missing.
 missing() {
   if (( DRY_RUN )); then
-    printf '+'; printf ' %q' gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"
+    printf '+'; printf ' %q' "${GCLOUD[@]}" "$@"
     printf '   # the commands under it run only if this fails\n'
     return 0
   fi
-  ! gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@" >/dev/null 2>&1
+  ! "${GCLOUD[@]}" "$@" >/dev/null 2>&1
 }
 
 cd "$ROOT"
@@ -168,7 +173,7 @@ if [[ -z "$base_url" ]]; then
     gc projects describe "$GCP_PROJECT" "--format=value(projectNumber)"
     project_number="<project number>"
   else
-    project_number="$(gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud projects describe \
+    project_number="$("${GCLOUD[@]}" projects describe \
       "$GCP_PROJECT" "--format=value(projectNumber)")"
   fi
   base_url="https://$SERVICE-$project_number.$REGION.run.app"
