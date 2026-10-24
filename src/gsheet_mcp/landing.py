@@ -129,8 +129,12 @@ def plan(spreadsheet_id: str, target: str, upload: str) -> str:
 
 def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
     """Apply a landing plan whose payload `write_cells` already loaded."""
+    with writes.applying(plan_id) as state:
+        return _apply(spreadsheet_id, payload, state)
+
+
+def _apply(spreadsheet_id: str, payload: dict[str, Any], state: writes.Applying) -> str:
     store = state_store.current()
-    store.expire_plan(plan_id)                 # single use, applied or refused
     handle, data = transfer.read_upload(payload["handle"])
     rows = _rows(data)
     landed = a1.parse(payload["range"])
@@ -141,6 +145,7 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
                   "columnIndex": landed.start_col},
         "rows": [{"values": [_cell(v) for v in row]} for row in rows],
         "fields": "userEnteredValue"}}])
+    state.landed()
     store.delete_object(handle)
     writes.after_write(spreadsheet_id)
     # The receipt re-reads the landed cells in the read notation (spec, "Receipts").

@@ -374,13 +374,18 @@ def plan(spreadsheet_id: str, operations: list[dict[str, Any]]) -> str:
 
 
 def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
-    state_store.current().expire_plan(plan_id)        # single use, applied or refused
+    with writes.applying(plan_id) as state:
+        return _apply(spreadsheet_id, payload, state)
+
+
+def _apply(spreadsheet_id: str, payload: dict[str, Any], state: writes.Applying) -> str:
     book = _book(spreadsheet_id)
     requests, drive, ranges, tabs = _compile(spreadsheet_id, payload["operations"], book)
     _check(payload["fingerprint"], _fingerprint(spreadsheet_id, ranges, tabs))
     lines = []
     if requests:
         result = sheets_api.batch_update(spreadsheet_id, requests)
+        state.landed()
         writes.after_write(spreadsheet_id)
         lines.append(f"applied {len(requests)} {'request' if len(requests) == 1 else 'requests'}"
                      " in one batchUpdate")
@@ -391,9 +396,11 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
     for call in drive:
         if call["call"] == "add":
             got = sheets_api.add_comment(spreadsheet_id, call["content"])
+            state.landed()
             lines.append(f"comment {got.get('id')} added (unanchored)")
         else:
             got = sheets_api.reply_comment(spreadsheet_id, call["comment_id"], call["content"],
                                            resolve=call["call"] == "resolve")
+            state.landed()
             lines.append(f"{call['call']} on comment {call['comment_id']}: reply {got.get('id')}")
     return "\n".join(lines)

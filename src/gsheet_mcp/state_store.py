@@ -106,6 +106,19 @@ class MemoryStateStore:
     def expire_plan(self, plan_id: str) -> None:
         self._plans.pop(plan_id, None)
 
+    def claim_plan(self, plan_id: str) -> bool:
+        """Mark the plan as being applied; False when it already was."""
+        record = self._plans.get(plan_id)
+        if record is None or record.get("applying"):
+            return False
+        record["applying"] = True
+        return True
+
+    def release_plan(self, plan_id: str) -> None:
+        """Undo `claim_plan`, so the plan can be applied again."""
+        if plan_id in self._plans:
+            self._plans[plan_id]["applying"] = False
+
     def check_object_hosting(self) -> None:
         return None
 
@@ -196,6 +209,29 @@ class HostedStateStore:
 
     def expire_plan(self, plan_id: str) -> None:
         self._plans().document(plan_id).delete()
+
+    def claim_plan(self, plan_id: str) -> bool:
+        """Mark the plan as being applied; False when it already was. The
+        update is conditional on the record being unchanged since it was read,
+        so two applies racing for one plan cannot both win."""
+        doc = self._plans().document(plan_id)
+        snapshot = doc.get()
+        if not snapshot.exists or (snapshot.to_dict() or {}).get("applying"):
+            return False
+        from google.api_core.exceptions import FailedPrecondition
+
+        try:
+            doc.update({"applying": True},
+                       option=self._firestore.write_option(last_update_time=snapshot.update_time))
+        except FailedPrecondition:                 # another apply won the race
+            return False
+        return True
+
+    def release_plan(self, plan_id: str) -> None:
+        """Undo `claim_plan`, so the plan can be applied again."""
+        doc = self._plans().document(plan_id)
+        if doc.get().exists:
+            doc.update({"applying": False})
 
     # ---- objects
 

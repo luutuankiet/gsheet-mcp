@@ -89,6 +89,16 @@ def test_each_plan_gets_its_own_id(store):
     assert store.load_plan(second, spreadsheet_id="sheet-a", caller=None)["script"] == "other"
 
 
+def test_a_plan_is_claimed_once_until_released(store):
+    plan_id = store.save_plan(PLAN, spreadsheet_id="sheet-a", caller=None)
+    assert store.claim_plan(plan_id) is True
+    assert store.claim_plan(plan_id) is False
+    store.release_plan(plan_id)
+    assert store.claim_plan(plan_id) is True
+    assert store.load_plan(plan_id, spreadsheet_id="sheet-a", caller=None) == PLAN
+    assert store.claim_plan("no-such-plan") is False
+
+
 # ---- objects --------------------------------------------------------
 
 

@@ -320,3 +320,55 @@ async def test_a_write_over_the_cell_budget_is_refused_before_any_cell_is_read(
     assert is_error
     assert "covers 360 cells; one call takes at most 100" in text, text
     assert fake.batch_updates == []
+
+
+# ---- a plan applies at most once, and survives a failure before it wrote -----------
+
+
+async def _big_plan(ready) -> str:
+    values = [[f"r{r}c{c}" for c in range(10)] for r in range(25)]
+    planned, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                   range="'multi-region'!A12", values=values, dry_run=True)
+    assert not is_error, planned
+    return _plan_id(planned)
+
+
+async def test_a_plan_whose_apply_failed_before_writing_can_be_applied_again(
+        ready, fake, monkeypatch):
+    plan_id = await _big_plan(ready)
+    real = sheets_api.batch_update
+
+    def down(*_a, **_k):
+        raise ConnectionError("network down")
+
+    monkeypatch.setattr(sheets_api, "batch_update", down)
+    _, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert is_error and not fake.batch_updates
+    monkeypatch.setattr(sheets_api, "batch_update", real)
+    applied, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert not is_error, applied
+    assert len(fake.batch_updates) == 1
+
+
+async def test_a_plan_cut_off_after_it_wrote_is_not_applied_twice(ready, fake, monkeypatch):
+    plan_id = await _big_plan(ready)
+    real = writes.after_write
+
+    def crash(*_a, **_k):
+        raise ConnectionError("lost after the write")
+
+    monkeypatch.setattr(writes, "after_write", crash)
+    _, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert is_error and len(fake.batch_updates) == 1
+    monkeypatch.setattr(writes, "after_write", real)
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert is_error and "stopped part way" in text and "Re-read the cells" in text
+    assert len(fake.batch_updates) == 1
+
+
+async def test_an_applied_plan_is_gone(ready, fake):
+    plan_id = await _big_plan(ready)
+    _, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert not is_error
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, plan_id=plan_id)
+    assert is_error and "No plan" in text and len(fake.batch_updates) == 1

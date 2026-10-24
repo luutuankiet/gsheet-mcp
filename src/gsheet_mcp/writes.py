@@ -4,6 +4,7 @@ text and format patches over one or more ranges, behind the stale-write guard.
     run(spreadsheet_id, writes)          -> receipt (refused over PLAN_THRESHOLD cells)
     plan(spreadsheet_id, writes)         -> dry run: diff, warnings and a plan_id
     apply(spreadsheet_id, plan_id, payload) -> re-read, compare, write, receipt
+    applying(plan_id)                    -> context: a plan applies once; kept on a crash
     after_write(spreadsheet_id)          -> clears the scan and render caches
 
 `writes` is a list of {"range", "values", "format"}. Every value goes through
@@ -15,6 +16,8 @@ from __future__ import annotations
 import datetime as dt
 import json
 import re
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -451,8 +454,10 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
 # ---- the three ways in ----------------------------------------------------------
 
 
-def _send(spreadsheet_id: str, prepared: Prepared) -> str:
+def _send(spreadsheet_id: str, prepared: Prepared, state: Applying | None = None) -> str:
     sheets_api.batch_update(spreadsheet_id, prepared.requests)
+    if state:
+        state.landed()
     after_write(spreadsheet_id)
     return receipt(spreadsheet_id, prepared)
 
@@ -485,12 +490,48 @@ def plan(spreadsheet_id: str, raw: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
+class Applying:
+    """What `applying` yields: call `landed()` once a write has reached Google."""
+
+    def __init__(self) -> None:
+        self.wrote = False
+
+    def landed(self) -> None:
+        self.wrote = True
+
+
+@contextmanager
+def applying(plan_id: str) -> Iterator[Applying]:
+    """Apply a plan at most once (default, review). The plan is marked as being
+    applied, then deleted once the apply finishes or is refused. An error
+    before anything was written (a network failure, Google's 5xx) clears the
+    mark, so the same plan can be applied again. An error after a write
+    landed, or a process that died mid-apply, leaves the mark, and a retry is
+    refused because whether the rest was written is unknown."""
     store = state_store.current()
-    store.expire_plan(plan_id)                 # single use, applied or refused
-    prepared = prepare(spreadsheet_id, payload["writes"])
-    guard.check(payload["fingerprint"], prepared.fingerprint, "this write", prepared.one_tab)
-    return _send(spreadsheet_id, prepared)
+    if not store.claim_plan(plan_id):
+        raise reply.Refusal(f"Plan {plan_id} is being applied, or an earlier apply of it "
+                            "stopped part way, so what it wrote is unknown. Re-read the "
+                            "cells, then make a new plan.")
+    state = Applying()
+    try:
+        yield state
+    except reply.Refusal:
+        store.expire_plan(plan_id)
+        raise
+    except BaseException:
+        if not state.wrote:
+            store.release_plan(plan_id)
+        raise
+    store.expire_plan(plan_id)
+
+
+def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
+    with applying(plan_id) as state:
+        prepared = prepare(spreadsheet_id, payload["writes"])
+        guard.check(payload["fingerprint"], prepared.fingerprint, "this write",
+                    prepared.one_tab)
+        return _send(spreadsheet_id, prepared, state)
 
 
 def load(spreadsheet_id: str, plan_id: str) -> dict[str, Any]:
