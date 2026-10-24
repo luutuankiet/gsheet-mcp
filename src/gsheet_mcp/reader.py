@@ -69,8 +69,8 @@ class Legends:
     styles: dict[tuple[str, ...], str] = field(default_factory=dict)
     rules: dict[tuple[str, ...], str] = field(default_factory=dict)
 
-    def style(self, cell: dict[str, Any]) -> str | None:
-        parts = style_parts(cell, self.detail)
+    def style(self, cell: dict[str, Any], detail: str | None = None) -> str | None:
+        parts = style_parts(cell, detail or self.detail)
         if not parts:
             return None
         return self.styles.setdefault(parts, f"s{len(self.styles) + 1}")

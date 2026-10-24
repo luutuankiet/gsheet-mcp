@@ -2,7 +2,7 @@
 cells a write touches, fingerprint them, compare before writing.
 
     read(spreadsheet_id, ranges)     -> (book, {handle: cell}) for every touched range
-    fingerprint(cells)               -> {handle: [shown, digest]}, non-empty cells only
+    fingerprint(cells)               -> {handle: [shown, digest, parts]}, non-empty cells only
     check(old, new, what)            -> raises a Refusal listing up to 20 changes
 
 A cell's fingerprint covers its value or formula, its rich text runs, its
@@ -20,8 +20,9 @@ from . import a1, reply, sheets_api
 
 MAX_LISTED = 20
 FIELDS = ("spreadsheetId,properties(title,locale,timeZone),"
-          "sheets(properties(sheetId,title,gridProperties),merges,"
-          "data(startRow,startColumn,rowData.values(userEnteredValue,effectiveValue,"
+          "sheets(properties(sheetId,title,hidden,gridProperties),merges,"
+          "data(startRow,startColumn,rowMetadata(hiddenByUser,hiddenByFilter),"
+          "columnMetadata(hiddenByUser),rowData.values(userEnteredValue,effectiveValue,"
           "formattedValue,userEnteredFormat,textFormatRuns,note,dataValidation)))")
 
 
@@ -55,10 +56,20 @@ def shown(cell: dict[str, Any] | None) -> str:
     return str(next(iter(uev.values()), ""))
 
 
+# What each fingerprinted field is called when only it changed.
+PARTS = (("userEnteredValue", "value"), ("textFormatRuns", "rich text"),
+         ("userEnteredFormat", "format"), ("note", "note"))
+
+
 def _digest(cell: dict[str, Any]) -> str:
-    part = {k: cell.get(k) for k in ("userEnteredValue", "textFormatRuns",
-                                     "userEnteredFormat", "note") if cell.get(k)}
+    part = {k: cell.get(k) for k, _ in PARTS if cell.get(k)}
     return hashlib.sha1(json.dumps(part, sort_keys=True).encode()).hexdigest()[:12] if part else ""
+
+
+def _parts(cell: dict[str, Any]) -> str:
+    """One short digest per field, so a refusal can say which field moved."""
+    return " ".join(hashlib.sha1(json.dumps(cell.get(k), sort_keys=True).encode()).hexdigest()[:8]
+                    if cell.get(k) else "-" for k, _ in PARTS)
 
 
 def fingerprint(cells: dict[str, dict[str, Any]], touched: list[str]) -> dict[str, list[str]]:
@@ -67,7 +78,7 @@ def fingerprint(cells: dict[str, dict[str, Any]], touched: list[str]) -> dict[st
     for name in touched:
         digest = _digest(cells.get(name) or {})
         if digest:
-            out[name] = [shown(cells.get(name)), digest]
+            out[name] = [shown(cells.get(name)), digest, _parts(cells.get(name) or {})]
     return out
 
 
@@ -82,6 +93,25 @@ def changes(old: dict[str, list[str]], new: dict[str, list[str]]) -> list[tuple[
             if (old.get(n) or ["", ""])[1] != (new.get(n) or ["", ""])[1]]
 
 
+def _what_changed(old: list[str] | None, new: list[str] | None) -> str:
+    """The fields that moved in a cell whose shown value did not, e.g. `format changed`."""
+    def split(entry: list[str] | None) -> list[str]:
+        if not entry:                                    # absent = empty
+            return ["-"] * len(PARTS)
+        return entry[2].split() if len(entry) > 2 else []
+    a, b = split(old), split(new)
+    if len(a) != len(PARTS) or len(b) != len(PARTS):     # a plan made before parts were kept
+        return "changed"
+    moved = [word for (_, word), x, y in zip(PARTS, a, b, strict=True) if x != y]
+    return " and ".join(moved) + " changed" if moved else "changed"
+
+
+def _change_line(name: str, a: str, b: str, old: list[str] | None, new: list[str] | None) -> str:
+    if a == b:
+        return f"  {name}: {_what_changed(old, new)}"
+    return f"  {name}: {json.dumps(a, ensure_ascii=False)} → {json.dumps(b, ensure_ascii=False)}"
+
+
 def _order(name: str) -> tuple:
     rng = a1.parse(name)
     return (rng.tab or "", rng.start_row or 0, rng.start_col or 0)
@@ -93,8 +123,8 @@ def check(old: dict[str, list[str]], new: dict[str, list[str]], what: str,
     moved = changes(old, new)
     if not moved:
         return
-    listed = "\n".join(f"  {short(n, one_tab)}: {json.dumps(a, ensure_ascii=False)} → "
-                       f"{json.dumps(b, ensure_ascii=False)}" for n, a, b in moved[:MAX_LISTED])
+    listed = "\n".join(_change_line(short(n, one_tab), a, b, old.get(n), new.get(n))
+                       for n, a, b in moved[:MAX_LISTED])
     more = f"\n  +{len(moved) - MAX_LISTED} more" if len(moved) > MAX_LISTED else ""
     raise reply.Refusal(f"Nothing was written: {len(moved)} "
                         f"{'cell' if len(moved) == 1 else 'cells'} of {what} changed since "

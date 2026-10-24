@@ -165,6 +165,8 @@ The details, all (default, review):
 - **Count:** `count=true` returns only the header line with the match count.
 - **Rows left out:** hidden rows unless `include_hidden=true`, as in `read_range`, and suspected total and subtotal rows. The reply says how many of each were left out.
 - **One region:** a range holding no table region, or more than one, is refused with the candidates listed. An unknown column is refused with the column names.
+- **Size guard:** a range over 100,000 cells, counted within the tab's grid, is refused before any grid data is fetched. The refusal gives the size and points to `pull_tables` and the CLI (`gsheet pull`, then `gsheet query`), or to a smaller range.
+- **Column names under a header of several rows:** a column is named by its joined header, by its column letter, or by its bottom header row alone when no other column has the same bottom header; `Return ID` then names `Returns / Return ID`. A bottom header that several columns share is refused with their joined names (default, review).
 - **Row numbers:** each answer row carries its real sheet row number.
 
 ### 6.4 `render_range`
@@ -212,7 +214,8 @@ The tab, filter and validation operations are **(default, review)**.
 - Table rows use the `write_cells` type rules, except that ISO dates are not converted.
 - `add_tab` without a size lets Sheets choose. A duplicated tab goes right after its source.
 - Drive comment calls run after the batch; a failed comment does not roll the batch back.
-- The structural guard reads values only for ranges: the touched cells, plus whole rows for a sort. Tab, freeze, hide, filter and filter-view operations are guarded by row and column counts only. Row and column operations are guarded on the rows given, not on the rows that shift. It fingerprints at most 5,000 cells.
+- The structural guard reads values only for ranges: the touched cells, plus whole rows for a sort. Tab, freeze, hide, filter and filter-view operations are guarded by row and column counts only. Row and column operations are guarded on the rows given, not on the rows that shift. It fingerprints at most 5,000 cells, and cuts its ranges to the tab's size and to that budget before it reads, in operation order and row by row, so a huge tab is never fetched whole (default, review).
+- `edit_sheet` has no column-width or formatting operation: widths go through raw `batch_update`, and fills, bold or number formats go through the `write_cells` `format` patch (default, review).
 
 **`run_sheet_script` and `batch_update` details (default, review):**
 - Both default to `dry_run=true`. `dry_run=false` without a `plan_id` is refused. A plan is tied to the tool that made it, and any other tool refuses it.
@@ -245,6 +248,8 @@ The tab, filter and validation operations are **(default, review)**.
   - A strict dropdown refuses values not in its list; a non-strict one warns. Dropdowns whose list comes from a range are not checked (default, review).
   - Overwriting a formula with a plain value warns.
   - New rows in a native Table go through `appendCells` with its `tableId`.
+- **Hidden targets warn (default, review).** A write that lands in hidden rows or columns, or in a hidden tab, still lands; the dry run and the receipt warn: `B5:C6: lands in hidden rows 5-6, column C` or `A1: lands in the hidden tab 'name'`.
+- **Size cap (default, review).** One `write_cells` call covers at most 50,000 cells, counted over its ranges before any cell is read; a bigger call is refused with a pointer to split it.
 - **Notes** are written through a note-only field mask.
 - **Comments** are added unanchored through Drive, because no public API anchors a new comment to a cell. Replies and resolve go to an existing thread.
 - **Images:** no inserts. `=IMAGE(url)` is allowed as a formula, with a warning that a person must allow external data once per file.
@@ -263,13 +268,14 @@ The tab, filter and validation operations are **(default, review)**.
   - *Structural writes:* also the tab's row and column counts and the values in the affected rows.
 - **The dry run** stores the fingerprint with its `plan_id` and returns a diff. Applying the plan re-reads and compares. A write without a plan re-reads just before writing; with no earlier fingerprint to compare, that read only feeds the refusals and warnings (default, review).
 - **A plan is used once (default, review).** Applying it uses it up, even when the guard refuses the apply. Landing a CLI upload fingerprints the target's formats as well as its values.
-- **On a change**, the whole batch is refused and nothing is applied. The reply lists up to 20 changed cells as `B4: "old" → "new"` and asks for a new plan.
+- **On a change**, the whole batch is refused and nothing is applied. The reply lists up to 20 changed cells as `B4: "old" → "new"` and asks for a new plan. A cell whose shown value is unchanged names what moved instead, e.g. `A11: format changed` (default, review).
 - **Tool descriptions and the skill** say the guard narrows the race to about one round trip. It is not a lock.
 
 ### 7.4 Receipts
 
 - **The reply re-reads the touched cells** and shows them in the read notation, with the style legend.
 - **It is capped at 50 cells**, plus counts and warnings.
+- **Landing a CLI upload** gives the same receipt: the landed cells are re-read and shown in the read notation, so a number shows as it reads back, not as the CSV text that was uploaded.
 - **Structural and raw receipts (default, review).** `edit_sheet` does not re-read cells, because its operations move or delete them. It reports size changes as `'tab': R rows x C columns → R' rows x C' columns` and shows Google's non-empty replies. `batch_update` and `run_sheet_script` give the `write_cells` receipt for their cell writes, plus "applied N raw requests; affected: …" with each raw reply cut at 300 characters.
 - **Any write clears the scan cache and the render cache.** Each spreadsheet has a generation token in the state store that every write replaces, and both cache keys include it, so one write hides every caller's cached scan and renders for that spreadsheet (default, review).
 
@@ -282,12 +288,15 @@ The tab, filter and validation operations are **(default, review)**.
   - The server never parses the rows.
   - By default it pulls table regions and native Tables. A communication block is pulled only when it is named.
   - A region is named with `range=`, as an alias or A1. A range that matches no scanned region is pulled as given (default, review).
+  - On a cold scan cache it scans only the tab asked for, or the tab of `range=`, not the whole workbook. With no tab named it scans every tab.
   - Each tab comes back with its fingerprint, for a later `table_status` call.
 - **`table_status`** returns a head-and-tail fingerprint: the tab size plus a hash of the first and last 500 rows.
   - The rows are grid rows, not used rows, so data typed into blank grid rows in the middle goes unseen until the grid grows (default, review).
   - The server keeps no fingerprints. Given an earlier one in `since`, the reply says what changed, or that head and tail are unchanged and the middle was not compared (default, review).
-- **`upload_slot`** returns a signed upload URL for a CLI query result. The result lands through `write_cells` into a new tab or an empty range, behind a required plan.
+- **`upload_slot`** returns a signed upload URL for a CLI query result. The result lands through `write_cells` into an empty range, behind a required plan.
+  - The tab must exist. An upload never creates a tab: a missing tab is refused, and the refusal says to create it first with `edit_sheet` (`add_tab`) and call `write_cells` again (default, review).
   - CSV carries no types: a plain decimal number lands as a number, and everything else lands as text, including `true`, `false` and a leading `=`, so no formula gets in (default, review).
+  - A plain decimal is exactly `-?(0|[1-9][0-9]*)(\.[0-9]+)?`: an optional minus, no leading zeros other than a lone `0`, an optional fraction, and no exponent, sign `+`, thousands separator or padding. So `007` and `1e3` land as text.
 
 ### 8.2 CLI: `gsheet`
 
@@ -307,7 +316,7 @@ The tab, filter and validation operations are **(default, review)**.
   - `--as` works only when exactly one region loads.
   - `status` with no arguments lists the pulled tabs and the `table_status` call for each. With a fingerprint it compares against the stored one, and needs `--tab` when several tabs are pulled.
   - `query` prints at most 50 rows, cuts columns at 40 characters and adds a row count.
-  - `push` writes the CSV header row first and NULL as an empty cell, and passes `--to` unchanged to `write_cells`. The spreadsheet comes from `_sources` when exactly one spreadsheet is pulled, otherwise `--spreadsheet` is required. `push` with no workspace exits 1, and without `--upload` it exits 2.
+  - `push` writes the CSV header row first and NULL as an empty cell, and passes `--to` unchanged to `write_cells`. The spreadsheet comes from `_sources` when exactly one spreadsheet is pulled, otherwise `--spreadsheet` is required. `push` with no workspace exits 1, and without `--upload` it exits 2. An argument ending in `.sql` is always a file path: when no such file exists, `push` exits 2 with `file not found` and never runs it as SQL.
 
 - **Database:** `.gsheet/workspace.duckdb`, with one schema per spreadsheet (a slug of its title) and a `_sources` table (spreadsheet id, tab, gid, range, pull time).
 - **Each region becomes two objects:**

@@ -9,10 +9,15 @@ from fastmcp.tools import ToolResult
 from .. import landing, reply, sheets_api, writes
 from ..app import EDIT, tool
 
+# Typed values, so clients send JSON values rather than a JSON-encoded string:
+# one cell, a row of cells, or a grid of rows.
+Cell = str | int | float | bool | None
+Values = Cell | list[Cell] | list[list[Cell]]
+
 
 @tool(EDIT)
 def write_cells(spreadsheet: str, range: str | None = None,  # noqa: A002 - the spec's word
-                values: Any = None, format: dict[str, Any] | None = None,  # noqa: A002
+                values: Values = None, format: dict[str, Any] | None = None,  # noqa: A002
                 writes_: list[dict[str, Any]] | None = None, dry_run: bool = False,
                 plan_id: str | None = None, upload: str | None = None) -> ToolResult:
     """Write values, formulas, rich text and format patches; styling is kept.
@@ -37,7 +42,8 @@ def write_cells(spreadsheet: str, range: str | None = None,  # noqa: A002 - the 
       spreadsheet: the spreadsheet's URL or id.
       range: a cell (the top-left of `values`), a range the size of `values`,
         or a scan alias. With `upload`: where the CSV lands.
-      values: one value, a row `[...]`, or rows `[[...], ...]`.
+      values: one cell (`"x"`), a row (`["a", "b"]`) or rows of cells
+        (`[["a"], ["b"]]`). Each cell is a string, number, true/false or null.
       format: a `userEnteredFormat` patch naming only its own fields,
         e.g. `{"textFormat": {"bold": true}}`; `null` clears a field.
       writes_: several writes at once, each `{"range", "values", "format"}`,

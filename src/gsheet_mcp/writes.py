@@ -35,6 +35,7 @@ from . import (
 PLAN_THRESHOLD = 200
 RECEIPT_CELLS = 50
 DIFF_LINES = 50
+WRITE_CELLS = 50_000    # one call touches at most this many cells (default, review)
 OP = "write_cells"
 _ISO_DATE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?$")
 _DATE_TYPES = {"DATE", "DATE_TIME", "TIME"}
@@ -162,6 +163,7 @@ class Prepared:
     diff: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     one_tab: bool = True
+    format_only: set[str] = field(default_factory=set)   # touched by a format patch alone
 
 
 def _grid_of(values: Any) -> list[list[Any]]:
@@ -305,6 +307,53 @@ def _cell_value(value: Any, old: dict[str, Any], name: str, warnings: list[str],
     return new, with_runs
 
 
+def _shown_after(value: Any, new: dict[str, Any]) -> str:
+    """The new value as the diff shows it, the way Sheets displays it: `TRUE`
+    for a checkbox state, `3` for 3.0, the ISO text for a date, Markdown for text."""
+    uev = new.get("userEnteredValue") or {}
+    if not uev:
+        return ""
+    if "boolValue" in uev:
+        return "TRUE" if uev["boolValue"] else "FALSE"
+    if "numberValue" in uev and isinstance(value, int | float):
+        number = uev["numberValue"]
+        return str(int(number)) if float(number).is_integer() and abs(number) < 1e15 \
+            else str(number)
+    return value if isinstance(value, str) else str(next(iter(uev.values())))
+
+
+def _hidden_warnings(book: dict[str, Any], writes: list[Write], one_tab: bool) -> list[str]:
+    """Writes into a hidden tab, row or column land, with a warning naming what
+    is hidden (default, review)."""
+    hidden: dict[str, tuple[bool, set[int], set[int]]] = {}
+    for sheet in book.get("sheets") or []:
+        rows: set[int] = set()
+        cols: set[int] = set()
+        for block in sheet.get("data") or []:
+            r0, c0 = block.get("startRow", 0), block.get("startColumn", 0)
+            rows |= {r0 + i for i, m in enumerate(block.get("rowMetadata") or [])
+                     if m.get("hiddenByUser") or m.get("hiddenByFilter")}
+            cols |= {c0 + j for j, m in enumerate(block.get("columnMetadata") or [])
+                     if m.get("hiddenByUser")}
+        hidden[sheet["properties"]["title"]] = (bool(sheet["properties"].get("hidden")),
+                                                rows, cols)
+    out: list[str] = []
+    for w in writes:
+        tab_hidden, rows, cols = hidden.get(w.rng.tab or "", (False, set(), set()))
+        parts = []
+        for first, last in reader._runs({r for r in rows if w.rng.start_row <= r < w.rng.end_row}):
+            parts.append(f"row {first + 1}" if first == last else f"rows {first + 1}-{last + 1}")
+        for first, last in reader._runs({c for c in cols if w.rng.start_col <= c < w.rng.end_col}):
+            parts.append(f"column {a1.column_letters(first)}" if first == last else
+                         f"columns {a1.column_letters(first)}-{a1.column_letters(last)}")
+        name = guard.short(str(w.rng), one_tab)
+        if tab_hidden:
+            out.append(f"{name}: lands in the hidden tab '{w.rng.tab}'")
+        if parts:
+            out.append(f"{name}: lands in hidden {', '.join(parts)}")
+    return out
+
+
 def _merges(book: dict[str, Any]) -> dict[str, list[scan.Box]]:
     return {s["properties"]["title"]: [scan._grid_box(m) for m in s.get("merges") or []]
             for s in book.get("sheets") or []}
@@ -326,6 +375,11 @@ def _flush(requests: list[dict[str, Any]], segment: list[tuple[int, dict[str, An
 
 def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
     writes = _normalise(spreadsheet_id, raw)
+    size = sum((w.rng.end_row - w.rng.start_row) * (w.rng.end_col - w.rng.start_col)
+               for w in writes)
+    if size > WRITE_CELLS:      # refused before the guard reads a single cell
+        raise reply.Refusal(f"Nothing was written: this write covers {size} cells; one call "
+                            f"takes at most {WRITE_CELLS}. Split it into smaller ranges.")
     book, cells = guard.read(spreadsheet_id, [w.rng for w in writes])
     merges = _merges(book)
     one_tab = len({w.rng.tab for w in writes}) == 1
@@ -334,6 +388,8 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
     warnings: list[str] = []
     refusals: list[str] = []
     diff: list[str] = []
+    valued: set[str] = set()
+    formatted: set[str] = set()
     for w in writes:
         title = w.rng.tab or ""
         if w.values is not None:
@@ -357,11 +413,9 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
                     new, with_runs = _cell_value(value, old, name, warnings, refusals)
                     if handle not in touched:
                         touched.append(handle)
+                    valued.add(handle)
                     before = guard.shown(old)
-                    after = ("" if not new.get("userEnteredValue") else
-                             str(next(iter(new["userEnteredValue"].values()))))
-                    if isinstance(value, str) and "stringValue" in new.get("userEnteredValue", {}):
-                        after = value
+                    after = _shown_after(value, new)
                     if before != after:
                         diff.append(f"{name}: {json.dumps(before, ensure_ascii=False)} → "
                                     f"{json.dumps(after, ensure_ascii=False)}")
@@ -385,11 +439,13 @@ def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
                     handle = guard.handle(title, r, c)
                     if handle not in touched:
                         touched.append(handle)
+                    formatted.add(handle)
             diff.append(f"{guard.short(str(w.rng), one_tab)}: format {', '.join(paths)}")
     if refusals:
         raise reply.Refusal("Nothing was written:\n" + "\n".join(f"  {r}" for r in refusals))
+    warnings += _hidden_warnings(book, writes, one_tab)
     return Prepared(writes, touched, requests, guard.fingerprint(cells, touched), diff,
-                    warnings, one_tab)
+                    warnings, one_tab, formatted - valued)
 
 
 # ---- the three ways in ----------------------------------------------------------
@@ -449,9 +505,33 @@ def load(spreadsheet_id: str, plan_id: str) -> dict[str, Any]:
 # ---- the receipt ---------------------------------------------------------------
 
 
+def _raw_cell(sheet: dict[str, Any], row: int, col: int) -> dict[str, Any]:
+    for block in sheet.get("data") or []:
+        r, c = row - block.get("startRow", 0), col - block.get("startColumn", 0)
+        rows = block.get("rowData") or []
+        if 0 <= r < len(rows) and 0 <= c < len(rows[r].get("values") or []):
+            return rows[r]["values"][c] or {}
+    return {}
+
+
 def receipt(spreadsheet_id: str, prepared: Prepared) -> str:
     """The touched cells re-read, in the read notation with its legends, up to 50."""
-    book = sheets_api.get_spreadsheet(spreadsheet_id, [str(w.rng) for w in prepared.writes],
+    lines = [f"wrote {len(prepared.touched)} "
+             f"{'cell' if len(prepared.touched) == 1 else 'cells'}"
+             + (f", showing the first {RECEIPT_CELLS}" if len(prepared.touched) > RECEIPT_CELLS
+                else "")]
+    lines += reread(spreadsheet_id, [w.rng for w in prepared.writes],
+                    prepared.touched[:RECEIPT_CELLS], prepared.one_tab, prepared.format_only)
+    lines += [f"warning: {w}" for w in prepared.warnings]
+    return "\n".join(lines)
+
+
+def reread(spreadsheet_id: str, ranges: list[a1.Range], handles: list[str],
+           one_tab: bool, format_only: set[str] | frozenset[str] = frozenset()) -> list[str]:
+    """`handles` re-read over `ranges`, one line each in the read notation,
+    then the style and dropdown legends they use. A merge is named by its
+    range; a handle in `format_only` shows its format in full."""
+    book = sheets_api.get_spreadsheet(spreadsheet_id, [str(r) for r in ranges],
                                       fields=reader.READ_FIELDS)
     readers = {s["properties"]["title"]: reader.Reader(
         s, detail="default", include_hidden=True, max_chars=notation.MAX_CELL_CHARS,
@@ -459,29 +539,35 @@ def receipt(spreadsheet_id: str, prepared: Prepared) -> str:
     legends = reader.Legends("default")
     for r in readers.values():
         r.legends = legends
-    lines = [f"wrote {len(prepared.touched)} "
-             f"{'cell' if len(prepared.touched) == 1 else 'cells'}"
-             + (f", showing the first {RECEIPT_CELLS}" if len(prepared.touched) > RECEIPT_CELLS
-                else "")]
+    lines: list[str] = []
     styles: set[str] = set()
     rules: set[str] = set()
-    for handle in prepared.touched[:RECEIPT_CELLS]:
+    for handle in handles:
         rng = a1.parse(handle)
         rd = readers.get(rng.tab or "")
-        name = guard.short(handle, prepared.one_tab)
-        cell = rd.cells.get((rng.start_row, rng.start_col)) if rd else None
+        row, col = rng.start_row, rng.start_col
+        name = guard.short(handle, one_tab)
+        if rd:                                     # a merge goes by its range, as reads name it
+            name = name.removesuffix(f"{a1.column_letters(col)}{row + 1}") + rd.address(row, col)
+        cell = rd.cells.get((row, col)) if rd else None
+        # A cell only a format patch touched shows the format that landed, in
+        # the `detail="formats"` notation; the default legend would drop a fill.
+        style = None
+        if rd and handle in format_only:
+            style = legends.style(_raw_cell(rd.sheet, row, col), detail="formats")
+        elif cell:
+            style = legends.style(cell)
+        if style:
+            styles.add(style)
+        head = f"{name}{f' {{{style}}}' if style else ''}"
         if not cell:
-            lines.append(f"{name}: (empty)")
+            lines.append(f"{head}: (empty)")
             continue
         text, used = rd.value(cell, with_formula=True)
         rules |= used
-        style = legends.style(cell)
-        if style:
-            styles.add(style)
-        lines.append(f"{name}{f' {{{style}}}' if style else ''}: {text}")
+        lines.append(f"{head}: {text}")
     if styles:
         lines.append("styles:")
         lines += [f"  {n} {' · '.join(p)}" for p, n in legends.styles.items() if n in styles]
     lines += [f"{n} dropdown: {' | '.join(v)}" for v, n in legends.rules.items() if n in rules]
-    lines += [f"warning: {w}" for w in prepared.warnings]
-    return "\n".join(lines)
+    return lines

@@ -25,12 +25,16 @@ CHUNK_BYTES = 1024 * 1024
 
 
 def _regions(spreadsheet_id: str, tab: str | None, include_hidden: bool) -> dict[str, Any]:
-    """The scan's regions by alias, from the scan cache, scanning when it has none."""
+    """The scan's regions by alias, from the scan cache, scanning when it has none.
+
+    With a tab named, a cold cache is filled by scanning that tab only: any
+    write clears the cache, and a whole-workbook scan of a big workbook does
+    not fit in one call."""
     cached = scan.load_cached(spreadsheet_id) or {}
     regions = cached.get("regions")
     if (regions is None or include_hidden
             or (tab is not None and not any(r["tab"] == tab for r in regions.values()))):
-        scan.scan(spreadsheet_id, include_hidden=include_hidden)
+        scan.scan(spreadsheet_id, tab=tab, include_hidden=include_hidden)
         regions = (scan.load_cached(spreadsheet_id) or {}).get("regions", {})
     return regions
 
@@ -81,14 +85,15 @@ def pull(spreadsheet_id: str, *, tab: str | None = None, range_: str | None = No
          include_hidden: bool = False) -> str:
     tabs_reply = sheets_api.get_tabs(spreadsheet_id)
     if tab is not None:
-        sheets_api.find_tab(tabs_reply, tab)          # a clear refusal for a tab that is not there
-    regions = _regions(spreadsheet_id, tab, include_hidden)
+        # A clear refusal for a tab that is not there, and the title the scan uses.
+        tab = sheets_api.find_tab(tabs_reply, tab)["title"]
     picked: list[tuple[str | None, dict[str, Any]]] = []
     skipped: list[str] = []
     if range_:
         rng = addressing.resolve(spreadsheet_id, range_)
         props = sheets_api.find_tab(tabs_reply, rng.tab or tab)
         rng = rng.with_tab(props["title"])
+        regions = _regions(spreadsheet_id, props["title"], include_hidden)
         match = next(((alias, info) for alias, info in regions.items()
                       if info["range"] == str(rng)), None)
         # A named range that is no scanned region is pulled as given, so a
@@ -96,6 +101,7 @@ def pull(spreadsheet_id: str, *, tab: str | None = None, range_: str | None = No
         picked.append(match or (None, {"tab": props["title"], "gid": props["sheetId"],
                                        "range": str(rng), "kind": "range", "label": ""}))
     else:
+        regions = _regions(spreadsheet_id, tab, include_hidden)
         for alias, info in regions.items():
             if tab is not None and info["tab"] != tab:
                 continue
