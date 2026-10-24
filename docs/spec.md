@@ -361,6 +361,7 @@ The tab, filter and validation operations are **(default, review)**.
 ## 12. Deployment (default, review)
 
 - **Cloud Run:** 1 vCPU, 1 GiB, concurrency 20, request timeout 300 s, `max-instances=1`. The per-user and per-spreadsheet locks live in one process, so one instance is what makes them hold. The server holds no DuckDB and streams exports, so it needs little memory.
+- **Deploy names (default, review):** region `asia-southeast1`, service `gsheet-mcp`, Firestore database `gsheet-mcp-auth`, bucket `$GCP_PROJECT-gsheet-mcp-state`, service account `gsheet-mcp-run`, secret `gsheet-mcp-google-client-secret`. `scripts/deploy` creates whatever is missing, and every run after the first changes only what differs. It sets settings with `--update-env-vars`, so a redeploy keeps the client ID. `docs/deploy.md` has the OAuth client checklist.
 - **Quotas:**
   - Sheets allows 300 read requests and 300 write requests per minute per project, and 60 per minute per user.
   - The server serialises per user, retries once on 429, then refuses visibly.
