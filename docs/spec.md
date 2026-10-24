@@ -277,7 +277,18 @@ The tab, filter and validation operations are **(default, review)**.
 | `gsheet pull <url> [--tab] [--range] [--as <name>]` | downloads to `.gsheet/<spreadsheet id>/<gid>.csv` and loads it |
 | `gsheet status` | `changed`, or `unchanged at head and tail`; it never pulls again on its own |
 | `gsheet query "<sql>"` | runs SQL on the workspace database |
-| `gsheet push <sql or file> --to <tab or range>` | uploads a result and prints the plan to apply |
+| `gsheet push <sql or file> --to <tab or range>` | uploads a result and prints the upload handle and the exact `write_cells(..., upload=<handle>)` call; that call returns the plan id, because the CLI holds no credential (default, review) |
+
+- **Pull manifest (default, review):**
+  - `pull_tables` stores a JSON manifest in the `gsheet-pull/1` format and prints `manifest <url>` as its second line. The manifest carries the CSV links, fingerprints and regions, and its link lasts the same 15 minutes as the CSV links.
+  - No manifest is written when nothing is pulled.
+  - `gsheet pull` also takes a local path or a `file:` URL for the manifest and the CSVs, so a pull can be reloaded offline.
+- **CLI behaviour (default, review):**
+  - A `--range` that matches no region in the manifest is cut as given, with the header in its first row, into `<tab>_<range>`.
+  - `--as` works only when exactly one region loads.
+  - `status` with no arguments lists the pulled tabs and the `table_status` call for each. With a fingerprint it compares against the stored one, and needs `--tab` when several tabs are pulled.
+  - `query` prints at most 50 rows, cuts columns at 40 characters and adds a row count.
+  - `push` writes the CSV header row first and NULL as an empty cell, and passes `--to` unchanged to `write_cells`. The spreadsheet comes from `_sources` when exactly one spreadsheet is pulled, otherwise `--spreadsheet` is required. `push` with no workspace exits 1, and without `--upload` it exits 2.
 
 - **Database:** `.gsheet/workspace.duckdb`, with one schema per spreadsheet (a slug of its title) and a `_sources` table (spreadsheet id, tab, gid, range, pull time).
 - **Each region becomes two objects:**
@@ -288,10 +299,11 @@ The tab, filter and validation operations are **(default, review)**.
   - Then detect dates (ISO, day-first or month-first; any first part over 12 means day-first) and booleans.
   - A column is typed when at least 98% of its values cast. Failures become NULL and are listed in `_cast_failures` (table, column, row, raw value).
 - **Table names:**
-  - A native Table keeps its name.
+  - A native Table keeps its name, case included, when it is already a plain SQL name; otherwise it is turned into one (default, review).
   - A tab holding one region takes the tab slug.
-  - A tab holding several regions takes `<tab slug>_<n>`, numbered in reading order.
+  - A tab holding several regions takes `<tab slug>_<n>`, numbered in reading order (top row, then left column), counting every region of the tab in the manifest (default, review).
 - **Failure:** no size cap. A 429 gets one retry with a backoff, then a visible refusal.
+  - The backoff is `Retry-After`, capped at 60 s, or 5 s without it. A second 429 exits 1 with a message naming the wait used (default, review).
 - **Acceptance gate:**
   - Pulling the bulk sheet's `messy-sales-200k-raw` and summing revenue in the clean view gives `66304772.44`. `198914317.32` means the subtotals were counted.
   - The totals by region and by status match `fixtures/bulk/golden-data-ground-truth.json`.
