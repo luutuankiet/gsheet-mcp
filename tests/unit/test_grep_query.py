@@ -4,6 +4,9 @@ from __future__ import annotations
 
 import re
 
+import pytest
+
+from gsheet_mcp import query, reply, scan, sheets_api
 from tests.conftest import call
 from tests.fake_sheets import CANARY_ID
 
@@ -115,3 +118,65 @@ async def test_query_leaves_out_hidden_rows_and_names_bad_columns(fake, signed_i
     error, is_error = await call(client, "query_range", spreadsheet=CANARY_ID,
                                  range="'native-table'", where=["nope > 1"])
     assert is_error and "no column 'nope'" in error and "qty" in error
+
+
+async def test_query_refuses_a_range_over_the_cell_budget_before_fetching_it(
+        fake, signed_in, client, monkeypatch):
+    monkeypatch.setattr(query, "MAX_CELLS", 100)        # native-table is 40x8 = 320 cells
+    fetched: list[list[str]] = []
+    real = sheets_api.get_spreadsheet
+
+    def spy(spreadsheet_id, ranges=None, **kwargs):
+        if ranges:
+            fetched.append(list(ranges))
+        return real(spreadsheet_id, ranges, **kwargs)
+
+    monkeypatch.setattr(sheets_api, "get_spreadsheet", spy)
+    error, is_error = await call(client, "query_range", spreadsheet=CANARY_ID,
+                                 range="'native-table'", count=True)
+    assert is_error, error
+    assert "40 rows x 8 columns (320 cells)" in error and "100-cell budget" in error
+    assert "pull_tables" in error and "gsheet query" in error
+    assert not fetched
+    small, is_error = await call(client, "query_range", spreadsheet=CANARY_ID,
+                                 range="'native-table'!A1:F10", count=True)
+    assert not is_error, small
+
+
+def _two_row_header() -> query._Region:
+    return query._Region(scan.Box(4, 8, 100, 11), 2,
+                         ["Returns / Return ID", "Returns / Reason", "Orders / Order ID",
+                          "Refunds / Reason"],
+                         ["Return ID", "Reason", "Order ID", "Reason"])
+
+
+def test_query_column_named_by_a_unique_leaf_header_or_the_joined_name():
+    region = _two_row_header()
+    assert query._column(region, "Return ID") == 8
+    assert query._column(region, "returns / return id") == 8
+    assert query._column(region, "order id") == 10
+    assert query._column(region, "Refunds / Reason") == 11
+
+
+def test_query_column_named_by_an_ambiguous_leaf_is_refused_with_the_joined_names():
+    with pytest.raises(reply.Refusal) as refused:
+        query._column(_two_row_header(), "Reason")
+    assert "Returns / Reason, Refunds / Reason" in str(refused.value)
+
+
+async def test_query_two_row_header_by_leaf_and_joined_name(fake, signed_in, client):
+    rows = [["Returns", "Returns", "Orders"], ["Return ID", "Reason", "Reason"],
+            [1, "damaged", "late"], [2, "lost", "damaged"], [3, "damaged", "fine"]]
+    for r, row in enumerate(rows):
+        for c, value in enumerate(row):
+            fake.set_cell(CANARY_ID, f"'formulas'!{'ABC'[c]}{14 + r}", value)
+    by_leaf = await _call(client, "query_range", range="'formulas'!A14:C18",
+                          where=["Return ID > 1"], columns=["Return ID"])
+    by_name = await _call(client, "query_range", range="'formulas'!A14:C18",
+                          where=["Returns / Return ID > 1"], columns=["returns / return id"])
+    assert "2 of 3 rows match" in by_leaf and "2 of 3 rows match" in by_name, by_leaf
+    assert by_leaf.splitlines()[1:] == by_name.splitlines()[1:]
+    assert "| row | Returns / Return ID |" in by_leaf and "| 17 | 2 |" in by_leaf
+    error, is_error = await call(client, "query_range", spreadsheet=CANARY_ID,
+                                 range="'formulas'!A14:C18", where=["Reason = lost"])
+    assert is_error and "Returns / Reason, Orders / Reason" in error, error

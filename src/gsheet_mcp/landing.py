@@ -22,8 +22,10 @@ MAX_LISTED = 20          # changed or filled cells named in a refusal
 RECEIPT_CELLS = 50
 PREVIEW_ROWS = 3
 # Implementation default: a CSV field that is a plain decimal number lands as
-# a number; everything else, a leading `=` included, lands as text.
-_NUMBER = re.compile(r"-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?")
+# a number; everything else, a leading `=` included, lands as text. Plain means
+# an optional minus, no leading zeros (`0` and `0.x` aside) and no exponent, so
+# `007` and `1e3` stay text.
+_NUMBER = re.compile(r"-?(0|[1-9]\d*)(\.\d+)?")
 OP = "land_upload"
 
 
@@ -50,10 +52,8 @@ def _cell(value: str) -> dict[str, Any]:
     if value == "":
         return {}
     if _NUMBER.fullmatch(value):
-        number = float(value)
-        return {"userEnteredValue": {"numberValue": int(number) if number.is_integer()
-                                     and "." not in value and "e" not in value.lower()
-                                     else number}}
+        return {"userEnteredValue": {"numberValue": float(value) if "." in value
+                                     else int(value)}}
     return {"userEnteredValue": {"stringValue": value}}
 
 
@@ -67,7 +67,15 @@ def _cells(rng: a1.Range, rows: list[list[Any]]) -> list[tuple[str, Any]]:
 def _target(spreadsheet_id: str, target: str, height: int, width: int
             ) -> tuple[a1.Range, dict[str, Any]]:
     rng = addressing.resolve(spreadsheet_id, target)
-    props = sheets_api.find_tab(sheets_api.get_tabs(spreadsheet_id), rng.tab)
+    try:
+        props = sheets_api.find_tab(sheets_api.get_tabs(spreadsheet_id), rng.tab)
+    except sheets_api.SheetsApiError as e:
+        # (default, review) an upload never creates a tab: the tab must exist first.
+        if e.status != 404:
+            raise
+        raise reply.Refusal(f"{e} An upload lands only in a tab that exists; create it "
+                            f"first with edit_sheet (add_tab), then call write_cells "
+                            f"again.") from None
     r0, c0 = rng.start_row or 0, rng.start_col or 0
     landed = a1.Range(props["title"], r0, r0 + height, c0, c0 + width)
     given_h = None if rng.end_row is None else rng.end_row - r0
@@ -135,8 +143,11 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
         "fields": "userEnteredValue"}}])
     store.delete_object(handle)
     writes.after_write(spreadsheet_id)
-    written = _filled(spreadsheet_id, landed)
-    shown = "\n".join(f"  {name} {str(v)!r}" for name, v in written[:RECEIPT_CELLS])
-    more = (f"\n  +{len(written) - RECEIPT_CELLS} more cells" if len(written) > RECEIPT_CELLS
-            else "")
-    return f"landed {len(rows)} rows x {len(rows[0])} columns into {landed}\n{shown}{more}"
+    # The receipt re-reads the landed cells in the read notation (spec, "Receipts").
+    touched = [guard.handle(landed.tab or "", landed.start_row + r, landed.start_col + c)
+               for r, row in enumerate(rows) for c, v in enumerate(row) if v != ""]
+    lines = [f"landed {len(rows)} rows x {len(rows[0])} columns into {landed}"
+             + (f", showing the first {RECEIPT_CELLS} cells" if len(touched) > RECEIPT_CELLS
+                else "")]
+    lines += writes.reread(spreadsheet_id, [landed], touched[:RECEIPT_CELLS], one_tab=True)
+    return "\n".join(lines)
