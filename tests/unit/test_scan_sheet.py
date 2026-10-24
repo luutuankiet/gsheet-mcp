@@ -114,3 +114,45 @@ async def test_scan_cache_lives_ten_minutes(scanned, store, monkeypatch):
 async def test_unknown_spreadsheet_is_refused(fake, signed_in, client):
     text, is_error = await call(client, "scan_sheet", spreadsheet="nope")
     assert is_error and "Cannot scan spreadsheet nope" in text
+
+
+def _sheet(fake, title: str) -> dict:
+    return next(s for s in fake.books[CANARY_ID]["sheets"] if s["properties"]["title"] == title)
+
+
+async def test_a_pivot_table_gets_its_own_line_with_source_and_filled_region(fake, signed_in,
+                                                                             client):
+    sheet = _sheet(fake, "multi-region")
+    anchor = sheet["data"][0]["rowData"][0]["values"][6]           # G1, table B's corner
+    anchor["pivotTable"] = {"source": {"sheetId": 104, "startRowIndex": 0, "endRowIndex": 20,
+                                       "startColumnIndex": 0, "endColumnIndex": 4},
+                            "rows": [{"sourceColumnOffset": 0}]}
+    text, is_error = await call(client, "scan_sheet", spreadsheet=CANARY_ID)
+    assert not is_error, text
+    block = _tab(text, "multi-region")
+    assert "  pivot at G1 · source 'multi-region'!A1:D20 · fills G1:J9" in block
+
+
+async def test_a_data_source_pivot_names_its_data_source(fake, signed_in, client):
+    sheet = _sheet(fake, "multi-region")
+    sheet["data"][0]["rowData"][0]["values"][6]["pivotTable"] = {"dataSourceId": "ds-1"}
+    text, _ = await call(client, "scan_sheet", spreadsheet=CANARY_ID)
+    assert "pivot at G1 · source data source ds-1" in _tab(text, "multi-region")
+
+
+async def test_a_chart_line_lists_its_source_ranges(fake, signed_in, client):
+    def src(c0: int, c1: int) -> dict:
+        return {"sourceRange": {"sources": [{"sheetId": 104, "startRowIndex": 0,
+                                             "endRowIndex": 20, "startColumnIndex": c0,
+                                             "endColumnIndex": c1}]}}
+    _sheet(fake, "multi-region").setdefault("charts", []).append({
+        "chartId": 7,
+        "spec": {"title": "by region", "basicChart": {
+            "chartType": "BAR", "domains": [{"domain": src(0, 1)}],
+            "series": [{"series": src(1, 2)}, {"series": src(0, 1)}]}},
+        "position": {"overlayPosition": {"anchorCell": {"sheetId": 104, "rowIndex": 21,
+                                                        "columnIndex": 5}}}})
+    text, is_error = await call(client, "scan_sheet", spreadsheet=CANARY_ID)
+    assert not is_error, text
+    assert ('chart bar "by region" at F22 · sources '
+            "'multi-region'!A1:A20, 'multi-region'!B1:B20") in _tab(text, "multi-region")
