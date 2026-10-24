@@ -112,3 +112,45 @@ async def test_a_plan_from_one_tool_is_refused_by_the_other(ready, fake):
     refused, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
                                    plan_id=_plan_id(text), dry_run=False)
     assert is_error and "not made by run_sheet_script" in refused
+
+
+async def test_the_apply_hint_in_a_dry_run_is_the_exact_call_that_applies(ready, fake):
+    text, _ = await call(ready, "batch_update", spreadsheet=CANARY_ID, requests=[CHART])
+    hint = re.search(r'apply: (\w+) with plan_id="([^"]+)" and dry_run=false', text)
+    assert hint, text
+    applied, is_error = await call(ready, hint.group(1), spreadsheet=CANARY_ID,
+                                   plan_id=hint.group(2), dry_run=False)
+    assert not is_error and "applied 1 raw request" in applied, applied
+
+
+@pytest.mark.parametrize("literal", ['"\'comms\'!A1:B2"', "'\\'comms\\'!A1:B2'",
+                                     "`'comms'!A1:B2`"])
+async def test_a_string_literal_read_of_a_quoted_tab_name_is_read_for_the_script(
+        ready, fake, literal):
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                script=f"return sheet.read({literal}).length;")
+    assert not is_error, text
+    assert "return: 2" in text
+
+
+async def test_a_computed_template_read_is_not_taken_for_a_literal(ready, fake):
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                script="const n = 2;\nreturn sheet.read(`comms!A1:B${n}`);")
+    assert is_error and "not read before the script ran" in text, text
+
+
+async def test_an_error_thrown_by_a_sheet_call_reports_the_callers_line(ready, fake):
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                script="const x = 1;\nreturn sheet.read('comms!' + 'A1');")
+    assert is_error, text
+    assert text.startswith("Script error at line 2:"), text
+
+
+async def test_an_error_thrown_by_the_script_reports_its_own_line_and_column(ready, fake):
+    script = "const a = 1;\nconst b = 2;\nif (a < b) { throw new Error('boom'); }"
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID, script=script)
+    assert is_error, text
+    assert text.startswith("Script error at line 3:20: Error: boom."), text
+    syntax, _ = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                           script="const a = 1;\nconst = ;")
+    assert syntax.startswith("Script syntax error at line 2"), syntax

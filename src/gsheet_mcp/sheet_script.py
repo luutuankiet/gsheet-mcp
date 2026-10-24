@@ -29,11 +29,13 @@ CPU_TIMEOUT_S = 30.0
 MAX_OPS = 5000
 MAX_RETURN_BYTES = 8192
 MAX_READS = 20
-_READ_LITERAL = re.compile(r"sheet\.read\(\s*(['\"`])([^'\"`]+)\1\s*\)")
+# A string literal in any of the three quotes; the body may hold the other quotes
+# (`"'my tab'!A1"`) and escaped ones (`'\'my tab\'!A1'`).
+_READ_LITERAL = re.compile(r"sheet\.read\(\s*(['\"`])((?:\\.|(?!\1).)+?)\1\s*\)")
 _GRID_KEYS = ("startRowIndex", "endRowIndex", "startColumnIndex", "endColumnIndex")
 
-# Kept on one line and put in front of the script, so error line numbers stay
-# the script's own.
+# Put on its own line in front of the script; the sandbox is told about that line
+# (`prefix_lines`), so error line numbers stay the script's own.
 SHEET_JS = (
     "const sheet = Object.freeze({"
     "read(range) { const v = model.reads[String(range)]; if (v === undefined) throw new "
@@ -44,8 +46,9 @@ SHEET_JS = (
     "request(r) { if (!r || typeof r !== 'object' || Array.isArray(r) || Object.keys(r).length "
     "!== 1) throw new TypeError('sheet.request takes one Sheets request, such as {addChart: "
     "{...}}'); __push({op: 'request', request: r}); },"
-    "}); "
+    "});\n"
 )
+PREFIX_LINES = 1
 
 
 @dataclass
@@ -63,8 +66,19 @@ def _caller() -> str | None:
 # ---- running a script -----------------------------------------------------------
 
 
+def _literal_reads(script: str) -> list[str]:
+    """The ranges of `sheet.read("...")` calls, as the script's `String(range)` sees them."""
+    out = []
+    for m in _READ_LITERAL.finditer(script):
+        quote, body = m.group(1), m.group(2)
+        if quote == "`" and "${" in body:
+            continue    # a computed range, not a literal
+        out.append(re.sub(r"\\(.)", r"\1", body))
+    return out
+
+
 def _reads(spreadsheet_id: str, script: str, reads: list[str] | None) -> dict[str, Any]:
-    names = list(dict.fromkeys([*(reads or []), *(m.group(2) for m in _READ_LITERAL.finditer(script))]))
+    names = list(dict.fromkeys([*(reads or []), *_literal_reads(script)]))
     if len(names) > MAX_READS:
         raise reply.Refusal(f"A script reads at most {MAX_READS} ranges; it named {len(names)}.")
     return {name: sheets_api.values_get(spreadsheet_id, addressing.resolve(spreadsheet_id, name),
@@ -77,7 +91,8 @@ def run(spreadsheet_id: str, script: str, input_value: Any,
     worker = process.Worker()
     try:
         worker.send({"op": "start", "script": SHEET_JS + script, "input": input_value,
-                     "model": model, "max_ops": MAX_OPS})
+                     "model": model, "max_ops": MAX_OPS,
+                     "prefix_lines": PREFIX_LINES})
         try:
             msg = worker.next(CPU_TIMEOUT_S, f"the script ran for more than {CPU_TIMEOUT_S:g} s "
                                              "(an infinite loop?)")
@@ -91,7 +106,9 @@ def run(spreadsheet_id: str, script: str, input_value: Any,
         where = (f" at line {err['line']}" + (f":{err['column']}" if err.get("column") else "")
                  if err.get("line") else "")
         tail = ("\nlogs:\n" + "\n".join(f"  {x}" for x in logs)) if logs else ""
-        raise reply.Refusal(f"Script {err.get('kind', 'script')} error{where}: "
+        kind = err.get("kind", "script")
+        label = "Script error" if kind == "script" else f"Script {kind} error"
+        raise reply.Refusal(f"{label}{where}: "
                             f"{err.get('name', 'Error')}: {err.get('message', '')}. "
                             f"Nothing was planned.{tail}")
     out_writes, requests = [], []
@@ -191,7 +208,7 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
         kinds = ", ".join(dict.fromkeys(next(iter(r), "?") for r in requests))
         lines.append(f"  raw: {kinds}; affected: {_names(ranges)}")
     lines += notes
-    lines.append(f'apply: {tool} with plan_id="{plan_id}"; it re-reads the touched cells first '
+    lines.append(f'apply: {tool} with plan_id="{plan_id}" and dry_run=false; it re-reads the touched cells first '
                  "and refuses the whole batch if any changed")
     return "\n".join(lines)
 
