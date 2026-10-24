@@ -23,12 +23,14 @@ from typing import Any
 
 from . import a1, addressing, guard, reply, sheets_api, state_store, writes
 from .sandbox import process
+from .structure import GUARD_CELLS
 
 OP = "sheet_script"
 CPU_TIMEOUT_S = 30.0
 MAX_OPS = 5000
 MAX_RETURN_BYTES = 8192
 MAX_READS = 20
+READ_CELLS = 100_000    # cells across one script's pre-reads (default, review)
 # A string literal in any of the three quotes; the body may hold the other quotes
 # (`"'my tab'!A1"`) and escaped ones (`'\'my tab\'!A1'`).
 _READ_LITERAL = re.compile(r"sheet\.read\(\s*(['\"`])((?:\\.|(?!\1).)+?)\1\s*\)")
@@ -81,6 +83,20 @@ def _reads(spreadsheet_id: str, script: str, reads: list[str] | None) -> dict[st
     names = list(dict.fromkeys([*(reads or []), *_literal_reads(script)]))
     if len(names) > MAX_READS:
         raise reply.Refusal(f"A script reads at most {MAX_READS} ranges; it named {len(names)}.")
+    if not names:
+        return {}
+    tabs = sheets_api.get_tabs(spreadsheet_id)
+    sizes = _sizes(tabs)
+    total = 0
+    for name in names:
+        rng = addressing.resolve(spreadsheet_id, name)
+        title = sheets_api.find_tab(tabs, rng.tab)["title"]
+        clipped = _clip(rng, sizes[title])
+        total += _count(clipped) if clipped else 0
+    if total > READ_CELLS:
+        raise reply.Refusal(f"A script reads at most {READ_CELLS:,} cells before it runs; its "
+                            f"reads cover {total:,}. Read a smaller range, or use pull_tables "
+                            "for a whole table. Nothing was planned.")
     return {name: sheets_api.values_get(spreadsheet_id, addressing.resolve(spreadsheet_id, name),
                                         render="UNFORMATTED_VALUE") for name in names}
 
@@ -159,16 +175,66 @@ def affected(spreadsheet_id: str, requests: list[dict[str, Any]]) -> list[a1.Ran
     return list(dict.fromkeys(found))
 
 
+def _sizes(tabs: dict[str, Any]) -> dict[str, list[int]]:
+    """Each tab's [rowCount, columnCount], by title."""
+    return {s["properties"]["title"]: [s["properties"].get("gridProperties", {}).get(k, 0)
+                                       for k in ("rowCount", "columnCount")]
+            for s in tabs.get("sheets") or []}
+
+
+def _clip(rng: a1.Range, size: list[int]) -> a1.Range | None:
+    """`rng` with concrete bounds inside a tab of `size`; None when nothing is left."""
+    rows, cols = size
+    sr, sc = rng.start_row or 0, rng.start_col or 0
+    er = rows if rng.end_row is None else min(rng.end_row, rows)
+    ec = cols if rng.end_col is None else min(rng.end_col, cols)
+    if sr >= er or sc >= ec:
+        return None
+    return a1.Range(rng.tab, sr, er, sc, ec)
+
+
+def _count(rng: a1.Range) -> int:
+    return (rng.end_row - rng.start_row) * (rng.end_col - rng.start_col)
+
+
 def _raw_fingerprint(spreadsheet_id: str, ranges: list[a1.Range]) -> dict[str, Any]:
-    """The cells in the affected ranges plus each affected tab's grid size."""
+    """The cells in the affected ranges plus each affected tab's grid size.
+
+    At most `GUARD_CELLS` cells are read, shared across the ranges: smallest
+    first, each gets an even share of what is left; a range larger than its
+    share is read from its first rows, in row order. Deterministic, so apply
+    reads the same cells again. Ranges not read in full are listed in
+    `partial` as [range, cells read, cells in the range]."""
     if not ranges:
-        return {"cells": {}, "grids": {}}
-    book, cells = guard.read(spreadsheet_id, ranges)
-    tabs = {r.tab for r in ranges}
-    grids = {s["properties"]["title"]: [s["properties"].get("gridProperties", {}).get(k, 0)
-                                        for k in ("rowCount", "columnCount")]
-             for s in book.get("sheets") or [] if s["properties"]["title"] in tabs}
-    return {"cells": guard.fingerprint(cells, list(cells)), "grids": grids}
+        return {"cells": {}, "grids": {}, "partial": []}
+    sizes = _sizes(sheets_api.get_tabs(spreadsheet_id))
+    grids = {r.tab: sizes[r.tab] for r in ranges if r.tab in sizes}
+    clipped = [(r, c) for r in ranges if r.tab in sizes
+               for c in [_clip(r, sizes[r.tab])] if c is not None]
+    order = sorted(range(len(clipped)), key=lambda i: (_count(clipped[i][1]), i))
+    remaining, bounded, partial = GUARD_CELLS, [], []
+    for n, i in enumerate(order):
+        original, rng = clipped[i]
+        share, total = remaining // (len(order) - n), _count(rng)
+        width = rng.end_col - rng.start_col
+        if total <= share:
+            take = rng
+        elif share >= width:
+            take = a1.Range(rng.tab, rng.start_row, rng.start_row + share // width,
+                            rng.start_col, rng.end_col)
+        elif share > 0:
+            take = a1.Range(rng.tab, rng.start_row, rng.start_row + 1,
+                            rng.start_col, rng.start_col + share)
+        else:
+            take = None
+        got = _count(take) if take else 0
+        remaining -= got
+        if take:
+            bounded.append(take)
+        if got < total:
+            partial.append([str(original), got, total])
+    cells = guard.read(spreadsheet_id, bounded)[1] if bounded else {}
+    return {"cells": guard.fingerprint(cells, list(cells)), "grids": grids, "partial": partial}
 
 
 def _check_raw(old: dict[str, Any], new: dict[str, Any]) -> None:
@@ -207,6 +273,9 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
     if requests:
         kinds = ", ".join(dict.fromkeys(next(iter(r), "?") for r in requests))
         lines.append(f"  raw: {kinds}; affected: {_names(ranges)}")
+        for name, got, total in payload["raw"].get("partial", []):
+            lines.append(f"  stale-write check partial: {name} (first {got:,} of {total:,} "
+                         "cells, plus the tab's size)")
     lines += notes
     lines.append(f'apply: {tool} with plan_id="{plan_id}" and dry_run=false; it re-reads the touched cells first '
                  "and refuses the whole batch if any changed")

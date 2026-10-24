@@ -123,7 +123,81 @@ async def test_the_apply_hint_in_a_dry_run_is_the_exact_call_that_applies(ready,
     assert not is_error and "applied 1 raw request" in applied, applied
 
 
-@pytest.mark.parametrize("literal", ['"\'comms\'!A1:B2"', "'\\'comms\\'!A1:B2'",
+def _grow(fake, rows: int) -> None:
+    sheet = next(s for s in fake.books[CANARY_ID]["sheets"]
+                 if s["properties"]["sheetId"] == 101)
+    sheet["properties"]["gridProperties"]["rowCount"] = rows
+
+
+def _record_reads(monkeypatch) -> list[list[str]]:
+    from gsheet_mcp import sheets_api
+    seen: list[list[str]] = []
+    real = sheets_api.get_spreadsheet
+
+    def recording(spreadsheet_id, ranges=None, **kw):
+        if ranges:
+            seen.append([str(r) for r in ranges])
+        return real(spreadsheet_id, ranges, **kw)
+    monkeypatch.setattr(sheets_api, "get_spreadsheet", recording)
+    return seen
+
+
+def _cells(text: str) -> int:
+    from gsheet_mcp import a1
+    r = a1.parse(text)
+    return (r.end_row - r.start_row) * (r.end_col - r.start_col)
+
+
+async def test_a_raw_request_over_a_huge_range_gets_a_bounded_partial_guard(
+        ready, fake, monkeypatch):
+    _grow(fake, 60000)
+    seen = _record_reads(monkeypatch)
+    rule = {"addConditionalFormatRule": {"index": 0, "rule": {
+        "ranges": [{"sheetId": 101, "startRowIndex": 1, "endRowIndex": 50001,
+                    "startColumnIndex": 11, "endColumnIndex": 12}],
+        "booleanRule": {"condition": {"type": "TEXT_EQ", "values": [{"userEnteredValue": "x"}]},
+                        "format": {"textFormat": {"bold": True}}}}}}
+    small = {"repeatCell": {"range": {"sheetId": 101, "startRowIndex": 0, "endRowIndex": 2,
+                                      "startColumnIndex": 0, "endColumnIndex": 3},
+                            "cell": {"userEnteredFormat": {"textFormat": {"italic": True}}},
+                            "fields": "userEnteredFormat.textFormat.italic"}}
+    planned, is_error = await call(ready, "batch_update", spreadsheet=CANARY_ID,
+                                   requests=[rule, small])
+    assert not is_error, planned
+    assert ("stale-write check partial: comms!L2:L50001 (first 4,994 of 50,000 cells, "
+            "plus the tab's size)") in planned, planned
+    assert "comms!A1:C2" not in planned.split("partial")[-1]
+    assert seen and all(sum(_cells(r) for r in ranges) <= 5000 for ranges in seen), seen
+    applied, is_error = await call(ready, "batch_update", spreadsheet=CANARY_ID,
+                                   plan_id=_plan_id(planned), dry_run=False)
+    assert not is_error and "applied 2 raw requests" in applied, applied
+
+
+async def test_a_raw_request_over_a_few_cells_keeps_the_full_guard(ready, fake):
+    small = {"repeatCell": {"range": {"sheetId": 101, "startRowIndex": 0, "endRowIndex": 2,
+                                      "startColumnIndex": 0, "endColumnIndex": 3},
+                            "cell": {"userEnteredFormat": {"textFormat": {"italic": True}}},
+                            "fields": "userEnteredFormat.textFormat.italic"}}
+    planned, _ = await call(ready, "batch_update", spreadsheet=CANARY_ID, requests=[small])
+    assert "partial" not in planned, planned
+    fake.set_cell(CANARY_ID, "comms!C2", "someone else")
+    refused, is_error = await call(ready, "batch_update", spreadsheet=CANARY_ID,
+                                   plan_id=_plan_id(planned), dry_run=False)
+    assert is_error and "changed since the plan" in refused, refused
+    assert not fake.batch_updates
+
+
+async def test_script_reads_over_the_cell_cap_are_refused_before_reading(ready, fake):
+    _grow(fake, 60000)
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                script="return sheet.read('comms').length;")
+    assert is_error and "at most 100,000 cells" in text and "pull_tables" in text, text
+    fine, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                script="return sheet.read('comms!A1:B2').length;")
+    assert not is_error and "return: 2" in fine, fine
+
+
+@pytest.mark.parametrize("literal",['"\'comms\'!A1:B2"', "'\\'comms\\'!A1:B2'",
                                      "`'comms'!A1:B2`"])
 async def test_a_string_literal_read_of_a_quoted_tab_name_is_read_for_the_script(
         ready, fake, literal):
