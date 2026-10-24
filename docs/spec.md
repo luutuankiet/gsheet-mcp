@@ -339,6 +339,13 @@ The tab, filter and validation operations are **(default, review)**.
   - the stale-write guard's limits
   - the notation table
 
+  Bundle details (default, review):
+  - two files, `SKILL.md` and `sheets-cookbook.md`, under `src/gsheet_mcp/skills/gsheet-mcp/`
+  - the notation table lives in the cookbook only; `SKILL.md` points to it
+  - examples are real output from the canary sheet (`On track ▾v1`, `H3 [image 96x40 over H3:I5, floating]`), not invented
+  - the skill files carry no "copied from" stamp, because the stamp would break the frontmatter
+  - `install_skill` is read-only and needs no Google sign-in
+
 ## 10. Charts, pivots, conditional formats, validation (default, review)
 
 - **Read:**

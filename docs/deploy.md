@@ -60,7 +60,7 @@ The Web client, the consent screen and the redirect URI cannot be made from
   - [ ] `https://www.googleapis.com/auth/spreadsheets`
   - [ ] `https://www.googleapis.com/auth/drive`
 - [ ] **Clients** → **Create client** → type **Web application**, name `gsheet-mcp`.
-- [ ] **Authorized redirect URIs**: exactly `<service URL>/auth/callback`, where the service URL is the one `scripts/deploy` printed at the end (`https://gsheet-mcp-<project number>.asia-southeast1.run.app`). No JavaScript origins.
+- [ ] **Authorized redirect URIs**: exactly `<GSHEET_MCP_BASE_URL>/auth/callback`, today `https://gsheet-mcp.cloud.run/auth/callback`. Check the spelling: a one-letter typo here passes the console and fails every sign-in with `redirect_uri_mismatch`. No JavaScript origins.
 - [ ] Copy the client ID and the client secret.
 
 Then store the secret and point the service at the client:
@@ -101,6 +101,9 @@ does not work.
    The certificate takes up to about 15 minutes after the DNS record matches.
 3. The OAuth client's redirect URI is exactly
    `https://gsheet-mcp.cloud.run/auth/callback`.
+
+The mapping is live, and a sign-in from an MCP client through the domain was
+checked end to end on 2026-10-24.
 
 ## 4. Check it is up
 
