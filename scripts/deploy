@@ -116,7 +116,7 @@ fi
 say "APIs"
 gc services enable sheets.googleapis.com drive.googleapis.com firestore.googleapis.com \
   run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com \
-  secretmanager.googleapis.com iamcredentials.googleapis.com
+  secretmanager.googleapis.com iamcredentials.googleapis.com cloudresourcemanager.googleapis.com
 
 say "Firestore database $DATABASE"
 if missing firestore databases describe "--database=$DATABASE"; then

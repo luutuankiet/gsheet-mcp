@@ -85,6 +85,23 @@ GSHEET_MCP_GOOGLE_CLIENT_ID=<CLIENT_ID> GSHEET_SECRET_VERSION=<version printed a
   `GSHEET_MCP_BASE_URL=https://<domain>` and add `<domain>/auth/callback` to the
   client's redirect URIs.
 
+### Custom domain
+
+The service runs on `https://gsheet-mcp.cloud.run`, which maps onto
+`gsheet-mcp` the same way `gdoc-mcp.cloud.run` and `slides-mcp.cloud.run` map
+onto their services. The first deploy already set
+`GSHEET_MCP_BASE_URL=https://gsheet-mcp.cloud.run`. That makes the OAuth
+metadata and the callback use the domain, so sign-in through the `run.app` URL
+does not work.
+
+1. The deploying account must have the domain verified in Search Console
+   (`gcloud domains verify cloud.run`). The mapping is refused otherwise.
+2. Map it:
+   `gcloud beta run domain-mappings create --service=gsheet-mcp --domain=gsheet-mcp.cloud.run --region=asia-southeast1`.
+   The certificate takes up to about 15 minutes after the DNS record matches.
+3. The OAuth client's redirect URI is exactly
+   `https://gsheet-mcp.cloud.run/auth/callback`.
+
 ## 4. Check it is up
 
 None of these need a sign-in:
