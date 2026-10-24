@@ -6,16 +6,19 @@
 
 The server never parses a pulled row: each tab's CSV export is copied chunk
 by chunk into the state bucket, and the scan's regions travel beside it as
-A1 ranges for the CLI to cut the CSV with.
+A1 ranges for the CLI to cut the CSV with. A JSON manifest (format
+`gsheet-pull/1`) carries the same links and regions for `gsheet pull`.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import time
 from typing import Any
 
 from . import a1, addressing, reply, scan, sheets_api, transfer
 
+MANIFEST_FORMAT = "gsheet-pull/1"
 HEAD_ROWS = 500
 TAIL_ROWS = 500
 CHUNK_BYTES = 1024 * 1024
@@ -108,18 +111,32 @@ def pull(spreadsheet_id: str, *, tab: str | None = None, range_: str | None = No
     out = [f"pulled \"{title}\" ({spreadsheet_id}) · {len(by_tab)} "
            f"tab{'' if len(by_tab) == 1 else 's'} · CSV links valid "
            f"{transfer.PULL_URL_TTL_SECONDS // 60} minutes"]
+    manifest: dict[str, Any] = {"format": MANIFEST_FORMAT, "spreadsheet_id": spreadsheet_id,
+                                "title": title, "pulled_at": transfer.iso(time.time()),
+                                "tabs": []}
     for tab_title, tab_regions in by_tab.items():
         props = sheets_api.find_tab(tabs_reply, tab_title)
         stream = sheets_api.open_export(
             sheets_api.export_url(spreadsheet_id, "csv", gid=props["sheetId"]))
         hosted, size = transfer.hand_out_stream(_chunks(stream))
         grid = props.get("gridProperties", {})
+        fp = fingerprint(spreadsheet_id, props)
         out.append(f"tab \"{tab_title}\" (gid {props['sheetId']}) · "
                    f"{grid.get('rowCount', 0)}x{grid.get('columnCount', 0)} · "
-                   f"csv {_size(size)} from A1 · fingerprint {fingerprint(spreadsheet_id, props)}")
+                   f"csv {_size(size)} from A1 · fingerprint {fp}")
         out.append(f"  csv {hosted.url}")
         out += [_region_line(alias, info) for alias, info in tab_regions]
-    if not by_tab:
+        manifest["tabs"].append({
+            "tab": tab_title, "gid": props["sheetId"], "rows": grid.get("rowCount", 0),
+            "cols": grid.get("columnCount", 0), "fingerprint": fp, "csv": hosted.url,
+            "regions": [{"alias": alias, "range": info["range"], "kind": info["kind"],
+                         "label": info.get("label", ""), "header_rows": info.get("header_rows"),
+                         **({"table_name": info["table_name"]} if info.get("table_name") else {})}
+                        for alias, info in tab_regions]})
+    if by_tab:
+        # One link for `gsheet pull`: the CSV links and the regions to cut them with.
+        out.insert(1, f"manifest {transfer.hand_out_json(manifest).url}")
+    else:
         out.append("nothing pulled: no table regions or native Tables"
                    + (f" on tab \"{tab}\"" if tab else ""))
     if skipped:

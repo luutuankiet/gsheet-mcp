@@ -1,0 +1,27 @@
+{
+  "name": "@luutuankiet/gsheet",
+  "version": "0.1.0",
+  "description": "Companion CLI for gsheet-mcp: pull Google Sheets tables into DuckDB, query them, push results back",
+  "type": "module",
+  "bin": {
+    "gsheet": "bin/gsheet.js"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\""
+  },
+  "dependencies": {
+    "@duckdb/node-api": "1.5.6-r.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luutuankiet/gsheet-mcp.git",
+    "directory": "cli"
+  }
+}

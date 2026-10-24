@@ -3,6 +3,7 @@
 results come back through signed PUT upload slots (spec, "Tables to DuckDB").
 
     hand_out_stream(chunks)  -> (signed GET URL, handle, bytes) of a CSV written as it streams
+    hand_out_json(data)      -> signed GET URL of a JSON document (a pull's manifest)
     new_slot()               -> UploadSlot, a signed PUT for a CSV, valid 24 hours
     read_upload(upload)      -> (handle, bytes) of what the CLI uploaded
 
@@ -11,6 +12,7 @@ signs them), so a sandboxed agent allowlists one domain.
 """
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Iterator
 from datetime import UTC, datetime
@@ -50,6 +52,17 @@ def hand_out_stream(chunks: Iterator[bytes]) -> tuple[state_store.HostedObject, 
                                    url_ttl_seconds=PULL_URL_TTL_SECONDS)
     except state_store.ObjectHostingUnavailable as e:
         raise reply.Refusal(str(e)) from None
+
+
+def hand_out_json(data: object) -> state_store.HostedObject:
+    """Store a JSON document behind a signed link valid as long as the CSV links."""
+    body = json.dumps(data, ensure_ascii=False, indent=1).encode()
+    try:
+        hosted, _ = _store().put_stream(iter([body]), content_type=state_store.JSON_CONTENT_TYPE,
+                                        url_ttl_seconds=PULL_URL_TTL_SECONDS)
+    except state_store.ObjectHostingUnavailable as e:
+        raise reply.Refusal(str(e)) from None
+    return hosted
 
 
 def handle_of(upload: str) -> str:
