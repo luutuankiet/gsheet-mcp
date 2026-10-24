@@ -47,12 +47,20 @@ COPIED = {
     "tests/integration/compose.yaml": "tests/integration/compose.yaml",
     "tests/integration/test_state_store_firestore.py":
         "tests/integration/test_state_store_firestore.py",
+    "tests/smoke/test_live_canary.py": "tests/smoke/test_live_canary.py",
+    "scripts/deploy": "docs/reference/deploying-to-cloud-run.md",
+    "docs/deploy.md": "docs/reference/deploying-to-cloud-run.md",
 }
+
+
+def _stamp_line(lines: list[str]) -> str:
+    """Line 1, or line 2 when line 1 is a shebang that has to stay first."""
+    return lines[1] if len(lines) > 1 and lines[0].startswith("#!") else lines[0]
 
 
 @pytest.mark.parametrize("path", sorted(COPIED))
 def test_copied_file_names_its_origin_on_line_1(path):
-    first = (ROOT / path).read_text().splitlines()[0]
+    first = _stamp_line((ROOT / path).read_text().splitlines())
     assert ORIGIN in first and COPIED[path] in first, first
 
 
@@ -68,6 +76,6 @@ def test_every_file_claiming_an_origin_is_listed():
             lines = file.read_text().splitlines()
         except UnicodeDecodeError:
             continue
-        if lines and ORIGIN in lines[0]:
+        if lines and ORIGIN in _stamp_line(lines):
             claiming.add(name)
     assert claiming == set(COPIED)

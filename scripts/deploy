@@ -1,0 +1,201 @@
+#!/usr/bin/env bash
+# Copied from google-docs-mcp@2fb4652 docs/reference/deploying-to-cloud-run.md; its one-time setup and deploy commands made into a script, renamed, release gate and --dry-run added, max-instances=1 and concurrency 20 per spec section 12.
+#
+# Deploy gsheet-mcp to Cloud Run.
+#
+#   scripts/deploy            run the release gate, create what is missing, deploy
+#   scripts/deploy --dry-run  print every command, run none of them
+#
+# Needs GCP_PROJECT and GCPX_ALIAS, from the environment or from .env in the
+# repo root. Every gcloud call runs as `gcpx exec $GCPX_ALIAS -p $GCP_PROJECT --
+# gcloud ...`, the wrapper that picks the Google account per command.
+#
+# Optional settings (default in brackets):
+#   GSHEET_DEPLOY_REGION         [asia-southeast1]
+#   GSHEET_DEPLOY_SERVICE        [gsheet-mcp]
+#   GSHEET_DEPLOY_DATABASE       [gsheet-mcp-auth]
+#   GSHEET_DEPLOY_BUCKET         [$GCP_PROJECT-gsheet-mcp-state]
+#   GSHEET_DEPLOY_SECRET         [gsheet-mcp-google-client-secret]
+#   GSHEET_MCP_BASE_URL          [https://$SERVICE-<project number>.$REGION.run.app]
+#   GSHEET_MCP_GOOGLE_CLIENT_ID  set it to point the service at a new OAuth client
+#   GSHEET_SECRET_VERSION        set it to pin the service to a new secret version
+#   GSHEET_DEPLOY_ENV_FILE       [<repo root>/.env]
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DRY_RUN=0
+
+usage() { sed -n '4,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; }
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run) DRY_RUN=1 ;;
+    -h|--help) usage; exit 0 ;;
+    *) echo "deploy: unknown argument: $arg" >&2; usage >&2; exit 2 ;;
+  esac
+done
+
+# .env is read line by line, never sourced: its URLs may carry `&` or `#`.
+ENV_FILE="${GSHEET_DEPLOY_ENV_FILE:-$ROOT/.env}"
+if [[ -f "$ENV_FILE" ]]; then
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ "$line" =~ ^(GCP_PROJECT|GCPX_ALIAS)=(.*)$ ]] || continue
+    key="${BASH_REMATCH[1]}"
+    [[ -z "${!key:-}" ]] && export "$key=${BASH_REMATCH[2]}"
+  done < "$ENV_FILE"
+fi
+
+missing_vars=()
+[[ -n "${GCP_PROJECT:-}" ]] || missing_vars+=(GCP_PROJECT)
+[[ -n "${GCPX_ALIAS:-}" ]] || missing_vars+=(GCPX_ALIAS)
+if (( ${#missing_vars[@]} )); then
+  echo "deploy: set ${missing_vars[*]} in the environment or in $ENV_FILE" >&2
+  exit 2
+fi
+
+REGION="${GSHEET_DEPLOY_REGION:-asia-southeast1}"
+SERVICE="${GSHEET_DEPLOY_SERVICE:-gsheet-mcp}"
+DATABASE="${GSHEET_DEPLOY_DATABASE:-gsheet-mcp-auth}"
+BUCKET="${GSHEET_DEPLOY_BUCKET:-$GCP_PROJECT-gsheet-mcp-state}"
+SECRET="${GSHEET_DEPLOY_SECRET:-gsheet-mcp-google-client-secret}"
+SA="$SERVICE-run@$GCP_PROJECT.iam.gserviceaccount.com"
+PLACEHOLDER_ID="PLACEHOLDER-replace-with-the-gsheet-oauth-client-id.apps.googleusercontent.com"
+PLACEHOLDER_SECRET="PLACEHOLDER-replace-with-the-gsheet-oauth-client-secret"
+LIFECYCLE='{"rule":[{"action":{"type":"Delete"},"condition":{"age":1}}]}'
+
+say() { printf '\n== %s\n' "$*"; }
+
+# Print in dry-run mode, run otherwise.
+run() {
+  if (( DRY_RUN )); then
+    printf '+'; printf ' %q' "$@"; printf '\n'
+  else
+    "$@"
+  fi
+}
+
+# The same, with $1 fed to the command's stdin.
+run_with_stdin() {
+  local input="$1"; shift
+  if (( DRY_RUN )); then
+    printf "+ printf '%%s' %q |" "$input"; printf ' %q' "$@"; printf '\n'
+  else
+    printf '%s' "$input" | "$@"
+  fi
+}
+
+gc() { run gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"; }
+gc_with_stdin() {
+  local input="$1"; shift
+  run_with_stdin "$input" gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"
+}
+
+# True when `gcloud <describe args>` fails, that is when the resource is missing.
+# A dry run cannot ask, so it prints the check and goes on as if it were missing.
+missing() {
+  if (( DRY_RUN )); then
+    printf '+'; printf ' %q' gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@"
+    printf '   # the commands under it run only if this fails\n'
+    return 0
+  fi
+  ! gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud "$@" >/dev/null 2>&1
+}
+
+cd "$ROOT"
+(( DRY_RUN )) && echo "deploy: dry run, nothing below is executed"
+
+# ---- the release gate, before anything touches the project ------------------
+say "release gate"
+run uv run pytest
+run uv run ruff check src tests
+if [[ -d cli ]]; then
+  run npm --prefix cli test
+fi
+
+# ---- one-time setup, each step only if missing --------------------------------
+say "APIs"
+gc services enable sheets.googleapis.com drive.googleapis.com firestore.googleapis.com \
+  run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com \
+  secretmanager.googleapis.com iamcredentials.googleapis.com
+
+say "Firestore database $DATABASE"
+if missing firestore databases describe "--database=$DATABASE"; then
+  gc firestore databases create "--database=$DATABASE" "--location=$REGION" \
+    --edition=standard --type=firestore-native --delete-protection
+fi
+
+say "service account $SA"
+if missing iam service-accounts describe "$SA"; then
+  gc iam service-accounts create "$SERVICE-run" "--display-name=$SERVICE Cloud Run service"
+fi
+gc projects add-iam-policy-binding "$GCP_PROJECT" "--member=serviceAccount:$SA" \
+  --role=roles/datastore.user \
+  "--condition=expression=resource.name==\"projects/$GCP_PROJECT/databases/$DATABASE\",title=$DATABASE-only"
+# signBlob signs the state store's URLs with the service's own identity.
+gc iam service-accounts add-iam-policy-binding "$SA" "--member=serviceAccount:$SA" \
+  --role=roles/iam.serviceAccountTokenCreator
+
+say "bucket gs://$BUCKET, objects deleted after one day"
+if missing storage buckets describe "gs://$BUCKET"; then
+  gc storage buckets create "gs://$BUCKET" "--location=$REGION" \
+    --uniform-bucket-level-access --public-access-prevention
+  if (( DRY_RUN )); then
+    echo "+ # lifecycle file: $LIFECYCLE"
+    gc storage buckets update "gs://$BUCKET" "--lifecycle-file=<lifecycle file>"
+  else
+    lifecycle_file="$(mktemp)"
+    trap 'rm -f "$lifecycle_file"' EXIT
+    printf '%s' "$LIFECYCLE" > "$lifecycle_file"
+    gc storage buckets update "gs://$BUCKET" "--lifecycle-file=$lifecycle_file"
+  fi
+fi
+gc storage buckets add-iam-policy-binding "gs://$BUCKET" "--member=serviceAccount:$SA" \
+  --role=roles/storage.objectAdmin
+
+say "OAuth client secret $SECRET"
+if missing secrets describe "$SECRET"; then
+  gc_with_stdin "$PLACEHOLDER_SECRET" secrets create "$SECRET" \
+    --replication-policy=automatic --data-file=-
+fi
+gc secrets add-iam-policy-binding "$SECRET" "--member=serviceAccount:$SA" \
+  --role=roles/secretmanager.secretAccessor
+
+# ---- deploy -------------------------------------------------------------------
+say "Cloud Run service $SERVICE"
+base_url="${GSHEET_MCP_BASE_URL:-}"
+if [[ -z "$base_url" ]]; then
+  if (( DRY_RUN )); then
+    gc projects describe "$GCP_PROJECT" "--format=value(projectNumber)"
+    project_number="<project number>"
+  else
+    project_number="$(gcpx exec "$GCPX_ALIAS" -p "$GCP_PROJECT" -- gcloud projects describe \
+      "$GCP_PROJECT" "--format=value(projectNumber)")"
+  fi
+  base_url="https://$SERVICE-$project_number.$REGION.run.app"
+fi
+
+env_vars="GSHEET_MCP_BASE_URL=$base_url,GSHEET_MCP_FIRESTORE_DATABASE=$DATABASE,GSHEET_MCP_BUCKET=$BUCKET"
+secret_version="${GSHEET_SECRET_VERSION:-}"
+client_id="${GSHEET_MCP_GOOGLE_CLIENT_ID:-}"
+if missing run services describe "$SERVICE" "--region=$REGION"; then
+  # First deploy: placeholders boot, and sign-in fails with invalid_client
+  # until docs/deploy.md's OAuth step replaces them.
+  client_id="${client_id:-$PLACEHOLDER_ID}"
+  secret_version="${secret_version:-1}"
+fi
+[[ -n "$client_id" ]] && env_vars="$env_vars,GSHEET_MCP_GOOGLE_CLIENT_ID=$client_id"
+
+# max-instances=1: the per-user and per-spreadsheet locks live in one process.
+deploy_args=(run deploy "$SERVICE" --source . "--region=$REGION" "--service-account=$SA"
+  --allow-unauthenticated --min-instances=0 --max-instances=1
+  --cpu=1 --memory=1Gi --cpu-boost --concurrency=20 --timeout=300
+  "--update-env-vars=$env_vars")
+# Pinned to a version number, never `latest`: the server's token signing key
+# derives from the client secret.
+[[ -n "$secret_version" ]] && \
+  deploy_args+=("--update-secrets=GSHEET_MCP_GOOGLE_CLIENT_SECRET=$SECRET:$secret_version")
+gc "${deploy_args[@]}"
+
+say "done"
+echo "service URL: $base_url"
+echo "check it:    curl -s $base_url/health"
