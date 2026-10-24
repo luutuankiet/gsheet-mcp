@@ -8,6 +8,7 @@ import re
 
 import pytest
 
+from gsheet_mcp import a1, guard, structure
 from tests.conftest import call
 from tests.fake_sheets import CANARY_ID
 
@@ -166,3 +167,43 @@ async def test_comments_go_through_drive_add_reply_and_resolve(ready, fake):
     assert not is_error, text
     assert fake.comments[CANARY_ID][-1]["resolved"] is True
     assert fake.batch_updates == []
+
+
+# ---- fixes from the live test ------------------------------------------------------
+
+
+async def test_applying_an_insert_reports_the_tab_size_before_and_after(ready, fake):
+    text, is_error = await _plan_and_apply(ready, [{"op": "insert", "range": "'comms'!5:6"}])
+    assert not is_error, text
+    assert "'comms': 30 rows x 12 columns → 32 rows x 12 columns" in text, text
+
+
+async def test_the_guard_keeps_cells_in_row_then_column_order_when_capped(
+        ready, fake, monkeypatch):
+    handles = sorted(guard.handle("comms", r, 0) for r in range(12))    # A1, A10, A11, A12, A2
+    got = {h: {"userEnteredValue": {"stringValue": h}} for h in handles}
+    monkeypatch.setattr(guard, "read", lambda *_a, **_k: ({}, got))
+    monkeypatch.setattr(structure, "GUARD_CELLS", 3)
+    fp = structure._fingerprint(CANARY_ID, [a1.Range("comms", 0, 12, 0, 1)], {"comms"})
+    assert list(fp["cells"]) == [guard.handle("comms", r, 0) for r in range(3)]
+
+
+async def test_the_guard_asks_google_for_at_most_its_budget_of_cells(ready, fake, monkeypatch):
+    asked: list[a1.Range] = []
+    read = guard.read
+
+    def counting_read(spreadsheet_id, ranges):
+        asked.extend(ranges)
+        return read(spreadsheet_id, ranges)
+
+    monkeypatch.setattr(guard, "read", counting_read)
+    monkeypatch.setattr(structure, "GUARD_CELLS", 20)
+    planned, is_error = await call(ready, "edit_sheet", spreadsheet=CANARY_ID, operations=[
+        {"op": "sort", "range": "'comms'!A3:L30", "by": [{"column": "B"}]}])   # 28 whole rows
+    assert not is_error, planned
+    assert asked, "the guard read nothing"
+    for rng in asked:
+        assert None not in (rng.start_row, rng.end_row, rng.start_col, rng.end_col), rng
+        assert rng.end_row <= 30 and rng.end_col <= 12, rng            # inside the tab
+    cells = sum((r.end_row - r.start_row) * (r.end_col - r.start_col) for r in asked)
+    assert cells <= 20, asked

@@ -271,6 +271,29 @@ def _compile_one(book, op, kind, requests, drive, ranges, tabs) -> None:  # noqa
 # ---- the structural guard ------------------------------------------------------
 
 
+def _clip(book: dict[str, Any], ranges: list[a1.Range], budget: int) -> list[a1.Range]:
+    """The guarded ranges cut to their tab's size, then to `budget` cells in all,
+    in the order given and row by row, so the read asks Google only for cells
+    the guard can keep (default, review)."""
+    out: list[a1.Range] = []
+    left = budget
+    for rng in ranges:
+        if left <= 0:
+            break
+        grid = _tab(book, rng.tab)["properties"]["gridProperties"]
+        rows, cols = grid.get("rowCount", 0), grid.get("columnCount", 0)
+        r0, c0 = rng.start_row or 0, rng.start_col or 0
+        r1 = min(rows if rng.end_row is None else rng.end_row, rows)
+        c1 = min(cols if rng.end_col is None else rng.end_col, cols)
+        if r1 <= r0 or c1 <= c0:
+            continue
+        width = min(c1 - c0, left)
+        height = min(r1 - r0, left // width)
+        out.append(a1.Range(rng.tab, r0, r0 + height, c0, c0 + width))
+        left -= height * width
+    return out
+
+
 def _fingerprint(spreadsheet_id: str, ranges: list[a1.Range], tabs: set[str]
                  ) -> dict[str, Any]:
     book = sheets_api.get_spreadsheet(spreadsheet_id, fields=BOOK_FIELDS,
@@ -280,8 +303,9 @@ def _fingerprint(spreadsheet_id: str, ranges: list[a1.Range], tabs: set[str]
         grid = _tab(book, title)["properties"]["gridProperties"]
         sizes[title] = [grid["rowCount"], grid["columnCount"]]
     cells: dict[str, list[str]] = {}
-    if ranges:
-        _, got = guard.read(spreadsheet_id, ranges)
+    clipped = _clip(book, ranges, GUARD_CELLS)
+    if clipped:
+        _, got = guard.read(spreadsheet_id, clipped)
         touched = sorted(got, key=guard._order)[:GUARD_CELLS]     # row, then column
         cells = guard.fingerprint(got, touched)
     return {"sizes": sizes, "cells": cells}

@@ -35,6 +35,7 @@ from . import (
 PLAN_THRESHOLD = 200
 RECEIPT_CELLS = 50
 DIFF_LINES = 50
+WRITE_CELLS = 50_000    # one call touches at most this many cells (default, review)
 OP = "write_cells"
 _ISO_DATE = re.compile(r"^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?$")
 _DATE_TYPES = {"DATE", "DATE_TIME", "TIME"}
@@ -374,6 +375,11 @@ def _flush(requests: list[dict[str, Any]], segment: list[tuple[int, dict[str, An
 
 def prepare(spreadsheet_id: str, raw: list[dict[str, Any]]) -> Prepared:
     writes = _normalise(spreadsheet_id, raw)
+    size = sum((w.rng.end_row - w.rng.start_row) * (w.rng.end_col - w.rng.start_col)
+               for w in writes)
+    if size > WRITE_CELLS:      # refused before the guard reads a single cell
+        raise reply.Refusal(f"Nothing was written: this write covers {size} cells; one call "
+                            f"takes at most {WRITE_CELLS}. Split it into smaller ranges.")
     book, cells = guard.read(spreadsheet_id, [w.rng for w in writes])
     merges = _merges(book)
     one_tab = len({w.rng.tab for w in writes}) == 1
