@@ -16,24 +16,30 @@ kind, turned into requests here next to `request`.
 """
 from __future__ import annotations
 
+import functools
 import json
 import re
 from dataclasses import dataclass
+from importlib import resources
 from typing import Any
 
 from . import a1, addressing, guard, reply, sheets_api, state_store, writes
 from .sandbox import process
+from .structure import GUARD_CELLS
 
 OP = "sheet_script"
 CPU_TIMEOUT_S = 30.0
 MAX_OPS = 5000
 MAX_RETURN_BYTES = 8192
 MAX_READS = 20
-_READ_LITERAL = re.compile(r"sheet\.read\(\s*(['\"`])([^'\"`]+)\1\s*\)")
+READ_CELLS = 100_000    # cells across one script's pre-reads (default, review)
+# A string literal in any of the three quotes; the body may hold the other quotes
+# (`"'my tab'!A1"`) and escaped ones (`'\'my tab\'!A1'`).
+_READ_LITERAL = re.compile(r"sheet\.read\(\s*(['\"`])((?:\\.|(?!\1).)+?)\1\s*\)")
 _GRID_KEYS = ("startRowIndex", "endRowIndex", "startColumnIndex", "endColumnIndex")
 
-# Kept on one line and put in front of the script, so error line numbers stay
-# the script's own.
+# Put on its own line in front of the script; the sandbox is told about that line
+# (`prefix_lines`), so error line numbers stay the script's own.
 SHEET_JS = (
     "const sheet = Object.freeze({"
     "read(range) { const v = model.reads[String(range)]; if (v === undefined) throw new "
@@ -44,8 +50,9 @@ SHEET_JS = (
     "request(r) { if (!r || typeof r !== 'object' || Array.isArray(r) || Object.keys(r).length "
     "!== 1) throw new TypeError('sheet.request takes one Sheets request, such as {addChart: "
     "{...}}'); __push({op: 'request', request: r}); },"
-    "}); "
+    "});\n"
 )
+PREFIX_LINES = 1
 
 
 @dataclass
@@ -63,10 +70,35 @@ def _caller() -> str | None:
 # ---- running a script -----------------------------------------------------------
 
 
+def _literal_reads(script: str) -> list[str]:
+    """The ranges of `sheet.read("...")` calls, as the script's `String(range)` sees them."""
+    out = []
+    for m in _READ_LITERAL.finditer(script):
+        quote, body = m.group(1), m.group(2)
+        if quote == "`" and "${" in body:
+            continue    # a computed range, not a literal
+        out.append(re.sub(r"\\(.)", r"\1", body))
+    return out
+
+
 def _reads(spreadsheet_id: str, script: str, reads: list[str] | None) -> dict[str, Any]:
-    names = list(dict.fromkeys([*(reads or []), *(m.group(2) for m in _READ_LITERAL.finditer(script))]))
+    names = list(dict.fromkeys([*(reads or []), *_literal_reads(script)]))
     if len(names) > MAX_READS:
         raise reply.Refusal(f"A script reads at most {MAX_READS} ranges; it named {len(names)}.")
+    if not names:
+        return {}
+    tabs = sheets_api.get_tabs(spreadsheet_id)
+    sizes = _sizes(tabs)
+    total = 0
+    for name in names:
+        rng = addressing.resolve(spreadsheet_id, name)
+        title = sheets_api.find_tab(tabs, rng.tab)["title"]
+        clipped = _clip(rng, sizes[title])
+        total += _count(clipped) if clipped else 0
+    if total > READ_CELLS:
+        raise reply.Refusal(f"A script reads at most {READ_CELLS:,} cells before it runs; its "
+                            f"reads cover {total:,}. Read a smaller range, or use pull_tables "
+                            "for a whole table. Nothing was planned.")
     return {name: sheets_api.values_get(spreadsheet_id, addressing.resolve(spreadsheet_id, name),
                                         render="UNFORMATTED_VALUE") for name in names}
 
@@ -77,7 +109,8 @@ def run(spreadsheet_id: str, script: str, input_value: Any,
     worker = process.Worker()
     try:
         worker.send({"op": "start", "script": SHEET_JS + script, "input": input_value,
-                     "model": model, "max_ops": MAX_OPS})
+                     "model": model, "max_ops": MAX_OPS,
+                     "prefix_lines": PREFIX_LINES})
         try:
             msg = worker.next(CPU_TIMEOUT_S, f"the script ran for more than {CPU_TIMEOUT_S:g} s "
                                              "(an infinite loop?)")
@@ -91,7 +124,9 @@ def run(spreadsheet_id: str, script: str, input_value: Any,
         where = (f" at line {err['line']}" + (f":{err['column']}" if err.get("column") else "")
                  if err.get("line") else "")
         tail = ("\nlogs:\n" + "\n".join(f"  {x}" for x in logs)) if logs else ""
-        raise reply.Refusal(f"Script {err.get('kind', 'script')} error{where}: "
+        kind = err.get("kind", "script")
+        label = "Script error" if kind == "script" else f"Script {kind} error"
+        raise reply.Refusal(f"{label}{where}: "
                             f"{err.get('name', 'Error')}: {err.get('message', '')}. "
                             f"Nothing was planned.{tail}")
     out_writes, requests = [], []
@@ -136,22 +171,122 @@ def _titles(spreadsheet_id: str) -> dict[int, str]:
     return {s["properties"]["sheetId"]: s["properties"]["title"] for s in tabs.get("sheets") or []}
 
 
-def affected(spreadsheet_id: str, requests: list[dict[str, Any]]) -> list[a1.Range]:
+def affected(spreadsheet_id: str, requests: list[dict[str, Any]],
+             titles: dict[int, str] | None = None) -> list[a1.Range]:
     found: list[a1.Range] = []
-    _walk(requests, _titles(spreadsheet_id), found)
+    _walk(requests, _titles(spreadsheet_id) if titles is None else titles, found)
     return list(dict.fromkeys(found))
 
 
+@functools.lru_cache(maxsize=1)
+def _request_kinds() -> frozenset[str]:
+    """Every Sheets request kind, from the client library's discovery document;
+    empty (no check) when the document is not there."""
+    try:
+        doc = resources.files("googleapiclient.discovery_cache").joinpath(
+            "documents", "sheets.v4.json").read_text("utf-8")
+        return frozenset(json.loads(doc)["schemas"]["Request"]["properties"])
+    except (ModuleNotFoundError, OSError, KeyError, TypeError, ValueError):
+        return frozenset()
+
+
+def _sheet_ids(node: Any, out: list[int]) -> None:
+    if isinstance(node, dict):
+        for key in ("sheetId", "sourceSheetId"):
+            if isinstance(node.get(key), int):
+                out.append(node[key])
+        for value in node.values():
+            _sheet_ids(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            _sheet_ids(value, out)
+
+
+def _check_requests(requests: list[dict[str, Any]], titles: dict[int, str]) -> None:
+    """Refuse, before anything is planned, a request kind Sheets does not have or
+    a sheetId no tab has (ids the same batch creates are fine)."""
+    kinds = _request_kinds()
+    created = set()
+    for request in requests:
+        body = next(iter(request.values()), None) or {}
+        if "addSheet" in request:
+            created.add((body.get("properties") or {}).get("sheetId"))
+        if "duplicateSheet" in request:
+            created.add(body.get("newSheetId"))
+    for n, request in enumerate(requests, 1):
+        kind = next(iter(request), "?")
+        if kinds and kind not in kinds:
+            raise reply.Refusal(f"Nothing was planned: request {n} ({kind}) is not a Sheets "
+                                "request kind.")
+        ids: list[int] = []
+        _sheet_ids(request, ids)
+        unknown = next((i for i in ids if i not in titles and i not in created), None)
+        if unknown is not None:
+            tabs = ", ".join(f"'{t}' (gid {i})" for i, t in titles.items())
+            raise reply.Refusal(f"Nothing was planned: request {n} ({kind}) names sheetId "
+                                f"{unknown}, which matches no tab. Tabs: {tabs}")
+
+
+def _sizes(tabs: dict[str, Any]) -> dict[str, list[int]]:
+    """Each tab's [rowCount, columnCount], by title."""
+    return {s["properties"]["title"]: [s["properties"].get("gridProperties", {}).get(k, 0)
+                                       for k in ("rowCount", "columnCount")]
+            for s in tabs.get("sheets") or []}
+
+
+def _clip(rng: a1.Range, size: list[int]) -> a1.Range | None:
+    """`rng` with concrete bounds inside a tab of `size`; None when nothing is left."""
+    rows, cols = size
+    sr, sc = rng.start_row or 0, rng.start_col or 0
+    er = rows if rng.end_row is None else min(rng.end_row, rows)
+    ec = cols if rng.end_col is None else min(rng.end_col, cols)
+    if sr >= er or sc >= ec:
+        return None
+    return a1.Range(rng.tab, sr, er, sc, ec)
+
+
+def _count(rng: a1.Range) -> int:
+    return (rng.end_row - rng.start_row) * (rng.end_col - rng.start_col)
+
+
 def _raw_fingerprint(spreadsheet_id: str, ranges: list[a1.Range]) -> dict[str, Any]:
-    """The cells in the affected ranges plus each affected tab's grid size."""
+    """The cells in the affected ranges plus each affected tab's grid size.
+
+    At most `GUARD_CELLS` cells are read, shared across the ranges: smallest
+    first, each gets an even share of what is left; a range larger than its
+    share is read from its first rows, in row order. Deterministic, so apply
+    reads the same cells again. Ranges not read in full are listed in
+    `partial` as [range, cells read, cells in the range]."""
     if not ranges:
-        return {"cells": {}, "grids": {}}
-    book, cells = guard.read(spreadsheet_id, ranges)
-    tabs = {r.tab for r in ranges}
-    grids = {s["properties"]["title"]: [s["properties"].get("gridProperties", {}).get(k, 0)
-                                        for k in ("rowCount", "columnCount")]
-             for s in book.get("sheets") or [] if s["properties"]["title"] in tabs}
-    return {"cells": guard.fingerprint(cells, list(cells)), "grids": grids}
+        return {"cells": {}, "grids": {}, "partial": []}
+    sizes = _sizes(sheets_api.get_tabs(spreadsheet_id))
+    grids = {r.tab: sizes[r.tab] for r in ranges if r.tab in sizes}
+    clipped = [(r, c) for r in ranges if r.tab in sizes
+               for c in [_clip(r, sizes[r.tab])] if c is not None]
+    order = sorted(range(len(clipped)), key=lambda i: (_count(clipped[i][1]), i))
+    remaining, bounded, partial = GUARD_CELLS, [], []
+    for n, i in enumerate(order):
+        original, rng = clipped[i]
+        share, total = remaining // (len(order) - n), _count(rng)
+        width = rng.end_col - rng.start_col
+        if total <= share:
+            take = rng
+        elif share >= width:
+            take = a1.Range(rng.tab, rng.start_row, rng.start_row + share // width,
+                            rng.start_col, rng.end_col)
+        elif share > 0:
+            take = a1.Range(rng.tab, rng.start_row, rng.start_row + 1,
+                            rng.start_col, rng.start_col + share)
+        else:
+            take = None
+        got = _count(take) if take else 0
+        remaining -= got
+        if take:
+            bounded.append(take)
+        if got < total:
+            partial.append([str(original), got, total])
+    cells = guard.read(spreadsheet_id, bounded)[1] if bounded else {}
+    return {"cells": guard.fingerprint(cells, list(cells)), "grids": grids, "partial": partial}
 
 
 def _check_raw(old: dict[str, Any], new: dict[str, Any]) -> None:
@@ -171,9 +306,11 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
          requests: list[dict[str, Any]], notes: list[str]) -> str:
     if not raw_writes and not requests:
         return "\n".join(["no change: nothing to write, no plan made", *notes])
+    titles = _titles(spreadsheet_id) if requests else {}
+    _check_requests(requests, titles)
     prepared = writes.prepare(spreadsheet_id, raw_writes) if raw_writes else None
-    ranges = affected(spreadsheet_id, requests)
-    payload = {"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
+    ranges = affected(spreadsheet_id, requests, titles)
+    payload ={"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
                "fingerprint": prepared.fingerprint if prepared else {},
                "raw": _raw_fingerprint(spreadsheet_id, ranges)}
     plan_id = state_store.current().save_plan(payload, spreadsheet_id=spreadsheet_id,
@@ -190,10 +327,23 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
     if requests:
         kinds = ", ".join(dict.fromkeys(next(iter(r), "?") for r in requests))
         lines.append(f"  raw: {kinds}; affected: {_names(ranges)}")
+        for name, got, total in payload["raw"].get("partial", []):
+            lines.append(f"  stale-write check partial: {name} (first {got:,} of {total:,} "
+                         "cells, plus the tab's size)")
     lines += notes
-    lines.append(f'apply: {tool} with plan_id="{plan_id}"; it re-reads the touched cells first '
+    lines.append(f'apply: {tool} with plan_id="{plan_id}" and dry_run=false; it re-reads the touched cells first '
                  "and refuses the whole batch if any changed")
     return "\n".join(lines)
+
+
+def _caller_index(error: sheets_api.SheetsApiError, offset: int) -> sheets_api.SheetsApiError:
+    """Google numbers the composed batch, the writes' own requests first; name the
+    caller's raw request instead (`requests[0]` is the first one they sent)."""
+    def renumber(m: re.Match[str]) -> str:
+        n = int(m.group(1))
+        return f"requests[{n - offset}]" if n >= offset else "the cell writes"
+    text = re.sub(r"requests\[(\d+)\]", renumber, str(error))
+    return sheets_api.SheetsApiError(text, status=error.status, reason=error.reason)
 
 
 def _names(ranges: list[a1.Range]) -> str:
@@ -210,7 +360,10 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
     ranges = affected(spreadsheet_id, requests)
     _check_raw(payload["raw"], _raw_fingerprint(spreadsheet_id, ranges))
     body = (prepared.requests if prepared else []) + requests
-    replies = sheets_api.batch_update(spreadsheet_id, body).get("replies") or []
+    try:
+        replies = sheets_api.batch_update(spreadsheet_id, body).get("replies") or []
+    except sheets_api.SheetsApiError as e:
+        raise _caller_index(e, len(body) - len(requests)) from None
     writes.after_write(spreadsheet_id)
     lines = []
     if prepared:

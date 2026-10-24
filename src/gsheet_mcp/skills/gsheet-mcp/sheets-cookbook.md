@@ -5,7 +5,7 @@
 Call `scan_sheet` before any read. One call covers the whole workbook:
 
 - per tab: size, frozen rows and columns, hidden rows and columns, native
-  Tables, charts, the basic filter and filter views, floating images, comment
+  Tables, charts with their source ranges, pivot tables, the basic filter and filter views, floating images, comment
   threads, and its regions
 - spreadsheet level: named ranges and comment counts
 
@@ -87,7 +87,8 @@ valid for 1 hour, usable once, only by you and only by the tool that made it.
 4. On a refusal listing changed cells (`B4: "old" → "new"`), nothing was
    applied: re-read, then make a new plan.
 
-A sheet script, for loops:
+A sheet script, for loops (`comms` stands for your own tab; quote a tab name
+with spaces, `'my tab'!C3`):
 
 ```js
 // input: {"rows": 10}
@@ -95,8 +96,32 @@ for (let i = 0; i < input.rows; i++) sheet.write(`comms!C${i + 3}`, i * 2)
 ```
 
 `sheet.read("'comms'!A1:C9")` with a string literal is read for you before
-the script runs; computed ranges go in `reads` (at most 20). Scripts have no
-network and stop after 30 s or 5,000 operations.
+the script runs; computed ranges go in `reads` (at most 20, 100,000 cells in
+all; for more, `pull_tables`). Scripts have no network and stop after 30 s or
+5,000 operations. An error's `line N` is your script's own line.
+
+### Raw requests
+
+`batch_update` sends Sheets API requests as they are, planned like a script:
+
+```json
+[{"repeatCell": {"range": {"sheetId": 101, "startRowIndex": 0, "endRowIndex": 1},
+  "cell": {"userEnteredFormat": {"textFormat": {"bold": true}}},
+  "fields": "userEnteredFormat.textFormat.bold"}}]
+```
+
+- Requests name a tab by `sheetId`, the `gid` that `scan_sheet` prints after
+  each tab name (`tab "comms" (gid 101)`), not by its title. A `sheetId` that
+  matches no tab, or a request kind Sheets does not know, is refused at the
+  dry run.
+- Apply with `plan_id` and `dry_run=false`. When Google refuses, its
+  `requests[N]` counts your requests from 0, the same as your list.
+- The guard fingerprints the ranges the requests name. Over a very large
+  range it checks the first rows only (5,000 cells across the plan) plus the
+  tab's size; the dry run says `stale-write check partial`.
+- A pivot table is one `updateCells` on its anchor cell but fills cells to
+  the right of and below it, which the guard does not see: leave that area
+  empty. `scan_sheet` then lists it as `pivot at S1 · source ... · fills ...`.
 
 ## When to render
 

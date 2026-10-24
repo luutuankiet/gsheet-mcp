@@ -19,7 +19,9 @@ SCAN_FIELDS = (
     "data(startRow,startColumn,rowMetadata(hiddenByUser,hiddenByFilter,pixelSize),"
     "columnMetadata(hiddenByUser,pixelSize),"
     "rowData.values(formattedValue,effectiveValue,userEnteredFormat.numberFormat,"
-    "effectiveFormat.numberFormat,dataValidation.condition.type)))")
+    "effectiveFormat.numberFormat,dataValidation.condition.type,"
+    "pivotTable(source,dataSourceId))))")
+MAX_CHART_SOURCES = 6       # (default, review) source ranges listed per chart line
 
 BIG_TAB_CELLS = 500_000
 HEAD_ROWS = 2_000
@@ -514,7 +516,7 @@ def scan(spreadsheet_id: str, *, tab: str | None = None, include_hidden: bool = 
             built.head_end = HEAD_ROWS - 1
             built.tail_start = max(props["gridProperties"]["rowCount"] - TAIL_ROWS, HEAD_ROWS)
         out += _tab_block(props, built, named, images, comments, aliases, full=tab is not None,
-                          regions=regions)
+                          regions=regions, titles=names_by_tab)
 
     # A one-tab scan adds its aliases to the whole-workbook scan's.
     cached = (load_cached(spreadsheet_id) or {}) if tab is not None else {}
@@ -525,6 +527,62 @@ def scan(spreadsheet_id: str, *, tab: str | None = None, include_hidden: bool = 
     state_store.current().put_cached(_cache_key(spreadsheet_id), json.dumps(cached).encode(),
                                      ttl_seconds=CACHE_TTL_SECONDS)
     return "\n".join(out)
+
+
+def _cell_a1(row: int, col: int) -> str:
+    return a1.Range(None, row, row + 1, col, col + 1).a1
+
+
+def _grid_a1(grid: dict[str, Any], titles: dict[int, str]) -> str:
+    return str(a1.Range.from_grid(grid, titles.get(grid.get("sheetId", 0))))
+
+
+def pivot_lines(sheet: dict[str, Any], found: list[Box], titles: dict[int, str]) -> list[str]:
+    """One line per pivot table: its anchor, its source and the region it fills."""
+    lines = []
+    for block in sheet.get("data") or []:
+        r0, c0 = block.get("startRow", 0), block.get("startColumn", 0)
+        for i, row in enumerate(block.get("rowData") or []):
+            for j, cell in enumerate(row.get("values") or []):
+                pivot = (cell or {}).get("pivotTable")
+                if not pivot:
+                    continue
+                r, c = r0 + i, c0 + j
+                if "source" in pivot:
+                    source = _grid_a1(pivot["source"], titles)
+                else:
+                    source = f"data source {pivot.get('dataSourceId', '?')}"
+                fills = next((b for b in found if b.contains(r, c)), None)
+                lines.append(f"  pivot at {_cell_a1(r, c)} · source {source}"
+                             + (f" · fills {fills.a1()}" if fills else ""))
+    return lines
+
+
+def _chart_sources(spec: dict[str, Any], titles: dict[int, str]) -> str:
+    """` · sources <a>, <b>`: every GridRange under a `sourceRange` in the chart
+    spec, in order, deduped, at most MAX_CHART_SOURCES."""
+    seen: list[str] = []
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for key, value in node.items():
+                if key == "sourceRange" and isinstance(value, dict):
+                    for grid in value.get("sources") or []:
+                        name = _grid_a1(grid, titles)
+                        if name not in seen:
+                            seen.append(name)
+                else:
+                    walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                walk(item)
+
+    walk(spec)
+    if not seen:
+        return ""
+    more = len(seen) - MAX_CHART_SOURCES
+    return (" · sources " + ", ".join(seen[:MAX_CHART_SOURCES])
+            + (f", +{more} more" if more > 0 else ""))
 
 
 def _comment_line(comments: list[dict[str, Any]], problem: str) -> str:
@@ -544,7 +602,8 @@ def _comment_line(comments: list[dict[str, Any]], problem: str) -> str:
 def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any]],
                images: list[dict[str, Any]] | None, comments: list[dict[str, Any]],
                aliases: dict[str, str], *, full: bool,
-               regions: dict[str, dict[str, Any]] | None = None) -> list[str]:
+               regions: dict[str, dict[str, Any]] | None = None,
+               titles: dict[int, str] | None = None) -> list[str]:
     grid = props.get("gridProperties", {})
     head = [f"tab \"{props['title']}\" (gid {props.get('sheetId')}) · "
             f"{grid.get('rowCount', 0)}x{grid.get('columnCount', 0)}"]
@@ -563,13 +622,17 @@ def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any
             lines.append("  regions not scanned (hidden tab; pass include_hidden=true)")
         return lines
     sheet = tab.sheet
+    titles = titles or {}
+    found, loose = find_regions(tab, named)
+    lines += pivot_lines(sheet, found, titles)
     for chart in sheet.get("charts") or []:
         spec = chart.get("spec", {})
         kind = (spec.get("basicChart", {}).get("chartType")
                 or next((k.removesuffix("Chart") for k in spec if k.endswith("Chart")), "chart"))
         anchor = (chart.get("position", {}).get("overlayPosition", {}).get("anchorCell"))
-        where = f" at {a1.Range(None, anchor.get('rowIndex', 0), anchor.get('rowIndex', 0) + 1, anchor.get('columnIndex', 0), anchor.get('columnIndex', 0) + 1).a1}" if anchor else ""
-        lines.append(f"  chart {str(kind).lower()} \"{spec.get('title', '')}\"{where}")
+        where = f" at {_cell_a1(anchor.get('rowIndex', 0), anchor.get('columnIndex', 0))}" if anchor else ""
+        lines.append(f"  chart {str(kind).lower()} \"{spec.get('title', '')}\"{where}"
+                     + _chart_sources(spec, titles))
     if basic := sheet.get("basicFilter"):
         lines.append(f"  basic filter {a1.Range.from_grid(basic.get('range', {})).a1}")
     if views := sheet.get("filterViews"):
@@ -582,7 +645,6 @@ def _tab_block(props: dict[str, Any], tab: Tab | None, named: list[dict[str, Any
     if tab_comments:
         lines.append("  comments: " + ", ".join(
             f"{c['cell']} {'resolved' if c['resolved'] else 'open'}" for c in tab_comments))
-    found, loose = find_regions(tab, named)
     shown = found if full else found[:MAX_REGIONS]
     for n, region in enumerate(found, 1):
         alias = f"{props['title']}#{n}"

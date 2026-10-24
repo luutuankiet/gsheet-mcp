@@ -11,7 +11,7 @@ The isolate has no filesystem, network, module loader or timers; its only
 way out is the messages below. The script sees `input` and `model` (whatever
 the calling tool hands it) and records operations; it never calls Google.
 
-  parent -> worker   {"op": "start", "script", "input", "model", "max_ops"}
+  parent -> worker   {"op": "start", "script", "input", "model", "max_ops", "prefix_lines"?}
   worker -> parent   {"op": "done", "result", "ops", "logs"}
                      {"op": "error", "error": {kind, name, message, line?, column?}, "logs"}
 
@@ -46,11 +46,19 @@ def _recv() -> dict[str, Any]:
     return json.loads(line)
 
 
-def _locate(text: str) -> dict[str, int]:
-    m = _SCRIPT_LOC_RE.search(text or "") or _LOC_RE.search(text or "")
+def _locate(text: str, prefix_lines: int = 0) -> dict[str, int]:
+    """The caller's line and column. `prefix_lines` lines of the caller's own
+    (a tool's prelude) sit in front of the script; frames there are skipped,
+    and a stack with only such frames reports no position."""
+    skip = LINE_OFFSET + prefix_lines
+    found = list(_SCRIPT_LOC_RE.finditer(text or ""))
+    if found:
+        m = next((m for m in found if int(m.group(1)) > skip), None)
+    else:
+        m = _LOC_RE.search(text or "")
     if not m:
         return {}
-    out = {"line": max(int(m.group(1)) - LINE_OFFSET, 1)}
+    out = {"line": max(int(m.group(1)) - skip, 1)}
     if m.group(2):
         out["column"] = int(m.group(2))
     return out
@@ -60,6 +68,7 @@ def main() -> None:
     import py_mini_racer as pmr
 
     start = _recv()
+    prefix = int(start.get("prefix_lines") or 0)
     mr = pmr.MiniRacer()
     mr.set_hard_memory_limit(MEMORY_LIMIT_BYTES)
     prelude = resources.files("gsheet_mcp.sandbox").joinpath("prelude.js").read_text("utf-8")
@@ -80,7 +89,7 @@ def main() -> None:
                      msg.splitlines()[0] if msg else "")
         first = re.sub(r"^\S*(?:script\.js|<anonymous>):\d+:\s*", "", first)
         _send({"op": "error", "logs": [], "error": {
-            "kind": "syntax", "name": "SyntaxError", "message": first.strip(), **_locate(msg)}})
+            "kind": "syntax", "name": "SyntaxError", "message": first.strip(), **_locate(msg, prefix)}})
         return
 
     mr.eval(
@@ -104,7 +113,7 @@ def main() -> None:
         err = state["error"]
         _send({"op": "error", "logs": logs, "error": {
             "kind": "script", "name": err.get("name", "Error"), "message": err.get("message", ""),
-            **_locate(err.get("stack", ""))}})
+            **_locate(err.get("stack", ""), prefix)}})
         return
     # Still "running" after every microtask drained: the script awaited
     # something that can never resolve here.

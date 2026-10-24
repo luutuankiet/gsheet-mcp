@@ -75,7 +75,8 @@ One call covers the whole workbook, in about 2k tokens for a typical one.
 **For each tab:**
 - size, plus frozen and hidden rows and columns
 - native Tables
-- charts (type, title, anchor)
+- charts (type, title, anchor, source ranges)
+- pivot tables (anchor, source range, the region they fill)
 - the basic filter and filter views
 - the count of floating images
 - its regions
@@ -220,9 +221,15 @@ The tab, filter and validation operations are **(default, review)**.
 **`run_sheet_script` and `batch_update` details (default, review):**
 - Both default to `dry_run=true`. `dry_run=false` without a `plan_id` is refused. A plan is tied to the tool that made it, and any other tool refuses it.
 - The sandbox cannot call out, so `sheet.read` ranges are read before the script runs: string-literal `sheet.read("...")` calls, plus a `reads=[...]` argument for computed ranges, at most 20 ranges. `sheet.read` returns unformatted values.
+  - A literal may be single-, double- or backtick-quoted and may hold a quoted tab name with escapes, e.g. `sheet.read('\'my tab\'!A1:B2')`; a backtick literal holding `${` is a computed range and goes in `reads` (default, review).
+  - **Pre-read cap: `READ_CELLS` = 100,000 cells (default, review)**, totalled over one script's pre-reads after each is cut to its tab's size. A script over it is refused before it runs, with a pointer to `pull_tables` or a smaller range.
 - Script limits: 30 s, 5,000 operations, return value cut at 8 KB. A script that queues nothing makes no plan and replies "no change".
+- **Script errors (default, review)** read `Script error at line L:C: ...`, `Script syntax error ...`, `Script memory error ...` or `Script timeout error ...`. Line and column are positions in the user's script, not in the `sheet.*` prelude the server puts in front of it; an error raised inside the prelude with no user frame gives no position.
 - `batch_update` accepts one request object or a list.
+- **Plan-time request checks (default, review).** The dry run refuses, and plans nothing, when a request's kind is not a Sheets request kind (the kinds come from the client library's bundled Sheets discovery document; when that file is missing the check is skipped), or when a `sheetId` or `sourceSheetId` matches no tab. Ids created in the same batch (`addSheet.properties.sheetId`, `duplicateSheet.newSheetId`) are allowed. Example: `Nothing was planned: request 1 (repeatCell) names sheetId 999999, which matches no tab. Tabs: 'comms' (gid 101), ...`. These checks run at the dry run only; at apply a deleted tab already fails the size check.
 - The raw-request guard finds affected ranges by walking each request for objects with a `sheetId`: a grid range, a single cell, or a whole tab. It fingerprints the non-empty cells there plus each affected tab's row and column counts.
+  - **Partial check on large ranges (default, review).** Each range is first cut to its tab's size (taken from tab metadata); a range wholly outside the grid is skipped, so an inverted range plans and Google refuses it at apply. The ranges share one budget of 5,000 cells (`GUARD_CELLS`, the same as `edit_sheet`), smallest range first, each getting an even share of what is left. A range that fits is read whole; a larger one is read from its first rows, in row order (or the first cells of its first row when one row is wider than its share). The same cells are read again at apply. The dry run adds one line per cut range: `stale-write check partial: 'tab'!L2:L50001 (first 4,994 of 50,000 cells, plus the tab's size)`. The tab's row and column counts are always compared.
+  - A pivot table written by `updateCells` names only its anchor cell, so the cells it fills to the right and below are not fingerprinted.
 
 ### 7.2 Rules
 
@@ -278,6 +285,8 @@ The tab, filter and validation operations are **(default, review)**.
 - **It is capped at 50 cells**, plus counts and warnings.
 - **Landing a CLI upload** gives the same receipt: the landed cells are re-read and shown in the read notation, so a number shows as it reads back, not as the CSV text that was uploaded.
 - **Structural and raw receipts (default, review).** `edit_sheet` does not re-read cells, because its operations move or delete them. It reports size changes as `'tab': R rows x C columns → R' rows x C' columns` and shows Google's non-empty replies. `batch_update` and `run_sheet_script` give the `write_cells` receipt for their cell writes, plus "applied N raw requests; affected: …" with each raw reply cut at 300 characters.
+- **Error index mapping (default, review).** The applied batch puts the plan's cell writes first and the caller's raw requests after them. When Google refuses it, every `requests[N]` in its message is renumbered to the caller's own list (`requests[0]` is the first raw request they sent); an index inside the cell writes reads `the cell writes`. The tool's `Cannot write to spreadsheet <id>: ...` wrapper and the status stay.
+- **Apply hint.** The dry run of `run_sheet_script` and `batch_update` ends with `apply: <tool> with plan_id="..." and dry_run=false; ...`.
 - **Any write clears the scan cache and the render cache.** Each spreadsheet has a generation token in the state store that every write replaces, and both cache keys include it, so one write hides every caller's cached scan and renders for that spreadsheet (default, review).
 
 ## 8. Tables to DuckDB
@@ -359,8 +368,9 @@ The tab, filter and validation operations are **(default, review)**.
 ## 10. Charts, pivots, conditional formats, validation (default, review)
 
 - **Read:**
-  - Charts are one scan line each (type, title, source ranges, anchor), plus a render pointer.
-  - Pivot tables are one scan line each (source range, anchor).
+  - Charts are one scan line each (type, title, source ranges, anchor), plus a render pointer: `chart bar "Revenue" at N9 · sources 'tab'!N1:N6, 'tab'!O1:O6`. The sources are every grid range under a `sourceRange` in the chart spec, in order and deduplicated, at most 6, then `+N more` (default, review).
+  - Pivot tables are one scan line each, one per anchor cell, before the chart lines: `pivot at S1 · source 'tab'!A1:L201 · fills S1:T7`. `fills` is the found region that contains the anchor and is left out when none does; a pivot over a connected data source says `source data source <id>` (default, review). The region the pivot fills is still listed as a region too.
+  - Data validation on an empty cell is not shown by `read_range` or `scan_sheet`, which list non-empty cells only, so a fresh dropdown column is invisible until a value is written (known limit, default, review).
   - Conditional formats show under `detail="formats"` as one line per rule.
   - Data validation shows through the dropdown and checkbox notation.
 - **Write:** only checkbox and dropdown validation, through `edit_sheet`. Charts, pivots and conditional formats are written only through `batch_update` in the first build.
