@@ -310,7 +310,7 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
     _check_requests(requests, titles)
     prepared = writes.prepare(spreadsheet_id, raw_writes) if raw_writes else None
     ranges = affected(spreadsheet_id, requests, titles)
-    payload ={"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
+    payload = {"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
                "fingerprint": prepared.fingerprint if prepared else {},
                "raw": _raw_fingerprint(spreadsheet_id, ranges)}
     plan_id = state_store.current().save_plan(payload, spreadsheet_id=spreadsheet_id,
@@ -351,7 +351,11 @@ def _names(ranges: list[a1.Range]) -> str:
 
 
 def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
-    state_store.current().expire_plan(plan_id)     # single use, applied or refused
+    with writes.applying(plan_id) as state:
+        return _apply(spreadsheet_id, payload, state)
+
+
+def _apply(spreadsheet_id: str, payload: dict[str, Any], state: writes.Applying) -> str:
     raw_writes, requests = payload["writes"], payload["requests"]
     prepared = writes.prepare(spreadsheet_id, raw_writes) if raw_writes else None
     if prepared:
@@ -364,6 +368,7 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
         replies = sheets_api.batch_update(spreadsheet_id, body).get("replies") or []
     except sheets_api.SheetsApiError as e:
         raise _caller_index(e, len(body) - len(requests)) from None
+    state.landed()
     writes.after_write(spreadsheet_id)
     lines = []
     if prepared:

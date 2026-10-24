@@ -274,3 +274,24 @@ async def test_an_error_thrown_by_the_script_reports_its_own_line_and_column(rea
     syntax, _ = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
                            script="const a = 1;\nconst = ;")
     assert syntax.startswith("Script syntax error at line 2"), syntax
+
+
+async def test_a_script_plan_whose_apply_failed_before_writing_can_be_applied_again(
+        ready, fake, monkeypatch):
+    from gsheet_mcp import sheets_api
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID, script=LOOP)
+    assert not is_error, text
+    real = sheets_api.batch_update
+
+    def down(*_a, **_k):
+        raise ConnectionError("network down")
+
+    monkeypatch.setattr(sheets_api, "batch_update", down)
+    _, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                             plan_id=_plan_id(text), dry_run=False)
+    assert is_error and not fake.batch_updates
+    monkeypatch.setattr(sheets_api, "batch_update", real)
+    written, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                   plan_id=_plan_id(text), dry_run=False)
+    assert not is_error, written
+    assert "wrote 10 cells" in written
