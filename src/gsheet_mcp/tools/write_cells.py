@@ -57,6 +57,9 @@ def write_cells(spreadsheet: str, range: str | None = None,  # noqa: A002 - the 
             payload = writes.load(spreadsheet_id, plan_id)
             if payload.get("op") == landing.OP:
                 return reply.text(landing.apply(spreadsheet_id, plan_id, payload))
+            if payload.get("op") != writes.OP:
+                raise reply.Refusal(f"Plan {plan_id} is a {payload.get('op')} plan; apply it "
+                                    "with that tool.")
             return reply.text(writes.apply(spreadsheet_id, plan_id, payload))
         if upload:
             if not range:
