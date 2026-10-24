@@ -203,6 +203,24 @@ There is no tool that returns one floating image's pixels in the first build. An
 
 The tab, filter and validation operations are **(default, review)**.
 
+**`edit_sheet` details (default, review):**
+- A call with `operations` always returns a plan and never applies directly; there is no `dry_run` flag. The dry run lists the raw requests as JSON.
+- Rows are given as `'tab'!5:6` and columns as `'tab'!B:C`. Insert puts blank rows or columns at exactly those positions and inherits formatting from the one before, except at index 0. `move` takes `to` as a 1-based row number or a column letter.
+- Merges are refused across a frozen row edge as well as a frozen column edge. The default merge type is `MERGE_ALL`.
+- Dropdowns are strict by default, with the dropdown arrow shown. `clear_validation` removes validation.
+- One note applies to every cell in its range; `clear_note` writes an empty note through the same note-only mask.
+- Table rows use the `write_cells` type rules, except that ISO dates are not converted.
+- `add_tab` without a size lets Sheets choose. A duplicated tab goes right after its source.
+- Drive comment calls run after the batch; a failed comment does not roll the batch back.
+- The structural guard reads values only for ranges: the touched cells, plus whole rows for a sort. Tab, freeze, hide, filter and filter-view operations are guarded by row and column counts only. Row and column operations are guarded on the rows given, not on the rows that shift. It fingerprints at most 5,000 cells.
+
+**`run_sheet_script` and `batch_update` details (default, review):**
+- Both default to `dry_run=true`. `dry_run=false` without a `plan_id` is refused. A plan is tied to the tool that made it, and any other tool refuses it.
+- The sandbox cannot call out, so `sheet.read` ranges are read before the script runs: string-literal `sheet.read("...")` calls, plus a `reads=[...]` argument for computed ranges, at most 20 ranges. `sheet.read` returns unformatted values.
+- Script limits: 30 s, 5,000 operations, return value cut at 8 KB. A script that queues nothing makes no plan and replies "no change".
+- `batch_update` accepts one request object or a list.
+- The raw-request guard finds affected ranges by walking each request for objects with a `sheetId`: a grid range, a single cell, or a whole tab. It fingerprints the non-empty cells there plus each affected tab's row and column counts.
+
 ### 7.2 Rules
 
 - **Styling is kept by construction.** Every value write goes through `updateCells` with the field mask `userEnteredValue` only, never through `values.*`.
@@ -252,6 +270,7 @@ The tab, filter and validation operations are **(default, review)**.
 
 - **The reply re-reads the touched cells** and shows them in the read notation, with the style legend.
 - **It is capped at 50 cells**, plus counts and warnings.
+- **Structural and raw receipts (default, review).** `edit_sheet` does not re-read cells, because its operations move or delete them. It reports size changes as `'tab': R rows x C columns → R' rows x C' columns` and shows Google's non-empty replies. `batch_update` and `run_sheet_script` give the `write_cells` receipt for their cell writes, plus "applied N raw requests; affected: …" with each raw reply cut at 300 characters.
 - **Any write clears the scan cache and the render cache.** Each spreadsheet has a generation token in the state store that every write replaces, and both cache keys include it, so one write hides every caller's cached scan and renders for that spreadsheet (default, review).
 
 ## 8. Tables to DuckDB
