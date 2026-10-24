@@ -45,6 +45,8 @@ COPIED = {
     "src/gsheet_mcp/tools/grep_sheet.py": "src/<package>/tools/grep.py",
     "src/gsheet_mcp/sheet_script.py": "src/<package>/doc_script.py",
     "src/gsheet_mcp/tools/run_sheet_script.py": "src/<package>/tools/run_doc_script.py",
+    "src/gsheet_mcp/skill_bundle.py": "src/<package>/skill_bundle.py",
+    "src/gsheet_mcp/tools/install_skill.py": "src/<package>/tools/install_skill.py",
     "tests/conftest.py": "tests/conftest.py",
     "tests/fake_sheets.py": "tests/fake_docs.py",
     "tests/unit/test_provenance.py": "tests/unit/test_provenance.py",

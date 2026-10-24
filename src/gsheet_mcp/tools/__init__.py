@@ -9,6 +9,7 @@ from . import (  # noqa: F401
     batch_update,
     edit_sheet,
     grep_sheet,
+    install_skill,
     pull_tables,
     query_range,
     read_range,
