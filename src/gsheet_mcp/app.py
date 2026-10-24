@@ -23,8 +23,11 @@ from . import __version__, auth, reply
 # Some clients show these before any tool is loaded (tool search), so they
 # route an agent that has found only one tool.
 INSTRUCTIONS = (
-    "gsheet-mcp works in a Google Sheet from its URL. Check who is signed in, and with "
-    "which scopes, with `auth_status`."
+    "gsheet-mcp works in a Google Sheet from its URL. Start with `scan_sheet`, then read "
+    "with `read_range`. Check who is signed in, and with which scopes, with `auth_status`. "
+    "Before a sheet script, raw `batch_update` requests or a pull to DuckDB, load the "
+    "gsheet-mcp skill with your own skill loader if it is installed, otherwise call "
+    "`install_skill`."
 )
 
 mcp = FastMCP("gsheet-mcp", version=__version__, instructions=INSTRUCTIONS)
