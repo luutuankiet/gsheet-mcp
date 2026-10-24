@@ -6,6 +6,7 @@ from `gsheet_mcp.app`, and is added to the import list below.
 """
 from . import (  # noqa: F401
     auth_status,
+    edit_sheet,
     grep_sheet,
     pull_tables,
     query_range,

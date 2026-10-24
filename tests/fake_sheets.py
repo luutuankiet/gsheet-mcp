@@ -12,8 +12,9 @@ the tests depend on it:
 - `values().get()` trims trailing blank cells and rows, as Google does.
 - Drive's comment threads come from the xlsx export's threaded comments, with
   an opaque anchor, as Google gives them.
-- Every `batchUpdate` is recorded in `fake.batch_updates`; `updateCells` is
-  applied, every other request kind is recorded only.
+- Every `batchUpdate` is recorded in `fake.batch_updates`; `updateCells` and the
+  structural requests `edit_sheet` emits (rows and columns, tab properties,
+  merges, sort, Table `appendCells`) are applied; the rest are recorded only.
 - `fake.rate_limit(n)` makes the next n calls answer 429.
 - `fake.set_cell(...)` changes a cell now; `fake.after_next_call(...)` changes
   one right after the next call, to stand in for someone editing between
@@ -344,6 +345,8 @@ class FakeSheets:
         for request in requests:
             if "updateCells" in request:
                 self._update_cells(book, request["updateCells"])
+            else:
+                self._structural(book, request)
             replies.append({})
         return {"spreadsheetId": spreadsheetId, "replies": replies}
 
@@ -378,6 +381,75 @@ class FakeSheets:
                             target.pop(path, None)
                     elif path == "userEnteredFormat" or path.startswith("userEnteredFormat."):
                         _set_path(target, cell, path.split("."))
+
+    def insert_rows(self, spreadsheet_id: str, tab: str, at: int, count: int = 1) -> None:
+        """Insert blank rows now (0-based `at`), as a person would in the editor."""
+        sheet = _sheet(self.books[spreadsheet_id], tab)
+        self._structural(self.books[spreadsheet_id], {"insertDimension": {"range": {
+            "sheetId": sheet["properties"]["sheetId"], "dimension": "ROWS",
+            "startIndex": at, "endIndex": at + count}}})
+
+    def _structural(self, book: dict[str, Any], request: dict[str, Any]) -> None:
+        """Apply the structural requests `edit_sheet` emits; others are recorded only."""
+        kind, body = next(iter(request.items()))
+        sid = (body.get("range") or body.get("source") or body.get("properties") or body).get(
+            "sheetId", body.get("sheetId"))
+        sheet = next((s for s in book["sheets"] if s["properties"]["sheetId"] == sid), None)
+        if sheet is None:
+            return
+        grid = sheet["properties"]["gridProperties"]
+        rows = sheet["data"][0].setdefault("rowData", [])
+        if kind in ("insertDimension", "deleteDimension"):
+            rng = body["range"]
+            n = rng["endIndex"] - rng["startIndex"]
+            if rng["dimension"] == "ROWS":
+                if kind == "insertDimension":
+                    rows[rng["startIndex"]:rng["startIndex"]] = [{} for _ in range(n)]
+                    grid["rowCount"] += n
+                else:
+                    del rows[rng["startIndex"]:rng["endIndex"]]
+                    grid["rowCount"] -= n
+            else:
+                for row in rows:
+                    values = row.get("values")
+                    if values is None:
+                        continue
+                    if kind == "insertDimension":
+                        values[rng["startIndex"]:rng["startIndex"]] = [{} for _ in range(n)]
+                    else:
+                        del values[rng["startIndex"]:rng["endIndex"]]
+                grid["columnCount"] += n if kind == "insertDimension" else -n
+        elif kind == "updateSheetProperties":
+            props = body["properties"]
+            for path in body["fields"].split(","):
+                _set_path(sheet["properties"], props, path.split("."))
+        elif kind == "mergeCells":
+            sheet.setdefault("merges", []).append(copy.deepcopy(body["range"]))
+        elif kind == "unmergeCells":
+            sheet["merges"] = [m for m in sheet.get("merges", []) if m != body["range"]]
+        elif kind == "sortRange":
+            rng = body["range"]
+            r0, r1 = rng.get("startRowIndex", 0), rng.get("endRowIndex", grid["rowCount"])
+            spec = body["sortSpecs"][0]
+            col = spec["dimensionIndex"]
+            block = [rows[r] if r < len(rows) else {} for r in range(r0, r1)]
+            block.sort(key=lambda row: str(_rendered(
+                (row.get("values") or [{}] * (col + 1))[col] if len(row.get("values") or [])
+                > col else {}, "FORMATTED_VALUE")), reverse=spec["sortOrder"] == "DESCENDING")
+            while len(rows) < r1:
+                rows.append({})
+            rows[r0:r1] = block
+        elif kind == "appendCells":
+            table = next(t for t in sheet.get("tables", []) if t["tableId"] == body["tableId"])
+            end = table["range"]["endRowIndex"]
+            title = sheet["properties"]["title"]
+            for i, row in enumerate(body["rows"]):
+                for j, cell in enumerate(row.get("values", [])):
+                    if "userEnteredValue" in cell:
+                        self.set_cell(book["spreadsheetId"], str(a1.Range(
+                            title, end + i, end + i + 1, j, j + 1)),
+                            next(iter(cell["userEnteredValue"].values())))
+            table["range"]["endRowIndex"] = end + len(body["rows"])
 
     def comments_list(self, fileId: str, **_: Any) -> dict[str, Any]:  # noqa: N803
         self._book(fileId)
