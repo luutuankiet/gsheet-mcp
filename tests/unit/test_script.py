@@ -197,7 +197,53 @@ async def test_script_reads_over_the_cell_cap_are_refused_before_reading(ready, 
     assert not is_error and "return: 2" in fine, fine
 
 
-@pytest.mark.parametrize("literal",['"\'comms\'!A1:B2"', "'\\'comms\\'!A1:B2'",
+@pytest.mark.parametrize("request_, expected", [
+    ({"notARequest": {"foo": 1}}, "request 1 (notARequest) is not a Sheets request kind"),
+    ({"repeatCell": {"range": {"sheetId": 999999, "startRowIndex": 0, "endRowIndex": 1},
+                     "cell": {}, "fields": "userEnteredFormat"}},
+     "request 1 (repeatCell) names sheetId 999999, which matches no tab. Tabs: 'comms' (gid 101)"),
+])
+async def test_an_unknown_request_kind_or_sheet_id_is_refused_at_the_dry_run(
+        ready, fake, request_, expected):
+    text, is_error = await call(ready, "batch_update", spreadsheet=CANARY_ID,
+                                requests=[request_])
+    assert is_error and "Nothing was planned" in text and expected in text, text
+    assert not fake.batch_updates
+
+
+async def test_a_sheet_id_the_same_batch_creates_is_not_refused(ready, fake):
+    text, is_error = await call(ready, "batch_update", spreadsheet=CANARY_ID, requests=[
+        {"addSheet": {"properties": {"sheetId": 4242, "title": "new"}}},
+        {"repeatCell": {"range": {"sheetId": 4242}, "cell": {}, "fields": "userEnteredFormat"}}])
+    assert not is_error and "2 raw requests" in text, text
+
+
+async def test_googles_request_index_is_mapped_to_the_callers_own(ready, fake, monkeypatch):
+    from tests.fake_sheets import http_error
+    script = ("sheet.write('multi-region!N21', 'a'); sheet.request({mergeCells: {range: "
+              "{sheetId: 101, startRowIndex: 9, endRowIndex: 3}, mergeType: 'MERGE_ALL'}});")
+    planned, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                   script=script)
+    assert not is_error, planned
+    cited = []
+
+    def refusing(spreadsheetId, body):  # noqa: N803
+        n = len(body["requests"]) - 1 if not cited else 0
+        cited.append(n)
+        raise http_error(400, f"Invalid requests[{n}].mergeCells: endRowIndex[3] cannot be "
+                              "before startRowIndex[9]")
+    monkeypatch.setattr(fake, "batch_update", refusing)
+    text, is_error = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                                plan_id=_plan_id(planned), dry_run=False)
+    assert is_error and cited[0] > 0, (cited, text)
+    assert "Cannot write to spreadsheet" in text and "Invalid requests[0].mergeCells" in text, text
+    again, _ = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID, script=script)
+    text, _ = await call(ready, "run_sheet_script", spreadsheet=CANARY_ID,
+                         plan_id=_plan_id(again), dry_run=False)
+    assert "Invalid the cell writes.mergeCells" in text, text
+
+
+@pytest.mark.parametrize("literal", ['"\'comms\'!A1:B2"', "'\\'comms\\'!A1:B2'",
                                      "`'comms'!A1:B2`"])
 async def test_a_string_literal_read_of_a_quoted_tab_name_is_read_for_the_script(
         ready, fake, literal):

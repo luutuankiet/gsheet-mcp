@@ -16,9 +16,11 @@ kind, turned into requests here next to `request`.
 """
 from __future__ import annotations
 
+import functools
 import json
 import re
 from dataclasses import dataclass
+from importlib import resources
 from typing import Any
 
 from . import a1, addressing, guard, reply, sheets_api, state_store, writes
@@ -169,10 +171,60 @@ def _titles(spreadsheet_id: str) -> dict[int, str]:
     return {s["properties"]["sheetId"]: s["properties"]["title"] for s in tabs.get("sheets") or []}
 
 
-def affected(spreadsheet_id: str, requests: list[dict[str, Any]]) -> list[a1.Range]:
+def affected(spreadsheet_id: str, requests: list[dict[str, Any]],
+             titles: dict[int, str] | None = None) -> list[a1.Range]:
     found: list[a1.Range] = []
-    _walk(requests, _titles(spreadsheet_id), found)
+    _walk(requests, _titles(spreadsheet_id) if titles is None else titles, found)
     return list(dict.fromkeys(found))
+
+
+@functools.lru_cache(maxsize=1)
+def _request_kinds() -> frozenset[str]:
+    """Every Sheets request kind, from the client library's discovery document;
+    empty (no check) when the document is not there."""
+    try:
+        doc = resources.files("googleapiclient.discovery_cache").joinpath(
+            "documents", "sheets.v4.json").read_text("utf-8")
+        return frozenset(json.loads(doc)["schemas"]["Request"]["properties"])
+    except (ModuleNotFoundError, OSError, KeyError, TypeError, ValueError):
+        return frozenset()
+
+
+def _sheet_ids(node: Any, out: list[int]) -> None:
+    if isinstance(node, dict):
+        for key in ("sheetId", "sourceSheetId"):
+            if isinstance(node.get(key), int):
+                out.append(node[key])
+        for value in node.values():
+            _sheet_ids(value, out)
+    elif isinstance(node, list):
+        for value in node:
+            _sheet_ids(value, out)
+
+
+def _check_requests(requests: list[dict[str, Any]], titles: dict[int, str]) -> None:
+    """Refuse, before anything is planned, a request kind Sheets does not have or
+    a sheetId no tab has (ids the same batch creates are fine)."""
+    kinds = _request_kinds()
+    created = set()
+    for request in requests:
+        body = next(iter(request.values()), None) or {}
+        if "addSheet" in request:
+            created.add((body.get("properties") or {}).get("sheetId"))
+        if "duplicateSheet" in request:
+            created.add(body.get("newSheetId"))
+    for n, request in enumerate(requests, 1):
+        kind = next(iter(request), "?")
+        if kinds and kind not in kinds:
+            raise reply.Refusal(f"Nothing was planned: request {n} ({kind}) is not a Sheets "
+                                "request kind.")
+        ids: list[int] = []
+        _sheet_ids(request, ids)
+        unknown = next((i for i in ids if i not in titles and i not in created), None)
+        if unknown is not None:
+            tabs = ", ".join(f"'{t}' (gid {i})" for i, t in titles.items())
+            raise reply.Refusal(f"Nothing was planned: request {n} ({kind}) names sheetId "
+                                f"{unknown}, which matches no tab. Tabs: {tabs}")
 
 
 def _sizes(tabs: dict[str, Any]) -> dict[str, list[int]]:
@@ -254,9 +306,11 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
          requests: list[dict[str, Any]], notes: list[str]) -> str:
     if not raw_writes and not requests:
         return "\n".join(["no change: nothing to write, no plan made", *notes])
+    titles = _titles(spreadsheet_id) if requests else {}
+    _check_requests(requests, titles)
     prepared = writes.prepare(spreadsheet_id, raw_writes) if raw_writes else None
-    ranges = affected(spreadsheet_id, requests)
-    payload = {"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
+    ranges = affected(spreadsheet_id, requests, titles)
+    payload ={"op": OP, "tool": tool, "writes": raw_writes, "requests": requests,
                "fingerprint": prepared.fingerprint if prepared else {},
                "raw": _raw_fingerprint(spreadsheet_id, ranges)}
     plan_id = state_store.current().save_plan(payload, spreadsheet_id=spreadsheet_id,
@@ -282,6 +336,16 @@ def plan(spreadsheet_id: str, tool: str, raw_writes: list[dict[str, Any]],
     return "\n".join(lines)
 
 
+def _caller_index(error: sheets_api.SheetsApiError, offset: int) -> sheets_api.SheetsApiError:
+    """Google numbers the composed batch, the writes' own requests first; name the
+    caller's raw request instead (`requests[0]` is the first one they sent)."""
+    def renumber(m: re.Match[str]) -> str:
+        n = int(m.group(1))
+        return f"requests[{n - offset}]" if n >= offset else "the cell writes"
+    text = re.sub(r"requests\[(\d+)\]", renumber, str(error))
+    return sheets_api.SheetsApiError(text, status=error.status, reason=error.reason)
+
+
 def _names(ranges: list[a1.Range]) -> str:
     return ", ".join(str(r) for r in ranges) or "the spreadsheet (no tab named)"
 
@@ -296,7 +360,10 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
     ranges = affected(spreadsheet_id, requests)
     _check_raw(payload["raw"], _raw_fingerprint(spreadsheet_id, ranges))
     body = (prepared.requests if prepared else []) + requests
-    replies = sheets_api.batch_update(spreadsheet_id, body).get("replies") or []
+    try:
+        replies = sheets_api.batch_update(spreadsheet_id, body).get("replies") or []
+    except sheets_api.SheetsApiError as e:
+        raise _caller_index(e, len(body) - len(requests)) from None
     writes.after_write(spreadsheet_id)
     lines = []
     if prepared:
