@@ -271,6 +271,29 @@ def _compile_one(book, op, kind, requests, drive, ranges, tabs) -> None:  # noqa
 # ---- the structural guard ------------------------------------------------------
 
 
+def _clip(book: dict[str, Any], ranges: list[a1.Range], budget: int) -> list[a1.Range]:
+    """The guarded ranges cut to their tab's size, then to `budget` cells in all,
+    in the order given and row by row, so the read asks Google only for cells
+    the guard can keep (default, review)."""
+    out: list[a1.Range] = []
+    left = budget
+    for rng in ranges:
+        if left <= 0:
+            break
+        grid = _tab(book, rng.tab)["properties"]["gridProperties"]
+        rows, cols = grid.get("rowCount", 0), grid.get("columnCount", 0)
+        r0, c0 = rng.start_row or 0, rng.start_col or 0
+        r1 = min(rows if rng.end_row is None else rng.end_row, rows)
+        c1 = min(cols if rng.end_col is None else rng.end_col, cols)
+        if r1 <= r0 or c1 <= c0:
+            continue
+        width = min(c1 - c0, left)
+        height = min(r1 - r0, left // width)
+        out.append(a1.Range(rng.tab, r0, r0 + height, c0, c0 + width))
+        left -= height * width
+    return out
+
+
 def _fingerprint(spreadsheet_id: str, ranges: list[a1.Range], tabs: set[str]
                  ) -> dict[str, Any]:
     book = sheets_api.get_spreadsheet(spreadsheet_id, fields=BOOK_FIELDS,
@@ -280,17 +303,23 @@ def _fingerprint(spreadsheet_id: str, ranges: list[a1.Range], tabs: set[str]
         grid = _tab(book, title)["properties"]["gridProperties"]
         sizes[title] = [grid["rowCount"], grid["columnCount"]]
     cells: dict[str, list[str]] = {}
-    if ranges:
-        _, got = guard.read(spreadsheet_id, ranges)
-        touched = sorted(got)[:GUARD_CELLS]
+    clipped = _clip(book, ranges, GUARD_CELLS)
+    if clipped:
+        _, got = guard.read(spreadsheet_id, clipped)
+        touched = sorted(got, key=guard._order)[:GUARD_CELLS]     # row, then column
         cells = guard.fingerprint(got, touched)
     return {"sizes": sizes, "cells": cells}
 
 
+def _size_line(title: str, old: list[int], new: list[int] | None) -> str:
+    """`'tab': R rows x C columns → R' rows x C' columns`, or `→ gone`."""
+    after = f"{new[0]} rows x {new[1]} columns" if new else "gone"
+    return f"  '{title}': {old[0]} rows x {old[1]} columns → {after}"
+
+
 def _check(old: dict[str, Any], new: dict[str, Any]) -> None:
-    moved = [f"  '{t}': {r0} rows x {c0} columns → {new['sizes'].get(t, ['gone', ''])[0]} "
-             f"rows x {new['sizes'].get(t, ['', 'gone'])[1]} columns"
-             for t, (r0, c0) in old["sizes"].items() if new["sizes"].get(t) != [r0, c0]]
+    moved = [_size_line(t, size, new["sizes"].get(t))
+             for t, size in old["sizes"].items() if new["sizes"].get(t) != size]
     if moved:
         raise reply.Refusal("Nothing was written: the tab's shape changed since the plan.\n"
                             + "\n".join(moved) + "\nMake a new plan.")
@@ -300,12 +329,31 @@ def _check(old: dict[str, Any], new: dict[str, Any]) -> None:
 # ---- plan and apply --------------------------------------------------------------
 
 
-def _compile(spreadsheet_id: str, operations: list[dict[str, Any]]):
+def _book(spreadsheet_id: str) -> dict[str, Any]:
+    return sheets_api.get_spreadsheet(spreadsheet_id, fields=BOOK_FIELDS,
+                                      include_grid_data=False)
+
+
+def _compile(spreadsheet_id: str, operations: list[dict[str, Any]],
+             book: dict[str, Any] | None = None):
     if not operations:
         raise reply.Refusal("edit_sheet needs at least one operation.")
-    book = sheets_api.get_spreadsheet(spreadsheet_id, fields=BOOK_FIELDS,
-                                      include_grid_data=False)
-    return compile_ops(book, operations)
+    return compile_ops(book or _book(spreadsheet_id), operations)
+
+
+def _resized(before: dict[str, Any], sizes: dict[str, list[int]], after: dict[str, Any]
+             ) -> list[str]:
+    """Size lines for the guarded tabs whose counts the batch changed, found by
+    sheetId so a renamed tab keeps its line; a deleted tab is `gone`."""
+    now = {s["properties"]["sheetId"]: s["properties"] for s in after.get("sheets") or []}
+    lines = []
+    for title, size in sizes.items():
+        props = now.get(_tab(before, title)["properties"]["sheetId"])
+        grid = (props or {}).get("gridProperties") or {}
+        new = [grid.get("rowCount"), grid.get("columnCount")] if props else None
+        if new != size:
+            lines.append(_size_line(props["title"] if props else title, size, new))
+    return lines
 
 
 def plan(spreadsheet_id: str, operations: list[dict[str, Any]]) -> str:
@@ -327,7 +375,8 @@ def plan(spreadsheet_id: str, operations: list[dict[str, Any]]) -> str:
 
 def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
     state_store.current().expire_plan(plan_id)        # single use, applied or refused
-    requests, drive, ranges, tabs = _compile(spreadsheet_id, payload["operations"])
+    book = _book(spreadsheet_id)
+    requests, drive, ranges, tabs = _compile(spreadsheet_id, payload["operations"], book)
     _check(payload["fingerprint"], _fingerprint(spreadsheet_id, ranges, tabs))
     lines = []
     if requests:
@@ -335,6 +384,7 @@ def apply(spreadsheet_id: str, plan_id: str, payload: dict[str, Any]) -> str:
         writes.after_write(spreadsheet_id)
         lines.append(f"applied {len(requests)} {'request' if len(requests) == 1 else 'requests'}"
                      " in one batchUpdate")
+        lines += _resized(book, payload["fingerprint"]["sizes"], _book(spreadsheet_id))
         for req, rep in zip(requests, result.get("replies") or [], strict=False):
             if rep:
                 lines.append(f"  {next(iter(req))}: {json.dumps(rep, ensure_ascii=False)}")

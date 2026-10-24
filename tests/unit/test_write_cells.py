@@ -9,7 +9,7 @@ import re
 
 import pytest
 
-from gsheet_mcp import sheets_api
+from gsheet_mcp import guard, sheets_api, writes
 from tests.conftest import call
 from tests.fake_sheets import CANARY_ID
 
@@ -241,3 +241,82 @@ async def test_a_write_clears_the_scan_cache(ready, fake):
     assert len(fake.downloads) == exports + 1, "the read went back to the fake for its images"
     text, is_error = await call(ready, "read_range", spreadsheet=CANARY_ID, range="comms#1")
     assert is_error, "the scan's aliases went with the cache"
+
+
+# ---- fixes from the live test ------------------------------------------------------
+
+
+async def test_the_diff_shows_a_boolean_as_true_or_false_in_capitals(ready, fake):
+    planned, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                   range="comms!D4", values=True, dry_run=True)
+    assert not is_error, planned
+    assert 'D4: "FALSE" → "TRUE"' in planned, planned
+
+
+async def test_a_format_only_change_since_the_plan_is_named_in_the_refusal(ready, fake):
+    planned, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                   range="comms!H20", values="planned", dry_run=True)
+    assert not is_error, planned
+    _, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, range="comms!H20",
+                             format={"backgroundColor": {"red": 1, "green": 1, "blue": 0}})
+    assert not is_error
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                plan_id=_plan_id(planned))
+    assert is_error
+    assert "H20: format changed" in text, text
+
+
+async def test_the_receipt_names_a_merge_by_its_whole_range(ready, fake):
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                range="comms!B3", values="into the merge")
+    assert not is_error, text
+    assert "B3:C3: into the merge" in text, text
+
+
+async def test_a_format_only_receipt_shows_the_format_that_landed(ready, fake):
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID, range="comms!H21",
+                                format={"backgroundColor": {"red": 1, "green": 0.9, "blue": 0.8}})
+    assert not is_error, text
+    assert "H21 {s1}: (empty)" in text, text
+    assert re.search(r"s1 .*fill #", text), text
+
+
+async def test_values_has_a_json_type_for_a_cell_a_row_and_a_grid(ready):
+    (tool,) = [t for t in await ready.list_tools() if t.name == "write_cells"]
+    shapes = tool.input_schema["properties"]["values"]["anyOf"]
+    assert {"string", "number", "boolean", "array", "null"} <= {s.get("type") for s in shapes}
+    arrays = [s["items"] for s in shapes if s.get("type") == "array"]
+    cell = {"string", "integer", "number", "boolean", "null"}
+    row = [i for i in arrays if "anyOf" in i]
+    grid = [i for i in arrays if i.get("type") == "array"]
+    assert row and {t["type"] for t in row[0]["anyOf"]} == cell, arrays
+    assert grid and {t["type"] for t in grid[0]["items"]["anyOf"]} == cell, arrays
+
+
+async def test_a_write_into_hidden_rows_and_a_hidden_column_warns(ready, fake):
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                range="hidden!B5", values=[["a", "b"], ["c", "d"]],
+                                dry_run=True)
+    assert not is_error, text
+    assert "warning: B5:C6: lands in hidden rows 5-6, column C" in text, text
+
+
+async def test_a_write_into_a_hidden_tab_warns(ready, fake):
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                range="'hidden-tab'!A1", values="x", dry_run=True)
+    assert not is_error, text
+    assert "warning: A1: lands in the hidden tab 'hidden-tab'" in text, text
+
+
+async def test_a_write_over_the_cell_budget_is_refused_before_any_cell_is_read(
+        ready, fake, monkeypatch):
+    def no_read(*_a, **_k):
+        raise AssertionError("the guard read cells for a write it must refuse")
+
+    monkeypatch.setattr(writes, "WRITE_CELLS", 100, raising=False)
+    monkeypatch.setattr(guard, "read", no_read)
+    text, is_error = await call(ready, "write_cells", spreadsheet=CANARY_ID,
+                                range="comms!A1:L30", format={"textFormat": {"bold": True}})
+    assert is_error
+    assert "covers 360 cells; one call takes at most 100" in text, text
+    assert fake.batch_updates == []

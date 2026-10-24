@@ -214,7 +214,8 @@ The tab, filter and validation operations are **(default, review)**.
 - Table rows use the `write_cells` type rules, except that ISO dates are not converted.
 - `add_tab` without a size lets Sheets choose. A duplicated tab goes right after its source.
 - Drive comment calls run after the batch; a failed comment does not roll the batch back.
-- The structural guard reads values only for ranges: the touched cells, plus whole rows for a sort. Tab, freeze, hide, filter and filter-view operations are guarded by row and column counts only. Row and column operations are guarded on the rows given, not on the rows that shift. It fingerprints at most 5,000 cells.
+- The structural guard reads values only for ranges: the touched cells, plus whole rows for a sort. Tab, freeze, hide, filter and filter-view operations are guarded by row and column counts only. Row and column operations are guarded on the rows given, not on the rows that shift. It fingerprints at most 5,000 cells, and cuts its ranges to the tab's size and to that budget before it reads, in operation order and row by row, so a huge tab is never fetched whole (default, review).
+- `edit_sheet` has no column-width or formatting operation: widths go through raw `batch_update`, and fills, bold or number formats go through the `write_cells` `format` patch (default, review).
 
 **`run_sheet_script` and `batch_update` details (default, review):**
 - Both default to `dry_run=true`. `dry_run=false` without a `plan_id` is refused. A plan is tied to the tool that made it, and any other tool refuses it.
@@ -247,6 +248,8 @@ The tab, filter and validation operations are **(default, review)**.
   - A strict dropdown refuses values not in its list; a non-strict one warns. Dropdowns whose list comes from a range are not checked (default, review).
   - Overwriting a formula with a plain value warns.
   - New rows in a native Table go through `appendCells` with its `tableId`.
+- **Hidden targets warn (default, review).** A write that lands in hidden rows or columns, or in a hidden tab, still lands; the dry run and the receipt warn: `B5:C6: lands in hidden rows 5-6, column C` or `A1: lands in the hidden tab 'name'`.
+- **Size cap (default, review).** One `write_cells` call covers at most 50,000 cells, counted over its ranges before any cell is read; a bigger call is refused with a pointer to split it.
 - **Notes** are written through a note-only field mask.
 - **Comments** are added unanchored through Drive, because no public API anchors a new comment to a cell. Replies and resolve go to an existing thread.
 - **Images:** no inserts. `=IMAGE(url)` is allowed as a formula, with a warning that a person must allow external data once per file.
@@ -265,7 +268,7 @@ The tab, filter and validation operations are **(default, review)**.
   - *Structural writes:* also the tab's row and column counts and the values in the affected rows.
 - **The dry run** stores the fingerprint with its `plan_id` and returns a diff. Applying the plan re-reads and compares. A write without a plan re-reads just before writing; with no earlier fingerprint to compare, that read only feeds the refusals and warnings (default, review).
 - **A plan is used once (default, review).** Applying it uses it up, even when the guard refuses the apply. Landing a CLI upload fingerprints the target's formats as well as its values.
-- **On a change**, the whole batch is refused and nothing is applied. The reply lists up to 20 changed cells as `B4: "old" → "new"` and asks for a new plan.
+- **On a change**, the whole batch is refused and nothing is applied. The reply lists up to 20 changed cells as `B4: "old" → "new"` and asks for a new plan. A cell whose shown value is unchanged names what moved instead, e.g. `A11: format changed` (default, review).
 - **Tool descriptions and the skill** say the guard narrows the race to about one round trip. It is not a lock.
 
 ### 7.4 Receipts
