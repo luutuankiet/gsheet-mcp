@@ -1,7 +1,7 @@
 # Copied from google-docs-mcp@2fb4652 pyproject.toml; renamed, Docs-only dependencies dropped.
 [project]
 name = "gsheet-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "Remote MCP server for Google Sheets: scan, read, render and plan-checked writes"
 requires-python = ">=3.11"
 dependencies = [
