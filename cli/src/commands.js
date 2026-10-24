@@ -168,13 +168,15 @@ export async function query({ sql }, io) {
 
 export async function push({ sql, to, uploadUrl, spreadsheet }, io) {
   if (!sql) throw new CliError("needs SQL or a .sql file; see gsheet push --help", 2);
-  if (!to) throw new CliError("needs --to <tab or range>: where the result lands (a new tab or an empty range).", 2);
+  if (!to) throw new CliError("needs --to <tab or range>: where the result lands (an existing tab, or an empty range in one; create a tab first with edit_sheet add_tab).", 2);
   if (!uploadUrl) {
     throw new CliError("needs --upload <url>. Call the upload_slot MCP tool for a signed upload URL, " +
       "then run gsheet push again with --upload <that URL>.", 2);
   }
-  const path = resolve(io.cwd, sql);
-  const text = /\.sql$/i.test(sql.trim()) && existsSync(path) ? readFileSync(path, "utf-8") : sql;
+  const path = resolve(io.cwd, sql.trim());
+  const isFile = /\.sql$/i.test(sql.trim());
+  if (isFile && !existsSync(path)) throw new CliError(`file not found: ${sql.trim()} (looked in ${io.cwd}).`, 2);
+  const text = isFile ? readFileSync(path, "utf-8") : sql;
   const db = await openExisting(io);
   let columns, rows, id = spreadsheet;
   try {

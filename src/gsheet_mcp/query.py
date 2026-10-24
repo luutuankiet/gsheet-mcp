@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import datetime as dt
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 from . import a1, notation, reader, reply, scan, sheets_api
@@ -14,6 +14,9 @@ _CONDITION = re.compile(
     r"\s*(?P<value>.*?)\s*$", re.IGNORECASE)
 _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _SHEETS_EPOCH = dt.date(1899, 12, 30)
+# (default, review) the most cells a query fetches as grid data in one call;
+# a bigger range is refused before any fetch and sent to pull_tables.
+MAX_CELLS = 100_000
 
 
 @dataclass
@@ -29,6 +32,7 @@ class _Region:
     box: scan.Box
     header: int
     names: list[str]          # one per column of the box
+    leaves: list[str] = field(default_factory=list)   # last header row, when header > 1
 
 
 def _number(text: str) -> float | None:
@@ -53,11 +57,21 @@ def _cell_text(cell: dict[str, Any]) -> str:
 
 
 def _column(region: _Region, name: str) -> int:
-    """A column of the region by header name (any case) or by column letter."""
+    """A column of the region by header name (any case), by its leaf header
+    when the header has several rows and the leaf is unique, or by column letter."""
     wanted = name.strip().strip("'\"").casefold()
     for i, header in enumerate(region.names):
         if header and header.casefold() == wanted:
             return region.box.c0 + i
+    # (default, review) `Return ID` names `Returns / Return ID` when no other column's
+    # leaf is `Return ID`; an ambiguous leaf is refused with the joined names.
+    leaf = [i for i, header in enumerate(region.leaves) if header and header.casefold() == wanted]
+    if len(leaf) == 1:
+        return region.box.c0 + leaf[0]
+    if len(leaf) > 1:
+        raise reply.Refusal(f"{name!r} is the last header row of {len(leaf)} columns in "
+                            f"{region.box.a1()}; name one of them in full: "
+                            + ", ".join(region.names[i] for i in leaf))
     if re.fullmatch(r"[A-Za-z]{1,3}", name.strip()):
         col = a1.column_index(name.strip().upper())
         if region.box.c0 <= col <= region.box.c1:
@@ -128,13 +142,34 @@ def _pick_region(tab: scan.Tab, named: list[dict[str, Any]], box: scan.Box) -> _
             + ", ".join(r.a1() for r in tables)
             + "); pass one of them, or its scan alias, as the range")
     region = tables[0]
+    leaves: list[str] = []
     if region.label.startswith("Table") and region.names:
         header, names = 1, list(region.names)
     else:
         header = scan._header_rows(tab, region)
-        names = scan._header_names(tab, region, header, scan._merges_in(tab, region))
+        merges = scan._merges_in(tab, region)
+        names = scan._header_names(tab, region, header, merges)
+        if header > 1:
+            last = region.r0 + header - 1
+            for c in range(region.c0, region.c1 + 1):
+                merge = next((m for m in merges if m.contains(last, c)), None)
+                leaves.append(tab.text(merge.r0, merge.c0) if merge else tab.text(last, c))
     names += [""] * (region.c1 - region.c0 + 1 - len(names))
-    return _Region(region, header, names)
+    return _Region(region, header, names, leaves)
+
+
+def _check_size(rng: a1.Range, props: dict[str, Any]) -> None:
+    """Refuse a range over MAX_CELLS before its grid data is fetched."""
+    grid = props.get("gridProperties", {})
+    box = reader._box(rng, props)
+    rows = min(box.r1, grid.get("rowCount", 1) - 1) - box.r0 + 1
+    cols = min(box.c1, grid.get("columnCount", 1) - 1) - box.c0 + 1
+    if rows * cols > MAX_CELLS:
+        raise reply.Refusal(
+            f"{rng} is {rows:,} rows x {cols:,} columns ({rows * cols:,} cells), over "
+            f"query_range's {MAX_CELLS:,}-cell budget. Pull it with pull_tables and query it "
+            "in DuckDB with the gsheet CLI (`gsheet pull <manifest url>`, then "
+            "`gsheet query \"<sql>\"`), or pass a smaller range")
 
 
 def query(spreadsheet_id: str, rng: a1.Range, *, where: list[str], columns: list[str] | None,
@@ -143,6 +178,7 @@ def query(spreadsheet_id: str, rng: a1.Range, *, where: list[str], columns: list
     props = sheets_api.find_tab(sheets_api.get_tabs(spreadsheet_id), rng.tab)
     title = props["title"]
     rng = rng.with_tab(title)
+    _check_size(rng, props)
     book = sheets_api.get_spreadsheet(spreadsheet_id, [str(rng)], fields=sheets_api.LEAN_FIELDS)
     sheet = next(s for s in book.get("sheets", [])
                  if s["properties"]["sheetId"] == props["sheetId"])
@@ -185,7 +221,8 @@ def query(spreadsheet_id: str, rng: a1.Range, *, where: list[str], columns: list
             if all(_matches(c, tab.cells.get((r, c.col), {})) for c in conditions)]
     for col, desc in reversed(keys):
         filled = [r for r in rows if _cell_text(tab.cells.get((r, col), {}))]
-        empty = [r for r in rows if r not in filled]
+        has = set(filled)
+        empty = [r for r in rows if r not in has]
         filled.sort(key=lambda r, col=col: _sort_key(tab.cells.get((r, col), {})), reverse=desc)
         rows = filled + empty    # empty cells sort last either way
 
