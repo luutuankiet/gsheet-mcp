@@ -26,7 +26,7 @@ The stack is copied from the Docs MCP (`$DOCS_MCP_REPO`), file by file. It is no
 |---|---|
 | server | Python with FastMCP 4, stateless Streamable HTTP only (no stdio, no `token.json`) |
 | hosting | Cloud Run in `$GCP_PROJECT`, a service of its own |
-| sign-in | per-user Google OAuth, with the grant kept on the server; its own OAuth client, which stays in testing |
+| sign-in | per-user Google OAuth, with the grant kept on the server; its own OAuth client, which stays in testing. The server's own access token lasts 7 days, the limit Google puts on a testing app's refresh token, and the server refreshes the Google token itself, because Claude's connector asks for a new sign-in after a 401 instead of refreshing |
 | scopes | `spreadsheets`, `drive`, `openid`, `email`; scopes are never narrowed on refresh |
 | auth store | Firestore, a named database of its own, collection prefix `gsheet_mcp__` |
 | state store | a GCS bucket of its own with a one-day lifecycle; `signBlob` signed URLs |
