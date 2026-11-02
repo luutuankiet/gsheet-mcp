@@ -220,6 +220,15 @@ def test_provider_installs_cache_on_proxy_verifier():
     assert getattr(bound, "__self__", None).__class__ is http_mode.ValidationCache
 
 
+def test_provider_issues_a_seven_day_access_token():
+    # Private attribute; Claude's connector re-prompts sign-in instead of refreshing after a 401.
+    from key_value.aio.stores.memory import MemoryStore
+
+    settings, _ = http_mode.check_settings(GOOD_ENV)
+    provider = http_mode.build_provider(settings, MemoryStore())
+    assert provider._fastmcp_access_token_expiry_seconds == 7 * 24 * 3600
+
+
 # ---- fastmcp 4 behaviour we pin ------------------------------------
 
 

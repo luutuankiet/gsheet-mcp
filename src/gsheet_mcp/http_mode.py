@@ -40,6 +40,9 @@ GOOGLE_SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive",
 ]
+# Claude's connector does not always refresh after a 401, so our own token lives as long as
+# Google's 7-day refresh limit while the OAuth app is in Testing mode; the server refreshes Google's token itself.
+ACCESS_TOKEN_TTL_SECONDS = 7 * 24 * 3600
 # The key-value store joins prefix and collection with "__": `gsheet_mcp__<collection>`.
 COLLECTION_PREFIX = "gsheet_mcp"
 
@@ -176,6 +179,7 @@ def build_provider(settings: Settings, client_storage):
         redirect_path=REDIRECT_PATH,
         required_scopes=GOOGLE_SCOPES,
         client_storage=client_storage,
+        fastmcp_access_token_expiry_seconds=ACCESS_TOKEN_TTL_SECONDS,
     )
     # fastmcp has no validation cache; it calls this verifier on every request.
     # Private attribute, so fastmcp stays pinned below 5 and a test guards it.
