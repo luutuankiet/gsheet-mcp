@@ -16,6 +16,7 @@ from . import (  # noqa: F401
     render_range,
     run_sheet_script,
     scan_sheet,
+    sheet_images,
     table_status,
     upload_slot,
     write_cells,

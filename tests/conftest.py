@@ -11,7 +11,7 @@ from fastmcp.server.auth.auth import AccessToken
 from mcp.server.auth.middleware.auth_context import auth_context_var
 from mcp.server.auth.middleware.bearer_auth import AuthenticatedUser
 
-from gsheet_mcp import http_mode, sheets_api, state_store
+from gsheet_mcp import apps_script, http_mode, sheets_api, state_store
 from tests.fake_sheets import FakeDrive, FakeSheets
 
 CALLER_EMAIL = "canary@example.com"
@@ -42,7 +42,11 @@ def offline(monkeypatch: pytest.MonkeyPatch) -> list[float]:
     def no_download(url: str, timeout: float) -> bytes:
         raise AssertionError(f"a test reached an export link without FakeSheets: {url}")
 
+    def no_script(url: str, body: bytes, token: str):
+        raise AssertionError(f"a test reached the Apps Script API without a fake: {url}")
+
     waits: list[float] = []
+    monkeypatch.setattr(apps_script, "_post", no_script)
     monkeypatch.setattr(sheets_api, "_sheets_service", no_service)
     monkeypatch.setattr(sheets_api, "_drive_service", no_service)
     monkeypatch.setattr(sheets_api, "_download", no_download)

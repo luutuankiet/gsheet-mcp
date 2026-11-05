@@ -60,7 +60,7 @@ async def test_install_skill_returns_the_bundle(client):
     assert meta["instructions"] == skill_bundle.INSTRUCTIONS
     headings = re.findall(r"^## (.+)$", files[COOKBOOK], re.M)
     assert headings == ["Scan first", "The read notation", "The plan path", "When to render",
-                        "When to pull with the gsheet CLI", "The guard's limits"]
+                        "Images beside rows", "When to pull with the gsheet CLI", "The guard's limits"]
     assert "narrows the race to about one round trip. It is not a lock" in files[COOKBOOK]
 
 

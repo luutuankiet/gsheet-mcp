@@ -23,6 +23,8 @@ def render_range(spreadsheet: str, range: str | None = None,  # noqa: A002 - the
     page costs about 1,080 image tokens at `standard`. Renders are cached for
     10 minutes, so a repeat call costs no export.
 
+    With mcp-piper, add "_save_to": "/abs/dir/" to save the image to disk instead of reading it. Ask for the smallest size when you only need to check layout.
+
     Args:
       spreadsheet: the spreadsheet's URL or id.
       range: a tab plus an A1 range, `'table for comms'!B2:F8`, or a whole tab,

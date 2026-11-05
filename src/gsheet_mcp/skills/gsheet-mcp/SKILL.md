@@ -28,6 +28,7 @@ is cached for 10 minutes, and any write through these tools clears it.
 | Write values, formulas, rich text or a format patch | `write_cells` |
 | Freeze, hide, merge, insert, sort, filter, tabs, validation, notes, comments | `edit_sheet` |
 | Loops and logic over many cells | `run_sheet_script` |
+| Put a screenshot or chart over the grid, anchored to a cell; list, move, delete images | `sheet_images` |
 | Anything no typed tool covers (charts, pivots, conditional formats) | `batch_update` (raw requests) |
 | Tables into a local DuckDB file for SQL | `pull_tables`, then the `gsheet` CLI |
 | Has a pulled tab changed since the pull | `table_status` |
@@ -45,7 +46,7 @@ is cached for 10 minutes, and any write through these tools clears it.
 4. Read the receipt: it re-reads the touched cells in the read notation.
 
 The [cookbook](sheets-cookbook.md) covers each step: scan first, the plan
-path, when to render, when to pull with the `gsheet` CLI, the guard's limits
+path, when to render, images beside rows, when to pull with the `gsheet` CLI, the guard's limits
 and the full read notation table.
 
 ## Rules worth knowing before a write
@@ -59,5 +60,6 @@ and the full read notation table.
 - Refused: a covered cell of a merge, a non-boolean in a checkbox, a value
   outside a strict dropdown. Warned: plain text over rich text, a value over
   a formula, `=IMAGE(url)` (a person must allow external data once).
-- No image inserts. New comments are unanchored, because no public API anchors
-  a new comment to a cell.
+- Images go through `sheet_images`, one call per image, each file sent with
+  mcp-piper's `"@file64:/abs/path.png"`; see the cookbook. New comments are
+  unanchored, because no public API anchors a new comment to a cell.

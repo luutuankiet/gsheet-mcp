@@ -140,3 +140,60 @@ GSHEET_LIVE_URL=<service URL> \
 `GSHEET_LIVE_URL` is optional and adds the three no-sign-in checks above
 against the deployed service. If the token lacks a scope, the copy fails with
 `403 insufficient scopes`; get a token for an identity that has both.
+
+## 6. Floating images: the Apps Script project
+
+`sheet_images` needs an Apps Script project in `$GCP_PROJECT`, deployed as an
+API executable. Without it, `sheet_images` answers "not configured" and every
+other tool works. The source is `apps_script/`: `Code.js` and the manifest
+`appsscript.json`, which asks only for the `spreadsheets` scope and sets
+`executionApi.access` to `ANYONE`. No new OAuth scope, so nobody signs in again.
+
+1. Enable the Apps Script API on the project:
+   `gcloud services enable script.googleapis.com --project=$GCP_PROJECT`.
+   Each account that runs `clasp` also turns on the Apps Script API at
+   `https://script.google.com/home/usersettings`.
+2. Create the script with `clasp` (`npm i -g @google/clasp`, then `clasp login`):
+
+   ```
+   cd apps_script
+   clasp create-script --type standalone --title gsheet-mcp-images
+   ```
+
+   This writes `apps_script/.clasp.json` with the new id, `$APPS_SCRIPT_ID`.
+   That file is gitignored; `.clasp.json.example` shows its shape. `clasp
+   create-script` may overwrite `appsscript.json`: restore it with
+   `git checkout apps_script/appsscript.json`.
+3. Link it to the project, in the editor only (`clasp open-script`): Project
+   Settings, Google Cloud Platform (GCP) Project, Change project, enter the
+   project number `$PROJECT_NUMBER`. `scripts.run` accepts a script only from
+   the same Cloud project as the OAuth client that minted the caller's token.
+4. Push and deploy as an API executable:
+
+   ```
+   clasp push -f
+   clasp create-version "<what changed>"
+   clasp create-deployment -V <that version> -d "<what changed>"
+   ```
+
+   The first time, the editor's Deploy, New deployment, type "API Executable",
+   access "Anyone" makes the deployment API-executable. `scripts.run` runs the
+   latest versioned deployment, so every change to `Code.js` needs a new
+   version and deployment; `clasp push` alone changes nothing callers see.
+5. Set the env var on the service. It takes the script id from Project
+   Settings, not a deployment id:
+
+   ```
+   gcloud run services update gsheet-mcp --project=$GCP_PROJECT --region=<its region> \
+     --update-env-vars=GSHEET_MCP_APPS_SCRIPT_ID=$APPS_SCRIPT_ID
+   ```
+
+   `scripts/deploy` sets settings with `--update-env-vars`, so a redeploy keeps it.
+
+Check: `sheet_images` with `action="list"` on any sheet you can open answers
+`No floating images on the spreadsheet.` or a list. A 404 means the id is a
+deployment id or no versioned API-executable deployment exists; a 403 means
+the API is off or the access is not `ANYONE`.
+
+A tool added in a release reaches a connected client only after it
+reconnects, so each user reconnects once to see `sheet_images`.

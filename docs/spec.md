@@ -14,7 +14,6 @@ Every decision here was settled in a closed ticket on the map "Wayfinder map: gs
 - **Local SQL on tables** through the CLI and DuckDB, including several tables on one tab and tabs with millions of rows.
 
 Non-goals for the first build:
-- inserting images
 - syncing edited local rows back to the sheet
 - Google's hosted Sheets MCP endpoint, or any Developer Preview feature
 
@@ -34,6 +33,7 @@ The stack is copied from the Docs MCP (`$DOCS_MCP_REPO`), file by file. It is no
 | plans | dry run returns a `plan_id`, valid 1 hour, single use, for its caller only |
 | CLI | Node, `@luutuankiet/gsheet`, no Google credential, talks over signed URLs only |
 | DuckDB | in the CLI only; the server image carries no DuckDB |
+| floating images | an Apps Script project of the server's own, deployed as an API executable and run through `scripts.run` with the caller's token (section 7.5) |
 | names | package `gsheet_mcp`, env prefix `GSHEET_MCP_`, local folder `.gsheet/` |
 
 Rules carried over from the prior servers:
@@ -48,7 +48,7 @@ Rules carried over from the prior servers:
 From the research and from building the reference sheets:
 
 - **One `spreadsheets.get` covers almost every feature per cell and per tab**, if it carries a field mask and ranges. Without a lean mask, full grid data is far too big: 57 MB for 363 valued cells. The mask cuts it 7x to 146x.
-- **Plain REST never returns floating images.** The editor's xlsx export carries each image and its anchor, but not its alt text. A cell under a floating image reads empty.
+- **Plain REST never returns floating images.** The editor's xlsx export carries each image and its anchor, but not its alt text. A cell under a floating image reads empty. Plain REST cannot create, move or delete one either; only Apps Script can (section 7.5).
 - **Native Table `columnType`** comes back only when a column is typed. A missing type means untyped.
 - **Filter views never flag the rows they hide.** Only the basic filter and rows a user hid show as hidden.
 - **Charts come back as a spec only.** Dropdown chip colours come back nowhere. A rating chip reads as a number, with stars in `formattedValue`.
@@ -177,7 +177,7 @@ The details, all (default, review):
 - **Loses:** dropdown pill colours, partial star ratings and frozen panes.
 - **Rate limits:** renders are cached in the state store for 10 minutes and serialised per spreadsheet. Any write through our tools clears that spreadsheet's cached renders, as it does the scan cache. A 429 gets one retry with a backoff, then a visible refusal.
 
-There is no tool that returns one floating image's pixels in the first build. An agent sees them by rendering the range.
+There is no tool that returns one floating image's pixels. An agent sees them by rendering the range.
 
 ## 7. Writes
 
@@ -259,7 +259,7 @@ The tab, filter and validation operations are **(default, review)**.
 - **Size cap (default, review).** One `write_cells` call covers at most 50,000 cells, counted over its ranges before any cell is read; a bigger call is refused with a pointer to split it.
 - **Notes** are written through a note-only field mask.
 - **Comments** are added unanchored through Drive, because no public API anchors a new comment to a cell. Replies and resolve go to an existing thread.
-- **Images:** no inserts. `=IMAGE(url)` is allowed as a formula, with a warning that a person must allow external data once per file.
+- **Images:** floating images go through `sheet_images` (section 7.5). `=IMAGE(url)` is allowed as a formula, with a warning that a person must allow external data once per file.
 
 ### 7.3 Plans and the stale-write guard
 
@@ -288,6 +288,27 @@ The tab, filter and validation operations are **(default, review)**.
 - **Error index mapping (default, review).** The applied batch puts the plan's cell writes first and the caller's raw requests after them. When Google refuses it, every `requests[N]` in its message is renumbered to the caller's own list (`requests[0]` is the first raw request they sent); an index inside the cell writes reads `the cell writes`. The tool's `Cannot write to spreadsheet <id>: ...` wrapper and the status stay.
 - **Apply hint.** The dry run of `run_sheet_script` and `batch_update` ends with `apply: <tool> with plan_id="..." and dry_run=false; ...`.
 - **Any write clears the scan cache and the render cache.** Each spreadsheet has a generation token in the state store that every write replaces, and both cache keys include it, so one write hides every caller's cached scan and renders for that spreadsheet (default, review).
+
+### 7.5 Floating images: `sheet_images`
+
+The Sheets REST API has no request that creates a floating (over-grid) image and never returns one, so it can neither list nor move them. `sheet_images` runs four functions of an Apps Script project (`apps_script/Code.js`) through the Apps Script API, `scripts.run`, with the caller's own access token.
+
+| action | arguments | does |
+|---|---|---|
+| `insert` | `cell` (one cell, `'Evidence'!C4`), `image_base64`, optional `width_px`, `height_px`, `offset_x`, `offset_y`, `alt` | anchors the image at `cell`; returns its id |
+| `list` | optional `tab` | every image: id, anchor cell, size, offsets, alt-text title |
+| `move` | `id`, any of `cell` (same tab), size, offsets | re-anchors or resizes |
+| `delete` | `id`, `dry_run=false` | removes it; without `dry_run=false` it only previews |
+
+- **Ids.** Apps Script's `OverGridImage` has no stable id. `insert` writes `gsheet-mcp:<12 hex>` into the image's alt-text description, and that tag is its id from then on. An image inserted any other way gets `pos:<sheetId>:<index>`, its position in the tab's `getImages()`, which holds only until images on that tab are added or removed.
+- **Size.** With no size, the image keeps its own pixel size (no fit-to-cell). With one side, the other keeps the aspect ratio.
+- **Checks before the call.** Strict base64; the type from magic bytes (`\x89PNG`, `\xff\xd8\xff`, `GIF8`), anything else refused. Apps Script refuses a blob over 2 MiB (2,097,152 bytes) or over 1,048,576 pixels, so above either the server downscales with Pillow and adds a `warning:` line: PNG stays PNG, JPEG stays JPEG, a GIF becomes a PNG of its first frame, and a PNG that cannot fit becomes a JPEG.
+- **Request size.** The MCP layer refuses a request body over 4 MiB with HTTP 413 before the tool runs, so a file sent as base64 must stay under about 3 MB.
+- **Latency.** About 4 s for a small insert and about 21 s near the 2 MiB limit, nearly all of it the upload to `scripts.run`.
+- **Scopes.** The script's manifest lists only `spreadsheets`, and `executionApi.access` is `ANYONE`, so the provider's scopes are unchanged and nobody signs in again.
+- **Not configured.** With `GSHEET_MCP_APPS_SCRIPT_ID` unset, `sheet_images` refuses with a "not configured" message; every other tool is unchanged.
+- **Deploy.** `docs/deploy.md`, "Floating images: the Apps Script project". `scripts.run` takes the script id, not a deployment id, and runs the latest versioned API-executable deployment. The functions keep their parameter order; new parameters are appended.
+- Every insert, move and delete clears the scan cache and the render cache, as any write does.
 
 ## 8. Tables to DuckDB
 
@@ -354,6 +375,7 @@ The tab, filter and validation operations are **(default, review)**.
   - scan first, then read
   - the plan path for writes
   - when to render
+  - images beside rows
   - when to pull to DuckDB instead of reading
   - the stale-write guard's limits
   - the notation table

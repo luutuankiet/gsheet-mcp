@@ -8,3 +8,6 @@ __pycache__/
 # gsheet CLI
 cli/node_modules/
 .gsheet/
+
+# Apps Script: the real script id stays local; see apps_script/.clasp.json.example
+apps_script/.clasp.json

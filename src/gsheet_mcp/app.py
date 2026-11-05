@@ -25,6 +25,7 @@ from . import __version__, auth, reply
 INSTRUCTIONS = (
     "gsheet-mcp works in a Google Sheet from its URL. Start with `scan_sheet`, then read "
     "with `read_range`. Check who is signed in, and with which scopes, with `auth_status`. "
+    "Put images over the grid, anchored to a cell, with `sheet_images`. "
     "Before a sheet script, raw `batch_update` requests or a pull to DuckDB, load the "
     "gsheet-mcp skill with your own skill loader if it is installed, otherwise call "
     "`install_skill`."

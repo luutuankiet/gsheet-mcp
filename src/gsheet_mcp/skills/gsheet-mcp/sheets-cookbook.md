@@ -138,6 +138,43 @@ dropdown pill colours, partial star ratings and frozen panes. Renders are
 cached for 10 minutes and repeated exports can hit Google's rate limit, so
 render once, at `minimal` or `low` quality when that is enough.
 
+## Images beside rows
+
+`sheet_images` puts floating images over the grid, each anchored to a cell,
+and lists, moves and deletes them. Send every file with mcp-piper's
+`"@file64:/abs/path.png"`, so its bytes never pass through your context.
+
+An evidence table with one screenshot beside each row:
+
+1. Write the rows: `write_cells(spreadsheet, range="'Evidence'!A1", values=[["check",
+   "result", "screenshot"], ["sign-in", "ok", ""], ["export", "fails", ""]])`.
+2. One insert per row, anchored in the empty column:
+
+   ```json
+   {"spreadsheet": "<url>", "action": "insert", "cell": "'Evidence'!C2",
+    "image_base64": "@file64:/abs/shots/sign-in.png", "height_px": 60, "alt": "sign-in"}
+   ```
+
+   then the same with `'Evidence'!C3` and `/abs/shots/export.png`. Each reply
+   starts `Inserted gsheet-mcp:<token> · Evidence!C2 · 120x60 px`.
+3. Keep the ids: `move` and `delete` take them. `list` shows every image,
+   also ones a person inserted, which get a `pos:<tabId>:<index>` id that
+   holds only until images on that tab are added or removed.
+4. Check the layout once with `render_range` at `minimal`, adding
+   `"_save_to": "/abs/dir/"` to save the page to disk.
+
+- Rows do not grow to fit an image. Give one of `width_px` or `height_px` to
+  fit the row; the other side keeps the aspect ratio. With neither, the image
+  keeps its own pixel size.
+- Keep each file under about 3 MB: a request over 4 MiB is refused before
+  the tool runs. Over 2 MiB or 1,048,576 pixels the server downscales the
+  image and adds a `warning:` line.
+- A small insert takes about 4 seconds, so a 20-row table takes over a
+  minute.
+- `delete` only previews until you call it again with `dry_run=false`.
+- A server without the Apps Script project answers "not configured"; every
+  other tool still works.
+
 ## When to pull with the gsheet CLI
 
 Pull instead of reading when the question is SQL-shaped: joins, group-bys,

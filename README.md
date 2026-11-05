@@ -19,6 +19,7 @@ Every tool takes a spreadsheet URL or id. Call `install_skill` for the agent ski
 | `edit_sheet` | typed structural operations in one atomic batch, always planned |
 | `run_sheet_script` | a sandboxed JavaScript program for loops and logic, always planned |
 | `batch_update` | raw Sheets `batchUpdate` requests, always planned |
+| `sheet_images` | floating images anchored to a cell: insert, list, move, delete; needs the server's Apps Script project |
 | `pull_tables` | each tab's CSV export behind signed links, for the `gsheet` CLI and DuckDB |
 | `table_status` | a head-and-tail fingerprint of a tab, to tell whether a pull is stale |
 | `upload_slot` | a signed upload URL so a CLI query result can land back through `write_cells` |
