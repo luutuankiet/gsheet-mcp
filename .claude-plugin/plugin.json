@@ -1,0 +1,9 @@
+{
+  "name": "gsheet-mcp",
+  "description": "Read and edit Google Sheets through the gsheet-mcp MCP server",
+  "author": {
+    "name": "luutuankiet",
+    "url": "https://github.com/luutuankiet"
+  },
+  "skills": ["./src/gsheet_mcp/skills/gsheet-mcp"]
+}
